@@ -1,10 +1,15 @@
-FROM openjdk:21-jdk-alpine
+FROM eclipse-temurin:21-jdk-alpine AS build
+WORKDIR /workspace/app
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+COPY src src
+RUN chmod +x ./mvnw && ./mvnw clean package -DskipTests
 
-WORKDIR /gateway-service
-COPY target/gateway-service.jar app.jar
-
-EXPOSE 8080
-
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s CMD wget -qO- http://localhost:8080/actuator/health || exit 1
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY --from=build /workspace/app/target/*.jar app.jar
+EXPOSE ${PORT}
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s \
+  CMD wget -qO- http://localhost:${PORT}/actuator/health || exit 1
+ENTRYPOINT ["java", "-jar", "app.jar", "com.diario.gatewayservice.GatewayServiceApplication"]
