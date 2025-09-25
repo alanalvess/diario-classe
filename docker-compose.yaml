@@ -1,0 +1,101 @@
+version: "3.8"
+
+services:
+
+  database-service:
+    image: mysql
+    restart: always
+    container_name: database-service
+    environment:
+      MYSQL_DATABASE: 'diario-classe'
+      MYSQL_USER: 'root'
+      MYSQL_PASSWORD: 'root'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-mysql-volume:/var/lib/mysql
+    networks:
+      - servidores
+
+  config-service:
+    tty: true
+    container_name: config-service
+    build: configServer
+    ports:
+      - "8888:8888"
+    depends_on:
+      - eureka-service
+    networks:
+      - servidores
+
+  eureka-service:
+    tty: true
+    container_name: eureka-service
+    build: eurekaServer
+    ports:
+      - "8761:8761"
+    depends_on:
+      - config-service
+    networks:
+      - servidores
+
+  gateway-service:
+    tty: true
+    container_name: gateway-service
+    build: gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-service
+      - config-service
+    networks:
+      - servidores
+
+  user-service:
+    tty: true
+    container_name: user-service
+    build: userService
+    ports:
+      - "8091:8091"
+    depends_on:
+      - eureka-service
+      - config-service
+      - database-service
+    networks:
+      - servidores
+
+  aluno-service:
+    tty: true
+    container_name: aluno-service
+    build: alunoService
+    ports:
+      - "8092:8092"
+    depends_on:
+      - eureka-service
+      - config-service
+      - database-service
+    networks:
+      - servidores
+    environment:
+      CONFIG_URL: http://config-service:8888
+
+  professor-service:
+    tty: true
+    container_name: professor-service
+    build: professorService
+    ports:
+      - "8093:8093"
+    depends_on:
+      - eureka-service
+      - config-service
+      - database-service
+    networks:
+      - servidores
+
+networks:
+  servidores:
+    driver: bridge
+
+volumes:
+  db-mysql-volume: {}
