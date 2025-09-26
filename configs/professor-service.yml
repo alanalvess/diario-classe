@@ -16,7 +16,7 @@ info:
 springdoc:
   api-docs:
     path: /v3/api-docs
-    enabled: ${SWAGGER_ENABLED}
+    enabled: false
   swagger-ui:
     path: /swagger-ui.html
     operationsSorter: method
@@ -24,5 +24,3 @@ springdoc:
     use-root-path: true
   packagesToScan: com.diario.professorservice.controller
 
-jwt:
-  secret: ${SECRET}

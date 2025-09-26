@@ -78,7 +78,3 @@ info:
   app:
     name: gateway-service
     description: Gateway Service Application
-
-jwt:
-  secret: ${SECRET}
-  expiration: ${JWT_EXPIRATION}

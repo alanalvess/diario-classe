@@ -119,7 +119,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <finalName>gateway</finalName>
+                    <finalName>gateway-service</finalName>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

@@ -1,6 +1,10 @@
 server:
   port: ${PORT}
 
+jwt:
+  secret: ${SECRET}
+  expiration: ${JWT_EXPIRATION}
+
 spring:
   config:
     import: optional:configserver:${CONFIG_URL}

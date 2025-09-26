@@ -16,13 +16,10 @@ info:
 springdoc:
   api-docs:
     path: /v3/api-docs
-    enabled: ${SWAGGER_ENABLED}
+    enabled: false
   swagger-ui:
     path: /swagger-ui.html
     operationsSorter: method
     disable-swagger-default-url: true
     use-root-path: true
   packagesToScan: com.diario.alunoservice.controller
-
-jwt:
-  secret: ${SECRET}

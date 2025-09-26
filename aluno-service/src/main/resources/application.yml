@@ -1,6 +1,9 @@
 server:
   port: ${PORT}
 
+jwt:
+  secret: ${SECRET}
+
 spring:
   config:
     import: optional:configserver:${CONFIG_URL}
