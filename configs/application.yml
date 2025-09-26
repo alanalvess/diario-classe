@@ -1,0 +1,33 @@
+spring:
+  config:
+    import: optional:configserver:${CONFIG_URL}
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_URL}
+
+management:
+  info:
+    env:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always
+  health:
+    diskspace:
+      enabled: true
+      path: /
+      threshold: 10MB
+
+info:
+  app:
+    version: 1.0.0

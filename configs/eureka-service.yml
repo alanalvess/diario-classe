@@ -1,0 +1,21 @@
+server:
+  port: ${PORT}
+
+spring:
+  application:
+    name: ${HOSTNAME}
+
+eureka:
+  instance:
+    hostname: ${HOSTNAME}
+  server:
+    wait-time-in-ms-when-sync-empty: 300000
+
+message: Eureka Service is up
+
+info:
+  app:
+    name: ${HOSTNAME}
+    description: Eureka Service Registry
+  svc:
+    port: ${PORT}

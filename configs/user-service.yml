@@ -8,42 +8,15 @@ spring:
   application:
     name: ${HOSTNAME}
 
-  config:
-    import: optional:configserver:${CONFIG_URL}
-
 eureka:
   instance:
     hostname: ${HOSTNAME}
-    prefer-ip-address: true
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: ${EUREKA_URL}
 
 message: User service is up
-
-management:
-  info:
-    env:
-      enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: health, info
-  endpoint:
-    health:
-      show-details: always
-  health:
-    diskspace:
-      enabled: true
-      path: /
-      threshold: 10MB
 
 info:
   app:
     name: ${HOSTNAME}
-    version: 1.0.0
     description: User Service Application
   svc:
     port: ${PORT}
