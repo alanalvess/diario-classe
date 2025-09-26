@@ -1,9 +1,6 @@
-server:
-  port: ${PORT}
-
 spring:
   application:
-    name: ${HOSTNAME}
+    name: gateway-service
 
   cloud:
     gateway:
@@ -73,16 +70,14 @@ resilience4j:
 
 eureka:
   instance:
-    hostname: ${HOSTNAME}
+    hostname: gateway-service
 
 message: Gateway Service is up
 
 info:
   app:
-    name: ${HOSTNAME}
+    name: gateway-service
     description: Gateway Service Application
-  svc:
-    port: ${PORT}
 
 jwt:
   secret: ${SECRET}

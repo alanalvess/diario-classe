@@ -1,13 +1,10 @@
-server:
-  port: ${PORT}
-
 spring:
   application:
-    name: ${HOSTNAME}
+    name: eureka-service
 
 eureka:
   instance:
-    hostname: ${HOSTNAME}
+    hostname: eureka-service
   server:
     wait-time-in-ms-when-sync-empty: 300000
 
@@ -15,7 +12,5 @@ message: Eureka Service is up
 
 info:
   app:
-    name: ${HOSTNAME}
+    name: eureka-service
     description: Eureka Service Registry
-  svc:
-    port: ${PORT}

@@ -1,21 +1,17 @@
-server:
-  port: ${PORT}
-
+spring:
   application:
-    name: ${HOSTNAME}
+    name: user-service
 
 eureka:
   instance:
-    hostname: ${HOSTNAME}
+    hostname: user-service
 
 message: User service is up
 
 info:
   app:
-    name: ${HOSTNAME}
+    name: user-service
     description: User Service Application
-  svc:
-    port: ${PORT}
 
 springdoc:
   api-docs:

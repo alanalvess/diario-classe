@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: ${HOSTNAME}
+    name: config-service
 
   cloud:
     config:
@@ -19,7 +19,7 @@ spring:
 
 eureka:
   instance:
-    hostname: ${HOSTNAME}
+    hostname: config-service
     prefer-ip-address: true
   client:
     register-with-eureka: true
@@ -48,6 +48,5 @@ management:
 
 info:
   app:
-    name: ${HOSTNAME}
+    name: config-service
     description: Centralized Configuration Service
-    version: 1.0.0
