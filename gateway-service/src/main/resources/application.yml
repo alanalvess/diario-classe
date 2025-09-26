@@ -8,3 +8,8 @@ jwt:
 spring:
   config:
     import: optional:configserver:${CONFIG_URL}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL}
