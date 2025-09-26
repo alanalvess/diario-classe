@@ -1,8 +1,53 @@
+server:
+  port: ${PORT}
+
 spring:
+  application:
+    name: ${HOSTNAME}
+
   cloud:
     config:
       server:
         git:
           uri: ${GITHUB_URL}
+          default-label: main
+          clone-on-start: true
+          force-pull: true
           search-paths:
             - configs
+          timeout: 5
+
+eureka:
+  instance:
+    hostname: ${HOSTNAME}
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_URL}
+
+message: Config Service is up
+
+management:
+  info:
+    env:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always
+  health:
+    diskspace:
+      enabled: true
+      path: /
+      threshold: 10MB
+
+info:
+  app:
+    name: ${HOSTNAME}
+    description: Centralized Configuration Service
+    version: 1.0.0
