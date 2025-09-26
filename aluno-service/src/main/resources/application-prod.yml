@@ -9,8 +9,7 @@ spring:
       jakarta:
         persistence:
           sharedCache:
-            mode:
-              ENABLE_SELECTIVE
+            mode: ENABLE_SELECTIVE
 
   datasource:
     url: jdbc:postgresql://${POSTGRESHOST}:${POSTGRESPORT}/${POSTGRESDATABASE}
