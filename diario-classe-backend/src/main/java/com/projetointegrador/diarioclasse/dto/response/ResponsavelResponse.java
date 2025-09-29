@@ -9,6 +9,6 @@ public record ResponsavelResponse(
         String nome,
         String email,
         String telefone,
-        Set<Aluno> alunos
+        Set<Long> alunoIds
 ) {
 }

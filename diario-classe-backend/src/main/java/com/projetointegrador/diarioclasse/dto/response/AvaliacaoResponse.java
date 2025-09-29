@@ -12,8 +12,8 @@ public record AvaliacaoResponse(
         String titulo,
         LocalDate data,
         Double peso,
-        Turma turma,
-        Disciplina disciplina,
-        List<Nota> notas
+        Long turmaId,
+        Long disciplinaId,
+        Double media
 ) {
 }

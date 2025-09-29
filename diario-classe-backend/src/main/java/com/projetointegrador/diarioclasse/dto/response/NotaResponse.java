@@ -9,9 +9,9 @@ import java.time.LocalDate;
 public record NotaResponse(
         Long id,
         Double valor,
-        Aluno aluno,
-        Disciplina disciplina,
-        Avaliacao avaliacao,
+        Long alunoId,
+        Long disciplinaId,
+        Long avaliacaoId,
         LocalDate dataLancamento
 ) {
 }

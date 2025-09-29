@@ -11,11 +11,6 @@ public record AlunoResponse(
         String nome,
         String matricula,
         LocalDate dataNascimento,
-        Double mediaGeral,
-        Double frequenciaGeral,
-        Boolean riscoReprovacao,
-        Boolean riscoEvasao,
-        Turma turma,
-        Set<Responsavel> responsaveis
+        Long turmaId
 ) {
 }

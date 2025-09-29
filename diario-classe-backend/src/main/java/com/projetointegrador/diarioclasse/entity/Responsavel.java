@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -26,20 +27,30 @@ public class Responsavel {
     private String telefone;
 
     @ManyToMany
+    @JoinTable(
+            name = "responsavel_aluno",
+            joinColumns = @JoinColumn(name = "responsavel_id"),
+            inverseJoinColumns = @JoinColumn(name = "aluno_id")
+    )
     private Set<Aluno> alunos;
 
-    // Métodos
     public List<Nota> visualizarNotasDoFilho(Aluno aluno) {
-        return new ArrayList<>();
+        if (alunos == null || !alunos.contains(aluno)) return Collections.emptyList();
+        return aluno.getAlunoDisciplinas().stream()
+                .flatMap(ad -> ad.getDisciplina().getAvaliacoes().stream())
+                .flatMap(av -> av.getNotas().stream())
+                .filter(n -> n.getAluno().equals(aluno))
+                .toList();
     }
 
     public List<Presenca> visualizarPresencaDoFilho(Aluno aluno) {
-        return new ArrayList<>();
+        if (alunos == null || !alunos.contains(aluno)) return Collections.emptyList();
+        return aluno.getPresencas();
     }
 
     public List<Observacao> visualizarObservacoesDoFilho(Aluno aluno) {
-        return new ArrayList<>();
+        if (alunos == null || !alunos.contains(aluno)) return Collections.emptyList();
+        return aluno.getObservacoes();
     }
-
 }
 

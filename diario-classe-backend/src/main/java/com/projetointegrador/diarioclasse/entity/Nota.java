@@ -20,20 +20,21 @@ public class Nota {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Double valor;
+    private LocalDate dataLancamento;
 
     @ManyToOne
+    @JoinColumn(name = "aluno_id", nullable = false)
     private Aluno aluno;
 
     @ManyToOne
+    @JoinColumn(name = "disciplina_id", nullable = false)
     private Disciplina disciplina;
 
     @ManyToOne
+    @JoinColumn(name = "avaliacao_id", nullable = false)
     private Avaliacao avaliacao;
 
-    private LocalDate dataLancamento;
-
-    // normalmente apenas getters/setters, mas pode ter utilitário
     public Boolean estaAprovado(Double mediaMinima) {
+        if (valor == null) return false;
         return valor >= mediaMinima;
-    }
-}
+    }}

@@ -21,17 +21,18 @@ public class Observacao {
     private Long id;
     private LocalDate data;
     private String descricao;
+    private String categoria;
 
     @ManyToOne
+    @JoinColumn(name = "professor_id", nullable = false)
     private Professor professor;
 
     @ManyToOne
+    @JoinColumn(name = "aluno_id", nullable = false)
     private Aluno aluno;
 
-    private String categoria; // COMPORTAMENTO, PARTICIPACAO, ATIVIDADE
 
     public Boolean isCategoriaComportamento() {
-        return "COMPORTAMENTO".equals(categoria);
+        return "comportamento".equalsIgnoreCase(this.categoria);
     }
-
 }

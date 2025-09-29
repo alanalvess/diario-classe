@@ -16,26 +16,6 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(CategoriaNaoEncontradaException.class)
-    public ResponseEntity<Map<String, Object>> tratarCategoriaNaoEncontrada(CategoriaNaoEncontradaException ex) {
-        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
-    }
-
-    @ExceptionHandler(MarcaNaoEncontradaException.class)
-    public ResponseEntity<Map<String, Object>> tratarMarcaNaoEncontrada(MarcaNaoEncontradaException ex) {
-        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
-    }
-
-    @ExceptionHandler(FornecedorNaoEncontradoException.class)
-    public ResponseEntity<Map<String, Object>> tratarFornecedorNaoEncontrado(FornecedorNaoEncontradoException ex) {
-        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
-    }
-
-    @ExceptionHandler(ProdutoNaoEncontradoException.class)
-    public ResponseEntity<Map<String, Object>> tratarProdutoNaoEncontrado(ProdutoNaoEncontradoException ex) {
-        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
-    }
-
     @ExceptionHandler(UsuarioNaoEncontradoException.class)
     public ResponseEntity<Map<String, Object>> tratarUsuarioNaoEncontrado(UsuarioNaoEncontradoException ex) {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
@@ -44,16 +24,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsuarioNaoAutorizadoException.class)
     public ResponseEntity<Map<String, Object>> tratarUsuarioNaoAutorizado(UsuarioNaoAutorizadoException ex) {
         return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
-    }
-
-    @ExceptionHandler(FornecedorDuplicadoException.class)
-    public ResponseEntity<Map<String, Object>> tratarFornecedorDuplicado(FornecedorDuplicadoException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
-    @ExceptionHandler(ProdutoDuplicadoException.class)
-    public ResponseEntity<Map<String, Object>> tratarProdutoDuplicado(ProdutoDuplicadoException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

@@ -10,7 +10,7 @@ public record ProfessorResponse(
         Long id,
         String nome,
         String email,
-        Set<Disciplina> disciplinas,
-        List<Turma> turmas
+        Set<Long> disciplinaIds,
+        List<Long> turmaIds
 ) {
 }

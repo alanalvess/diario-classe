@@ -5,10 +5,9 @@ import com.projetointegrador.diarioclasse.entity.Aluno;
 import java.util.Set;
 
 public record ResponsavelRequest(
-        Long id,
         String nome,
         String email,
         String telefone,
-        Set<Aluno> alunos
+        Set<Long> alunoIds
 ) {
 }

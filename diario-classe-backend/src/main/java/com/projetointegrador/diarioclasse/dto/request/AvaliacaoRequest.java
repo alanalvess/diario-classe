@@ -8,12 +8,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record AvaliacaoRequest(
-        Long id,
         String titulo,
         LocalDate data,
         Double peso,
-        Turma turma,
-        Disciplina disciplina,
-        List<Nota> notas
+        Long turmaId,
+        Long disciplinaId
 ) {
 }

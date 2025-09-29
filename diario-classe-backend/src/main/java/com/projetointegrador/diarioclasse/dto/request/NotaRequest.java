@@ -7,11 +7,10 @@ import com.projetointegrador.diarioclasse.entity.Disciplina;
 import java.time.LocalDate;
 
 public record NotaRequest(
-        Long id,
         Double valor,
-        Aluno aluno,
-        Disciplina disciplina,
-        Avaliacao avaliacao,
+        Long alunoId,
+        Long disciplinaId,
+        Long avaliacaoId,
         LocalDate dataLancamento
 ) {
 }

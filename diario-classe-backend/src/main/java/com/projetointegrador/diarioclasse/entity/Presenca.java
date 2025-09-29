@@ -16,22 +16,23 @@ import java.time.LocalDate;
 @Table(name = "tb_presenca")
 public class Presenca {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private LocalDate data;
     private Boolean presente;
+    private String metodoChamada;
 
     @ManyToOne
+    @JoinColumn(name = "aluno_id", nullable = false)
     private Aluno aluno;
 
     @ManyToOne
+    @JoinColumn(name = "turma_id", nullable = false)
     private Turma turma;
 
-    private String metodoChamada;
-
     // métodos utilitários
-    public Boolean isFaltou() {
-        return !presente;
-    }
-}
+    public Boolean isPresente() {
+        return Boolean.TRUE.equals(presente);
+    }}

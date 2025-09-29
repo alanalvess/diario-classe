@@ -5,10 +5,9 @@ import com.projetointegrador.diarioclasse.entity.Aluno;
 import java.util.Set;
 
 public record TurmaRequest(
-        Long id,
         String nome,
-        String email,
-        String telefone,
-        Set<Aluno> alunos
+        String anoLetivo,
+        Set<Long> professorIds,
+        Set<Long> disciplinaIds
 ) {
 }

@@ -9,8 +9,8 @@ public record PresencaResponse(
         Long id,
         LocalDate data,
         Boolean presente,
-        Aluno aluno,
-        Turma turma,
+        Long alunoId,
+        Long turmaId,
         String metodoChamada
 ) {
 }

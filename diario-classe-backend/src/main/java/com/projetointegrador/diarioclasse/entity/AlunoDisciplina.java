@@ -19,12 +19,19 @@ public class AlunoDisciplina {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "aluno_id", nullable = false)
     private Aluno aluno;
 
     @ManyToOne
+    @JoinColumn(name = "disciplina_id", nullable = false)
     private Disciplina disciplina;
 
     @ManyToOne
+    @JoinColumn(name = "turma_id", nullable = false)
     private Turma turma;
+
+    private Double notaFinal;
+    private Double frequencia;
+    private String observacoes;
 }
 

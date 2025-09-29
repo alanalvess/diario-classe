@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -25,30 +26,30 @@ public class Avaliacao {
     private Double peso;
 
     @ManyToOne
+    @JoinColumn(name = "turma_id", nullable = false)
     private Turma turma;
 
     @ManyToOne
+    @JoinColumn(name = "disciplina_id", nullable = false)
     private Disciplina disciplina;
 
     @OneToMany(mappedBy = "avaliacao")
     private List<Nota> notas;
 
-    // média ponderada das notas
     public Double calcularMedia() {
-        Double media = 0.0;
-        for (Nota nota : notas) {
-            return 0.0;
-        }
-        return media;
+        if (notas == null || notas.isEmpty()) return 0.0;
+
+        double soma = notas.stream()
+                .mapToDouble(Nota::getValor)
+                .sum();
+
+        return soma / notas.size();
     }
 
     public Nota buscarNotaDoAluno(Aluno aluno) {
-        for (Nota nota : notas) {
-            if (nota.getAluno().equals(aluno)) {
-                return nota;
-            }
-        }
-        return null;
+        return notas.stream()
+                .filter(n -> n.getAluno().equals(aluno))
+                .findFirst()
+                .orElse(null);
     }
-
 }

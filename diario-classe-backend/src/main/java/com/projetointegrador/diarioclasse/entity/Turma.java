@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -24,15 +25,21 @@ public class Turma {
     private Double mediaTurma;
     private Double frequenciaMedia;
 
+    @ManyToMany
     @JoinTable(
             name = "turma_professor",
             joinColumns = @JoinColumn(name = "turma_id"),
             inverseJoinColumns = @JoinColumn(name = "professor_id")
     )
-
-    @ManyToMany
     private Set<Professor> professores;
 
+    @ManyToMany
+    @JoinTable(
+            name = "turma_disciplina",
+            joinColumns = @JoinColumn(name = "turma_id"),
+            inverseJoinColumns = @JoinColumn(name = "disciplina_id")
+    )
+    private Set<Disciplina> disciplinas;
 
     @OneToMany(mappedBy = "turma")
     private List<Aluno> alunos;
@@ -40,24 +47,28 @@ public class Turma {
     @OneToMany(mappedBy = "turma")
     private List<Avaliacao> avaliacoes;
 
-    @ManyToMany
-    private Set<Disciplina> disciplinas;
-
-    // média de todas as notas de todos os alunos
     public Double calcularMediaTurma() {
-        return 0.0;
+        if (alunos == null || alunos.isEmpty()) return 0.0;
+        return alunos.stream()
+                .filter(a -> a.getAlunoDisciplinas() != null)
+                .mapToDouble(Aluno::calcularMediaGeral)
+                .average()
+                .orElse(0.0);
     }
 
-    // média de presença
     public Double calcularFrequenciaMedia() {
-        return 0.0;
+        if (alunos == null || alunos.isEmpty()) return 0.0;
+        return alunos.stream()
+                .mapToDouble(Aluno::calcularFrequenciaGeral)
+                .average()
+                .orElse(0.0);
     }
 
     public List<Aluno> listarAlunos() {
-        return new ArrayList<>();
+        return alunos != null ? alunos : Collections.emptyList();
     }
 
     public List<Disciplina> listarDisciplinas() {
-        return new ArrayList<>();
+        return disciplinas != null ? new ArrayList<>(disciplinas) : Collections.emptyList();
     }
 }
