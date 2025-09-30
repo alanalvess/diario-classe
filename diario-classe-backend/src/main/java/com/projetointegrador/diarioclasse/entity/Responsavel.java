@@ -34,6 +34,12 @@ public class Responsavel {
     )
     private Set<Aluno> alunos;
 
+    public Responsavel(Long id, String nome, String email) {
+        this.id = id;
+        this.nome = nome;
+        this.email = email;
+    }
+
     public List<Nota> visualizarNotasDoFilho(Aluno aluno) {
         if (alunos == null || !alunos.contains(aluno)) return Collections.emptyList();
         return aluno.getAlunoDisciplinas().stream()

@@ -1,4 +1,4 @@
-package com.projetointegrador.diarioclasse.configuration;
+package com.projetointegrador.diarioclasse.config;
 
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;

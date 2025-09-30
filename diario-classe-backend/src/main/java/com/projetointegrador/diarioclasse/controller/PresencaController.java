@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -40,6 +41,24 @@ public class PresencaController {
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         presencaService.deletar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/presenca/scan")
+    public ResponseEntity<String> registrarPresencaQR(@RequestParam Long alunoId,
+                                                      @RequestParam Long turmaId) {
+        // Monta o request para o service
+        PresencaRequest request = new PresencaRequest(
+                LocalDate.now(),   // data da leitura
+                true,              // aluno presente
+                alunoId,
+                turmaId,
+                "QR_CODE"          // método de chamada
+        );
+
+        // Chama o service existente
+        presencaService.registrar(request);
+
+        return ResponseEntity.ok("✅ Presença registrada via QR Code!");
     }
 }
 

@@ -1,10 +1,12 @@
 package com.projetointegrador.diarioclasse.entity;
 
+import com.projetointegrador.diarioclasse.dto.ResponsavelDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.catalina.util.ResourceSet;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -47,6 +49,13 @@ public class Aluno {
 
     @OneToMany(mappedBy = "aluno")
     private List<Observacao> observacoes;
+
+    public Aluno(Long id, String nome, List<ResponsavelDTO> responsaveisDto) {
+        this.id = id;
+        this.nome = nome;
+        this.responsaveis = responsaveisDto.stream()
+                .map(r -> new Responsavel(null, r.nome(), r.email())).collect(Collectors.toSet());
+    }
 
     //    // média de todas as notas
 //    public double calcularMediaGeral() {
