@@ -12,7 +12,7 @@ public record TurmaResponse(
         Double mediaTurma,
         Double frequenciaMedia,
         Set<Long> professorIds,
-        Set<Long> disciplinaIds,
+        List<Long> disciplinaIds,
         List<Long> alunoIds
 ) {
 }

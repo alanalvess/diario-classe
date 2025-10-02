@@ -1,5 +1,6 @@
 package com.projetointegrador.diarioclasse.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,9 +40,10 @@ public class Turma {
             joinColumns = @JoinColumn(name = "turma_id"),
             inverseJoinColumns = @JoinColumn(name = "disciplina_id")
     )
-    private Set<Disciplina> disciplinas;
+    private List<Disciplina> disciplinas;
 
     @OneToMany(mappedBy = "turma")
+    @JsonIgnoreProperties("turma")
     private List<Aluno> alunos;
 
     @OneToMany(mappedBy = "turma")

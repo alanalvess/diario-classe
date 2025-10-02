@@ -1,5 +1,6 @@
 package com.projetointegrador.diarioclasse.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,10 +27,12 @@ public class Presenca {
 
     @ManyToOne
     @JoinColumn(name = "aluno_id", nullable = false)
+    @JsonIgnoreProperties({"alunos", "presencas"})
     private Aluno aluno;
 
     @ManyToOne
     @JoinColumn(name = "turma_id", nullable = false)
+    @JsonIgnoreProperties({"alunos", "presencas"})
     private Turma turma;
 
     // métodos utilitários

@@ -29,7 +29,7 @@ public class Professor {
             joinColumns = @JoinColumn(name = "professor_id"),
             inverseJoinColumns = @JoinColumn(name = "disciplina_id")
     )
-    private Set<Disciplina> disciplinas;
+    private List<Disciplina> disciplinas;
 
     @ManyToMany(mappedBy = "professores")
     private Set<Turma> turmas;
@@ -57,7 +57,7 @@ public class Professor {
     public Observacao registrarObservacao(Aluno aluno, String descricao, String categoria) {
         return Observacao.builder()
                 .aluno(aluno)
-                .professor(this)
+//                .professor(this)
                 .descricao(descricao)
                 .categoria(categoria)
                 .data(LocalDate.now())

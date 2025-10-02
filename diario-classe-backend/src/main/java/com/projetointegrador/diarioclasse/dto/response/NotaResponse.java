@@ -10,6 +10,7 @@ public record NotaResponse(
         Long id,
         Double valor,
         Long alunoId,
+        String alunoNome,
         Long disciplinaId,
         Long avaliacaoId,
         LocalDate dataLancamento
