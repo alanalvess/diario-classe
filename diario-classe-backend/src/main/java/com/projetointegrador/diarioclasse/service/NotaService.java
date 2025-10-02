@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -36,13 +37,28 @@ public class NotaService {
         Avaliacao avaliacao = avaliacaoRepository.findById(request.avaliacaoId())
                 .orElseThrow(() -> new EntityNotFoundException("Avaliação não encontrada"));
 
-        Nota nota = Nota.builder()
-                .valor(request.valor())
-                .aluno(aluno)
-                .disciplina(disciplina)
-                .avaliacao(avaliacao)
-                .dataLancamento(request.dataLancamento() != null ? request.dataLancamento() : LocalDate.now())
-                .build();
+        Optional<Nota> notaExistente = notaRepository.findByAlunoIdAndDisciplinaIdAndAvaliacaoId((
+                request.alunoId()), request.disciplinaId(), request.avaliacaoId()
+        );
+
+        Nota nota;
+        if (notaExistente.isPresent()) {
+            // Atualiza
+            nota = notaExistente.get();
+            nota.setValor(request.valor());
+        } else {
+            // Cria nova
+
+            nota = Nota.builder()
+                    .valor(request.valor())
+                    .aluno(aluno)
+                    .disciplina(disciplinaRepository.findById(request.disciplinaId()).orElseThrow())
+                    .avaliacao(avaliacaoRepository.findById(request.avaliacaoId()).orElseThrow())
+                    .dataLancamento(request.dataLancamento() != null ? request.dataLancamento() : LocalDate.now())
+                    .build();
+        }
+
+//        return notaRepository.save(nota);
 
         return toResponse(notaRepository.save(nota));
     }
@@ -83,6 +99,7 @@ public class NotaService {
                 nota.getId(),
                 nota.getValor(),
                 nota.getAluno().getId(),
+                nota.getAluno().getNome(),
                 nota.getDisciplina().getId(),
                 nota.getAvaliacao().getId(),
                 nota.getDataLancamento()

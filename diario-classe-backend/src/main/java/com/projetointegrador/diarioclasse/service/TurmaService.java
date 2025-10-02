@@ -35,10 +35,10 @@ public class TurmaService {
                         .orElseThrow(() -> new RuntimeException("Professor não encontrado: " + id)))
                 .collect(Collectors.toSet());
 
-        Set<Disciplina> disciplinas = request.disciplinaIds().stream()
+        List<Disciplina> disciplinas = request.disciplinaIds().stream()
                 .map(id -> disciplinaRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Disciplina não encontrada: " + id)))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
         Turma turma = Turma.builder()
                 .nome(request.nome())
@@ -61,10 +61,10 @@ public class TurmaService {
                         .orElseThrow(() -> new RuntimeException("Professor não encontrado: " + pid)))
                 .collect(Collectors.toSet());
 
-        Set<Disciplina> disciplinas = request.disciplinaIds().stream()
+        List<Disciplina> disciplinas = request.disciplinaIds().stream()
                 .map(did -> disciplinaRepository.findById(did)
                         .orElseThrow(() -> new RuntimeException("Disciplina não encontrada: " + did)))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
         turma.setNome(request.nome());
         turma.setAnoLetivo(request.anoLetivo());
@@ -106,12 +106,12 @@ public class TurmaService {
 
     private TurmaResponse toResponse(Turma turma) {
         Set<Long> professorIds = turma.getProfessores() != null
-                ? turma.getProfessores().stream().map(p -> p.getId()).collect(Collectors.toSet())
+                ? turma.getProfessores().stream().map(Professor::getId).collect(Collectors.toSet())
                 : Collections.emptySet();
 
-        Set<Long> disciplinaIds = turma.getDisciplinas() != null
-                ? turma.getDisciplinas().stream().map(Disciplina::getId).collect(Collectors.toSet())
-                : Collections.emptySet();
+        List<Long> disciplinaIds = turma.getDisciplinas() != null
+                ? turma.getDisciplinas().stream().map(Disciplina::getId).collect(Collectors.toList())
+                : Collections.emptyList();
 
         List<Long> alunoIds = turma.getAlunos() != null
                 ? turma.getAlunos().stream().map(Aluno::getId).toList()

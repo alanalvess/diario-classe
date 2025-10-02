@@ -8,6 +8,8 @@ import com.projetointegrador.diarioclasse.entity.Professor;
 import com.projetointegrador.diarioclasse.entity.Turma;
 import com.projetointegrador.diarioclasse.repository.DisciplinaRepository;
 import com.projetointegrador.diarioclasse.repository.ProfessorRepository;
+import com.projetointegrador.diarioclasse.repository.TurmaRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,12 +24,25 @@ public class ProfessorService {
 
     private final ProfessorRepository professorRepository;
     private final DisciplinaRepository disciplinaRepository;
+    private final TurmaRepository turmaRepository;
+
+    public List<ProfessorResponse> listarTodos() {
+        return professorRepository.findAll().stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public ProfessorResponse buscarPorId(Long id) {
+        Professor professor = professorRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Professor com id " + id + " não encontrado"));
+        return toResponse(professor);
+    }
 
     public ProfessorResponse criar(ProfessorRequest request) {
-        Set<Disciplina> disciplinas = request.disciplinaIds().stream()
+        List<Disciplina> disciplinas = request.disciplinaIds().stream()
                 .map(id -> disciplinaRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Disciplina não encontrada: " + id)))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
         Professor professor = Professor.builder()
                 .nome(request.nome())
@@ -43,10 +58,10 @@ public class ProfessorService {
         Professor professor = professorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Professor não encontrado"));
 
-        Set<Disciplina> disciplinas = request.disciplinaIds().stream()
+        List<Disciplina> disciplinas = request.disciplinaIds().stream()
                 .map(did -> disciplinaRepository.findById(did)
                         .orElseThrow(() -> new RuntimeException("Disciplina não encontrada: " + did)))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
         professor.setNome(request.nome());
         professor.setEmail(request.email());
@@ -73,22 +88,10 @@ public class ProfessorService {
         professorRepository.delete(professor);
     }
 
-    public ProfessorResponse buscarPorId(Long id) {
-        return professorRepository.findById(id)
-                .map(this::toResponse)
-                .orElseThrow(() -> new RuntimeException("Professor não encontrado"));
-    }
-
-    public List<ProfessorResponse> listarTodos() {
-        return professorRepository.findAll().stream()
-                .map(this::toResponse)
-                .toList();
-    }
-
     private ProfessorResponse toResponse(Professor professor) {
-        Set<Long> disciplinaIds = professor.getDisciplinas() != null
-                ? professor.getDisciplinas().stream().map(Disciplina::getId).collect(Collectors.toSet())
-                : Collections.emptySet();
+        List<Long> disciplinaIds = professor.getDisciplinas() != null
+                ? professor.getDisciplinas().stream().map(Disciplina::getId).collect(Collectors.toList())
+                : Collections.emptyList();
 
         List<Long> turmaIds = professor.getTurmas() != null
                 ? professor.getTurmas().stream().map(Turma::getId).toList()
