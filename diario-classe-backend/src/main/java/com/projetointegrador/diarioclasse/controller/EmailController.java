@@ -3,13 +3,11 @@ package com.projetointegrador.diarioclasse.controller;
 import com.projetointegrador.diarioclasse.notification.EmailService;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/emails")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class EmailController {
 
     @Autowired

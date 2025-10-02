@@ -13,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/professores")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ProfessorController {
 
     private final ProfessorService professorService;

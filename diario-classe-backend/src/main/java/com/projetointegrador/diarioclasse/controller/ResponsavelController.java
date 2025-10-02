@@ -13,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/responsaveis")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ResponsavelController {
 
     private final ResponsavelService responsavelService;

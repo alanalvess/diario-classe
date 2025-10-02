@@ -11,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/notas")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class NotaController {
 
     private final NotaService notaService;
@@ -50,4 +51,3 @@ public class NotaController {
         return ResponseEntity.noContent().build();
     }
 }
-
