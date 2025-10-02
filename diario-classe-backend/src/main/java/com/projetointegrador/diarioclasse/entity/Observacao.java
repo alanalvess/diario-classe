@@ -23,13 +23,21 @@ public class Observacao {
     private String descricao;
     private String categoria;
 
-    @ManyToOne
-    @JoinColumn(name = "professor_id", nullable = false)
-    private Professor professor;
+//    @ManyToOne
+//    @JoinColumn(name = "professor_id", nullable = false)
+//    private Professor professor;
 
     @ManyToOne
     @JoinColumn(name = "aluno_id", nullable = false)
     private Aluno aluno;
+
+    @ManyToOne
+    @JoinColumn(name = "turma_id", nullable = false)
+    private Turma turma;
+
+    @ManyToOne
+    @JoinColumn(name = "disciplina_id", nullable = false)
+    private Disciplina disciplina;
 
 
     public Boolean isCategoriaComportamento() {

@@ -13,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/observacoes")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ObservacaoController {
 
     private final ObservacaoService observacaoService;
