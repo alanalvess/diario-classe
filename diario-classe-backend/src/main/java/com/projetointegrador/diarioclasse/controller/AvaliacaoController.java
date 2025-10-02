@@ -12,6 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/avaliacoes")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class AvaliacaoController {
 
     private final AvaliacaoService avaliacaoService;
