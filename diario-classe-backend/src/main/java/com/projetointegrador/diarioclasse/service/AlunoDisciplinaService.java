@@ -12,6 +12,7 @@ import com.projetointegrador.diarioclasse.repository.TurmaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AlunoDisciplinaService {
@@ -43,17 +44,30 @@ public class AlunoDisciplinaService {
         Turma turma = turmaRepository.findById(request.turmaId())
                 .orElseThrow(() -> new RuntimeException("Turma não encontrada"));
 
-        AlunoDisciplina alunoDisciplina = AlunoDisciplina.builder()
-                .aluno(aluno)
-                .disciplina(disciplina)
-                .turma(turma)
-                .notaFinal(request.notaFinal())
-                .frequencia(request.frequencia())
-                .observacoes(request.observacoes())
-                .build();
+        // Verifica se já existe registro de aluno-disciplina-turma
+        Optional<AlunoDisciplina> existente = alunoDisciplinaRepository
+                .findByAlunoIdAndDisciplinaIdAndTurmaId(aluno.getId(), disciplina.getId(), turma.getId());
+
+        AlunoDisciplina alunoDisciplina;
+        if (existente.isPresent()) {
+            // Atualiza campos caso queira permitir alteração inicial
+            alunoDisciplina = existente.get();
+            if (request.notaFinal() != null) alunoDisciplina.setNotaFinal(request.notaFinal());
+            if (request.frequencia() != null) alunoDisciplina.setFrequencia(request.frequencia());
+            if (request.observacoes() != null && !request.observacoes().isBlank())
+                alunoDisciplina.setObservacoes(request.observacoes());
+        } else {
+            alunoDisciplina = AlunoDisciplina.builder()
+                    .aluno(aluno)
+                    .disciplina(disciplina)
+                    .turma(turma)
+                    .notaFinal(request.notaFinal())
+                    .frequencia(request.frequencia())
+                    .observacoes(request.observacoes())
+                    .build();
+        }
 
         alunoDisciplinaRepository.save(alunoDisciplina);
-
         return toResponse(alunoDisciplina);
     }
 

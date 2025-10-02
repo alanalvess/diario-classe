@@ -20,6 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/alunos")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class AlunoController {
 
     private final AlunoService alunoService;
@@ -87,4 +88,10 @@ public class AlunoController {
                 .contentType(MediaType.IMAGE_PNG)
                 .body(qrOut.toByteArray());
     }
+
+    @GetMapping("/disciplina/{disciplinaId}")
+    public ResponseEntity<List<AlunoResponse>> listarPorDisciplina(@PathVariable Long disciplinaId) {
+        return ResponseEntity.ok(alunoService.listarPorDisciplina(disciplinaId));
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.projetointegrador.diarioclasse.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.projetointegrador.diarioclasse.dto.ResponsavelDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -36,6 +37,7 @@ public class Aluno {
 
     @ManyToOne
     @JoinColumn(name = "turma_id", nullable = false)
+    @JsonIgnoreProperties("alunos")
     private Turma turma;
 
     @ManyToMany(mappedBy = "alunos")

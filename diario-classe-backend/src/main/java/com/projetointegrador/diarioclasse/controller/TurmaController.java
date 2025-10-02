@@ -12,10 +12,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/turmas")
-@RequiredArgsConstructor
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class TurmaController {
 
     private final TurmaService turmaService;
+
+    public TurmaController(TurmaService turmaService) {
+        this.turmaService = turmaService;
+    }
 
     @PostMapping
     public ResponseEntity<TurmaResponse> criar(@RequestBody TurmaRequest request) {
