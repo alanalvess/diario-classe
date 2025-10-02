@@ -42,7 +42,7 @@ public class AuthService {
             Usuario usuario = repository.findByEmail(usuarioLoginRequest.email())
                     .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado"));
 
-            String token = "Bearer " + jwtService.generateToken(usuario.getEmail(), usuario.getRoles());
+            String token = jwtService.generateToken(usuario.getEmail(), usuario.getRoles());
 
             return mapper.toResponse(usuario, token);
 
