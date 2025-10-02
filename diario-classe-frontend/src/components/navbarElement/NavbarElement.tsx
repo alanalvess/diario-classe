@@ -4,7 +4,7 @@ import {SignIn} from '@phosphor-icons/react'
 
 import {AuthContext} from '../../contexts/AuthContext'
 
-import Logo from '../../assets/images/gestok.png'
+import Logo from '../../assets/images/dia.png'
 
 import {
   Badge,

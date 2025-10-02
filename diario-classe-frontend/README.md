@@ -1,8 +1,8 @@
-# Gestok
+# Dia A+
 
 Para avaliaar o projeto, acesse o link:
 
-https://estoque-frontend-omega.vercel.app/
+https://diario-frontend-omega.vercel.app/
 
 
 Dados de acesso:

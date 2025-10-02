@@ -16,7 +16,7 @@ export default function Home() {
                 </p>
 
                 <div className="flex justify-center md:justify-start">
-                    <Link to="/produtos/all">
+                    <Link to="/dashboard">
                         <Button
                             className="px-6 py-3 text-lg rounded-lg shadow-lg bg-rose-600 hover:bg-rose-700 dark:bg-teal-600 dark:hover:bg-teal-700 focus:ring-0 cursor-pointer">
                             Acessar Sistema

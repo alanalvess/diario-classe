@@ -37,7 +37,7 @@ function FooterElement() {
 
                 <div className="flex justify-center w-full">
                     <FooterCopyright
-                        href='/produtos/all'
+                        href='/'
                         by='Gestok™'
                         year={2025}
                     />

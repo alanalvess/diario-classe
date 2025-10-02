@@ -29,7 +29,7 @@ function Login() {
 
     useEffect(() => {
         if (usuario.token !== '') {
-            navigate('/produtos/all');
+            navigate('/');
         }
     }, [usuario]);
 

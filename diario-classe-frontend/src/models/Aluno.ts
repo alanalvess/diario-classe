@@ -1,7 +1,9 @@
-export default interface Aluno {
-  alunoNome: string;
+import Usuario from "./Usuario.ts";
+
+export interface Aluno {
   id: number;
   nome: string;
-  presente: boolean;
+  matricula: string;
   turmaId: number;
+  usuario: Usuario;
 }
