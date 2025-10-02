@@ -12,6 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/disciplinas")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class DisciplinaController {
     private final DisciplinaService disciplinaService;
 
@@ -35,4 +36,10 @@ public class DisciplinaController {
         disciplinaService.deletar(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/turma/{turmaId}")
+    public ResponseEntity<List<DisciplinaResponse>> listarPorTurma(@PathVariable Long turmaId) {
+        return ResponseEntity.ok(disciplinaService.listarPorTurma(turmaId));
+    }
+
 }
