@@ -1,5 +1,10 @@
 package com.projetointegrador.diarioclasse.enums;
 
 public enum Role {
-    USER, ADMIN, PROFESSOR, ALUNO, RESPONSAVEL
+    ADMIN,
+    USER,
+    ALUNO,
+    COORDENADOR,
+    PROFESSOR,
+    RESPONSAVEL
 }
