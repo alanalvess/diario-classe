@@ -6,7 +6,7 @@ import Usuario from "../../models/Usuario";
 import {cadastrarUsuario} from "../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../utils/ToastAlerta.ts";
 
-import { RotatingLines } from "react-loader-spinner";
+// import { RotatingLines } from "react-loader-spinner";
 import {Roles} from "../../enums/Roles.ts";
 
 function Cadastro() {
@@ -176,13 +176,14 @@ function Cadastro() {
 
             <Button type="submit" className='bg-rosa-200 mt-6'>
               {isLoading ?
-                <RotatingLines
-                  strokeColor="white"
-                  strokeWidth="5"
-                  animationDuration="0.75"
-                  width="24"
-                  visible={true}
-                /> :
+                // <RotatingLines
+                //   strokeColor="white"
+                //   strokeWidth="5"
+                //   animationDuration="0.75"
+                //   width="24"
+                //   visible={true}
+                // />
+                <span></span> :
                 <span>Cadastrar</span>}
             </Button>
 
