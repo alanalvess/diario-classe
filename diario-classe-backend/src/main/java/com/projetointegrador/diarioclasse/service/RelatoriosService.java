@@ -7,11 +7,12 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -30,35 +31,46 @@ public class RelatoriosService {
     }
 
     public byte[] gerarPdf(Long turmaId, Long disciplinaId) {
-        // buscar dados filtrados
-        List<AlunoDisciplina> lista = alunoDisciplinaRepository.findByTurmaIdAndDisciplinaId(turmaId, disciplinaId);
+        try {
+            List<AlunoDisciplina> lista =
+                    alunoDisciplinaRepository.findByTurmaIdAndDisciplinaId(turmaId, disciplinaId);
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PdfDocument pdf = new PdfDocument(new PdfWriter(outputStream));
-        Document document = new Document(pdf);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            Document document = new Document();
+            PdfWriter.getInstance(document, outputStream);
 
-        document.add(new Paragraph("Relatório de Alunos"));
+            document.open();
+            document.add(new Paragraph("Relatório de Alunos"));
+            document.add(new Paragraph(" ")); // espaço em branco
 
-        // criar tabela
-        Table table = new Table(5);
-        table.addCell("Aluno");
-        table.addCell("Turma");
-        table.addCell("Disciplina");
-        table.addCell("Nota");
-        table.addCell("Frequência");
+            // Criar tabela com 5 colunas
+            PdfPTable table = new PdfPTable(5);
+            table.setWidthPercentage(100);
 
-        for (AlunoDisciplina ad : lista) {
-            table.addCell(ad.getAluno().getNome());
-            table.addCell(ad.getTurma().getNome());
-            table.addCell(ad.getDisciplina().getNome());
-            table.addCell(String.valueOf(ad.getNotaFinal()));
-            table.addCell(String.valueOf(ad.getFrequencia()));
+            // Cabeçalho
+            table.addCell(new PdfPCell(new Paragraph("Aluno")));
+            table.addCell(new PdfPCell(new Paragraph("Turma")));
+            table.addCell(new PdfPCell(new Paragraph("Disciplina")));
+            table.addCell(new PdfPCell(new Paragraph("Nota")));
+            table.addCell(new PdfPCell(new Paragraph("Frequência")));
+
+            // Linhas
+            for (AlunoDisciplina ad : lista) {
+                table.addCell(ad.getAluno().getNome());
+                table.addCell(ad.getTurma().getNome());
+                table.addCell(ad.getDisciplina().getNome());
+                table.addCell(String.valueOf(ad.getNotaFinal()));
+                table.addCell(String.valueOf(ad.getFrequencia()));
+            }
+
+            document.add(table);
+            document.close();
+
+            return outputStream.toByteArray();
+
+        } catch (DocumentException e) {
+            throw new RuntimeException("Erro ao gerar PDF", e);
         }
-
-        document.add(table);
-        document.close();
-
-        return outputStream.toByteArray();
     }
 
     public byte[] gerarExcel(Long turmaId, Long disciplinaId) throws IOException {
