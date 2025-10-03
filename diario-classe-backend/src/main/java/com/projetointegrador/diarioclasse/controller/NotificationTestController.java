@@ -5,16 +5,14 @@ import com.projetointegrador.diarioclasse.entity.Aluno;
 import com.projetointegrador.diarioclasse.entity.Responsavel;
 import com.projetointegrador.diarioclasse.ml.Predicao;
 import com.projetointegrador.diarioclasse.notification.NotificationService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/notification")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class NotificationTestController {
 
     private final NotificationService notificationService;

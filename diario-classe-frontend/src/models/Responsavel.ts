@@ -5,6 +5,6 @@ export interface Responsavel {
   nome: string;
   email: string;
   telefone?: string;
-  alunoId: number;
-  usuario: Usuario;
+  alunoIds: number[];
+  // usuario: Usuario;
 }

@@ -29,6 +29,14 @@ import RegistroNotasPage from "./pages/professores/registroNotas/RegistroNotasPa
 import AvaliacoesPage from "./pages/professores/avaliacoes/AvaliacoesPage.tsx";
 import RegistroObservacoesPage from "./pages/professores/Observacoes/RegistroObservacoesPage.tsx";
 import DashboardProfessorPage from "./pages/professores/dashboard/DashboardProfessorPage.tsx";
+import TurmasPage from "./pages/coordenacao/turmas/TurmasPage.tsx";
+import ProfessoresPage from "./pages/coordenacao/Professores/ProfessoresPage.tsx";
+import AlunosPage from "./pages/coordenacao/alunos/AlunosPage.tsx";
+import DisciplinasPage from "./pages/coordenacao/disciplinas/DisciplinasPage.tsx";
+import MatriculasPage from "./pages/coordenacao/matriculas/MatriculasPage.tsx";
+import DashboardCoordenacaoPage from "./pages/coordenacao/dashboard/DashboardCoordenacao.tsx";
+import RelatoriosPage from "./pages/coordenacao/relatorios/RelatoriosPage.tsx";
+import Cadastro from "./pages/cadastro/Cadastro.tsx";
 
 function App() {
 
@@ -48,13 +56,25 @@ function App() {
 
                                 <Route path='/' element={<Home/>}/>
                                 <Route path='/home' element={<Home/>}/>
+
                                 <Route path='/presenca' element={<RegistroPresencaPage/>}/>
                                 <Route path='/notas' element={<RegistroNotasPage/>}/>
                                 <Route path='/avaliacoes' element={<AvaliacoesPage/>}/>
                                 <Route path='/observacoes' element={<RegistroObservacoesPage/>}/>
-                                <Route path='/dashboard' element={<DashboardProfessorPage/>}/>
+                                <Route path='/dashboardProfessor' element={<DashboardProfessorPage/>}/>
+
+                                <Route path='/turmas' element={<TurmasPage/>}/>
+                                <Route path='/professores' element={<ProfessoresPage/>}/>
+                                <Route path='/alunos' element={<AlunosPage/>}/>
+                                <Route path='/disciplinas' element={<DisciplinasPage/>}/>
+                                <Route path='/matriculas' element={<MatriculasPage/>}/>
+                                <Route path='/dashboardCoordenacao' element={<DashboardCoordenacaoPage/>}/>
+                                <Route path='/relatorios' element={<RelatoriosPage/>}/>
+
+
 
                                 <Route path='/login' element={<Login/>}/>
+                                <Route path='/cadastro' element={<Cadastro/>}/>
                                 <Route path='/cadastroUsuario' element={<FormularioUsuario/>}/>
 
                                 <Route path='/presenca' element={<RegistroPresencaPage/>}/>

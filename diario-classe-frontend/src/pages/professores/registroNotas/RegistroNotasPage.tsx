@@ -30,10 +30,10 @@ import {Aluno, Avaliacao, Disciplina, Nota, Turma} from "../../../models";
 //     }
 //   }, [token, isHydrated]);
 //
-//   // 🔹 Buscar disciplinas da turma selecionada
+//   // 🔹 Buscar disciplinas da turmas selecionada
 //   async function buscarDisciplinas() {
 //     if (!turmaSelecionada) return;
-//     await buscar(`/disciplinas/turma/${turmaSelecionada}`, setDisciplinas, {
+//     await buscar(`/disciplinas/turmas/${turmaSelecionada}`, setDisciplinas, {
 //       headers: {Authorization: `Bearer ${token}`},
 //     });
 //   }
@@ -121,7 +121,7 @@ import {Aluno, Avaliacao, Disciplina, Nota, Turma} from "../../../models";
 //     }
 //   }
 //
-// // Quando mudar a turma → buscar disciplinas
+// // Quando mudar a turmas → buscar disciplinas
 //   useEffect(() => {
 //     if (turmaSelecionada && token) {
 //       buscarDisciplinas();
@@ -186,7 +186,7 @@ import {Aluno, Avaliacao, Disciplina, Nota, Turma} from "../../../models";
 //             // buscarDisciplinas();
 //           }}
 //         >
-//           <option value="">Selecione a turma</option>
+//           <option value="">Selecione a turmas</option>
 //           {turmas.map((t) => (
 //             <option key={t.id} value={t.id}>
 //               {t.nome} ({t.ano})
@@ -324,7 +324,7 @@ export default function RegistroNotasPage() {
     }
   }, [token, isHydrated]);
 
-  // 🔹 Buscar disciplinas da turma selecionada
+  // 🔹 Buscar disciplinas da turmas selecionada
   async function buscarDisciplinas() {
     if (!turmaSelecionada) return;
     await buscar(`/disciplinas/turma/${turmaSelecionada}`, setDisciplinas, {

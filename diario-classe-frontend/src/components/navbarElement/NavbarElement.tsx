@@ -33,7 +33,7 @@ function NavbarElement() {
     if (usuario.roles.includes(Roles.PROFESSOR)) {
       return (
         <>
-          <NavbarLink href="/dashboard"><FaGraduationCap className="inline mr-1"/> Dashboard</NavbarLink>
+          <NavbarLink href="/dashboardProfessor"><FaGraduationCap className="inline mr-1"/> Dashboard</NavbarLink>
           <NavbarLink href="/presenca"><FaClipboardList className="inline mr-1"/> Presença / QR</NavbarLink>
           <NavbarLink href="/notas"><FaClipboardList className="inline mr-1"/> Notas</NavbarLink>
           <NavbarLink href="/observacoes"><FaClipboardList className="inline mr-1"/> Observações</NavbarLink>
@@ -45,13 +45,21 @@ function NavbarElement() {
     if (usuario.roles.includes(Roles.COORDENADOR)) {
       return (
         <>
-          <NavbarLink href="/dashboard"><FaChartBar className="inline mr-1"/> Dashboard</NavbarLink>
-          <NavbarLink href="/turmas"><FaUsers className="inline mr-1"/> Turmas</NavbarLink>
-          <NavbarLink href="/professores"><FaUsers className="inline mr-1"/> Professores</NavbarLink>
-          <NavbarLink href="/alunos"><FaGraduationCap className="inline mr-1"/> Alunos</NavbarLink>
-          <NavbarLink href="/disciplinas"><FaBook className="inline mr-1"/> Disciplinas</NavbarLink>
-          <NavbarLink href="/alertas"><FaBell className="inline mr-1"/> Alertas</NavbarLink>
-          <NavbarLink href="/relatorios"><FaChartBar className="inline mr-1"/> Relatórios</NavbarLink>
+          <div className="flex flex-col gap-4 text-center">
+            <div className="flex gap-10 text-center">
+              <NavbarLink href="/alunos"><FaGraduationCap className="inline mr-1"/> Alunos</NavbarLink>
+              <NavbarLink href="/professores"><FaUsers className="inline mr-1"/> Professores</NavbarLink>
+              <NavbarLink href="/turmas"><FaUsers className="inline mr-1"/> Turmas</NavbarLink>
+              <NavbarLink href="/disciplinas"><FaBook className="inline mr-1"/> Disciplinas</NavbarLink>
+            </div>
+
+            <div className="flex gap-10">
+              <NavbarLink href="/dashboardCoordenacao"><FaChartBar className="inline mr-1"/> Dashboard</NavbarLink>
+              <NavbarLink href="/relatorios"><FaChartBar className="inline mr-1"/> Relatórios</NavbarLink>
+              <NavbarLink href="/matriculas"><FaUsers className="inline mr-1"/> Matriculas</NavbarLink>
+              <NavbarLink href="/alertas"><FaBell className="inline mr-1"/> Alertas</NavbarLink>
+            </div>
+          </div>
         </>
       )
     }

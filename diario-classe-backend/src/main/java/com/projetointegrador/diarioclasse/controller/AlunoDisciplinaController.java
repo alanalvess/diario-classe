@@ -54,4 +54,17 @@ public class AlunoDisciplinaController {
     public ResponseEntity<List<AlunoDisciplinaResponse>> listarPorTurma(@PathVariable Long turmaId) {
         return ResponseEntity.ok(alunoDisciplinaService.listarPorTurma(turmaId));
     }
+
+    @PostMapping("/matricular-multiplas")
+    public ResponseEntity<List<AlunoDisciplinaResponse>> matricularMultiplas(@RequestBody List<AlunoDisciplinaRequest> requests) {
+        return ResponseEntity.ok(alunoDisciplinaService.matricularMultiplas(requests));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        alunoDisciplinaService.deletar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
 }

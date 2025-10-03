@@ -17,6 +17,7 @@ public interface AlunoDisciplinaRepository extends JpaRepository<AlunoDisciplina
 
     Optional<AlunoDisciplina> findByAlunoIdAndDisciplinaIdAndTurmaId(Long alunoId, Long disciplinaId, Long turmaId);
 
+    List<AlunoDisciplina> findByTurmaIdAndDisciplinaId(Long turmaId, Long disciplinaId);
 }
 
 

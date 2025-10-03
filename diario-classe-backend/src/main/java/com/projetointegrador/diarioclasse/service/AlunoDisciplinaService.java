@@ -84,6 +84,12 @@ public class AlunoDisciplinaService {
         return toResponse(alunoDisciplina);
     }
 
+    public List<AlunoDisciplinaResponse> matricularMultiplas(List<AlunoDisciplinaRequest> requests) {
+        return requests.stream()
+                .map(this::matricular)
+                .toList();
+    }
+
     public AlunoDisciplinaResponse patch(Long id, AlunoDisciplinaPatchRequest request) {
         AlunoDisciplina alunoDisciplina = alunoDisciplinaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Registro não encontrado"));
@@ -96,6 +102,10 @@ public class AlunoDisciplinaService {
         alunoDisciplinaRepository.save(alunoDisciplina);
 
         return toResponse(alunoDisciplina);
+    }
+
+    public void deletar(Long id) {
+        alunoDisciplinaRepository.deleteById(id);
     }
 
     public List<AlunoDisciplinaResponse> listarPorAluno(Long alunoId) {
@@ -117,8 +127,11 @@ public class AlunoDisciplinaService {
         return new AlunoDisciplinaResponse(
                 entity.getId(),
                 entity.getAluno().getId(),
+                entity.getAluno().getNome(),
                 entity.getDisciplina().getId(),
+                entity.getDisciplina().getNome(),
                 entity.getTurma().getId(),
+                entity.getTurma().getNome(),
                 entity.getNotaFinal(),
                 entity.getFrequencia(),
                 entity.getObservacoes()

@@ -1,5 +1,10 @@
+import {useContext} from "react";
+
 export interface Disciplina {
   id: number;
   nome: string;
-  cargaHoraria: number;
+  codigo: string;
+  cargaHoraria?: number;
+  mediaTurma?: number;
+  frequenciaMedia?: number;
 }

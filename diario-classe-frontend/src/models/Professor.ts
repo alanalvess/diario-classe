@@ -3,6 +3,8 @@ import Usuario from "./Usuario";
 export interface Professor {
   id: number;
   nome: string;
-  disciplinaId: number;
-  usuario: Usuario;
+  email: string;
+  disciplinaIds: number[];
+  turmaIds?: number[];
+  // usuario: Usuario;
 }

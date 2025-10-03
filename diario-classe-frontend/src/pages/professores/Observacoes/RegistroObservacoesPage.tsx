@@ -35,10 +35,10 @@ interface Aluno { id: number; nome: string; matricula: string; }
 //   }, [token, isHydrated]);
 //
 //
-//   // 🔹 Buscar disciplinas da turma selecionada
+//   // 🔹 Buscar disciplinas da turmas selecionada
 //   async function buscarDisciplinas() {
 //     if (!turmaSelecionada) return;
-//     await buscar(`/disciplinas/turma/${turmaSelecionada}`, setDisciplinas, {
+//     await buscar(`/disciplinas/turmas/${turmaSelecionada}`, setDisciplinas, {
 //       headers: { Authorization: `Bearer ${token}` },
 //     });
 //   }
@@ -115,7 +115,7 @@ interface Aluno { id: number; nome: string; matricula: string; }
 //       {/* Filtros */}
 //       <div className="flex flex-wrap gap-4 mb-6">
 //         <select value={turmaSelecionada ?? ""} onChange={e => setTurmaSelecionada(Number(e.target.value))}>
-//           <option value="">Selecione a turma</option>
+//           <option value="">Selecione a turmas</option>
 //           {turmas.map(t => <option key={t.id} value={t.id}>{t.nome} ({t.ano})</option>)}
 //         </select>
 //
@@ -190,7 +190,7 @@ export default function RegistroObservacoesPage() {
     }
   }, [token, isHydrated]);
 
-  // 🔹 Buscar disciplinas da turma
+  // 🔹 Buscar disciplinas da turmas
   useEffect(() => {
     if (!turmaSelecionada) return;
     buscar(`/disciplinas/turma/${turmaSelecionada}`, setDisciplinas, {
@@ -206,7 +206,7 @@ export default function RegistroObservacoesPage() {
     });
   }, [disciplinaSelecionada, token]);
 
-  // 🔹 Buscar observações da turma + disciplina (opcional filtro por aluno)
+  // 🔹 Buscar observações da turmas + disciplina (opcional filtro por aluno)
   useEffect(() => {
     if (!disciplinaSelecionada || !turmaSelecionada) return;
 

@@ -1,5 +1,7 @@
 package com.projetointegrador.diarioclasse.ml;
 
+import com.projetointegrador.diarioclasse.dto.request.AlunoAnaliseRequest;
+import com.projetointegrador.diarioclasse.dto.response.PredicaoResponse;
 import com.projetointegrador.diarioclasse.entity.Aluno;
 import org.springframework.stereotype.Service;
 

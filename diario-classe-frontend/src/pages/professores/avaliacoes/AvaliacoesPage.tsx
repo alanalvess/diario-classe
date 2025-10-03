@@ -30,7 +30,7 @@ export default function AvaliacoesPage() {
     }
   }, [token, isHydrated]);
 
-  // 🔹 Buscar disciplinas da turma
+  // 🔹 Buscar disciplinas da turmas
   useEffect(() => {
     if (turmaSelecionada && token) {
       buscar(`/disciplinas/turma/${turmaSelecionada}`, setDisciplinas, {
@@ -51,7 +51,7 @@ export default function AvaliacoesPage() {
   // Criar avaliação
   async function salvarAvaliacao() {
     if (!disciplinaSelecionada || !turmaSelecionada) {
-      ToastAlerta("Selecione uma turma e disciplina", Toast.Error);
+      ToastAlerta("Selecione uma turmas e disciplina", Toast.Error);
       return;
     }
 
@@ -103,9 +103,9 @@ export default function AvaliacoesPage() {
           onChange={(e) => setTurmaSelecionada(Number(e.target.value))}
         >
           <option value="">Selecione a turma</option>
-          {turmas.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.nome} ({t.ano})
+          {turmas.map((turma) => (
+            <option key={turma.id} value={turma.id}>
+              {turma.nome} ({turma.anoLetivo})
             </option>
           ))}
         </select>
