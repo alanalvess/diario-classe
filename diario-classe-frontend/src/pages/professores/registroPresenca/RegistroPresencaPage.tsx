@@ -12,7 +12,7 @@ import {
   TableHeadCell,
   TableRow
 } from "flowbite-react";
-import {QrReader} from "react-qr-reader";
+// import {QrReader} from "react-qr-reader";
 import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {AuthContext} from "../../../contexts/AuthContext.tsx";
@@ -164,7 +164,7 @@ export default function RegistroPresencaPage() {
             <option value="">Selecione a turma</option>
             {turmas.map((t) => (
               <option key={t.id} value={t.id}>
-                {t.nome} ({t.ano})
+                {t.nome} ({t.anoLetivo})
               </option>
             ))}
           </select>
@@ -200,11 +200,11 @@ export default function RegistroPresencaPage() {
       <Modal show={qrOpen} onClose={() => setQrOpen(false)}>
         <ModalHeader>Ler QR Code</ModalHeader>
         <ModalBody>
-          <QrReader
-            constraints={{facingMode: "environment"}}
-            onResult={handleScan}
-            style={{width: "100%"}}
-          />
+          {/*<QrReader*/}
+          {/*  constraints={{facingMode: "environment"}}*/}
+          {/*  onResult={handleScan}*/}
+          {/*  style={{width: "100%"}}*/}
+          {/*/>*/}
         </ModalBody>
       </Modal>
 
