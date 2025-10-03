@@ -109,7 +109,7 @@ function NavbarElement() {
         <NavbarBrand>
           <Link to='/home' className='text-2xl font-bold uppercase'>
             <div className='flex items-center justify-center gap-3'>
-              <img src={Logo} alt='Gestok' className='max-w-30 ml-2 my-3 h-10'/>
+              <img src={Logo} alt='Dia A+' className='max-w-30 ml-2 my-3 h-10'/>
             </div>
           </Link>
         </NavbarBrand>
