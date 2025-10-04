@@ -97,10 +97,20 @@ export default function RelatoriosPage() {
 
   // 🔹 Exportar Excel direto da tabela (exemplo alternativo)
   function exportarExcel() {
-    const ws = XLSX.utils.json_to_sheet(relatorio);
+    const ws = XLSX.utils.json_to_sheet(relatorio, {
+      header: ["alunoNome", "turma", "disciplina", "nota", "frequencia", "observacoes"]
+    });
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Relatorio");
     XLSX.writeFile(wb, "relatorio_alunos.xlsx");
+    ws["!cols"] = [
+      { wch: 25 }, // Aluno
+      { wch: 15 }, // Turma
+      { wch: 20 }, // Disciplina
+      { wch: 10 }, // Nota
+      { wch: 12 }, // Frequência
+      { wch: 30 }, // Observações
+    ];
   }
 
   return (

@@ -12,6 +12,7 @@
   "dependencies": {
     "axios": "^1.12.2",
     "flowbite-react": "^0.12.9",
+    "jspdf": "^3.0.3",
     "react": "^19.1.1",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.1.1",
@@ -19,7 +20,8 @@
     "react-loader-spinner": "^7.0.3",
     "react-router-dom": "^7.9.3",
     "react-toastify": "^11.0.5",
-    "react-zxing": "^2.1.0"
+    "react-zxing": "^2.1.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
