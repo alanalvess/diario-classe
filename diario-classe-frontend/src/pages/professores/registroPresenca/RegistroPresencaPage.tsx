@@ -82,7 +82,6 @@ export default function RegistroPresencaPage() {
   // }, []);
 
 
-
   // async function salvarTodasPresencas() {
   //   try {
   //     await Promise.all(
@@ -152,18 +151,30 @@ export default function RegistroPresencaPage() {
     if (result?.text) {
       setScanResult(result.text);
       setQrOpen(false);
+
       const [alunoId, nome, turmaId] = result.text.split(";");
 
-      await fetch("http://localhost:8080/presencas/presenca/scan", {
-        method: "POST",
-        headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: new URLSearchParams({alunoId, turmaId, metodoChamada: "QR_CODE"}),
-      });
+      try {
+        await fetch("http://localhost:8080/presencas/presenca/scan", {
+          method: "POST",
+          headers: {"Content-Type": "application/x-www-form-urlencoded"},
+          body: new URLSearchParams({alunoId, turmaId, metodoChamada: "QR_CODE"}),
+        });
 
-      alert(`✅ Presença registrada via QR Code para ${nome}`);
-      await buscarPresencas();
+        // ✅ Exibir confirmação amigável
+        ToastAlerta(`✅ Presença registrada via QR Code para ${nome}`, Toast.Success);
+
+        await buscarPresencas();
+      } catch (error) {
+        if (error instanceof Error) {
+          ToastAlerta("❌ Erro ao registrar presença via QR Code", Toast.Error);
+        }
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
+
 
   return (
     <div className="p-6 pt-28">
@@ -243,7 +254,7 @@ export default function RegistroPresencaPage() {
             <Modal show={qrOpen} onClose={() => setQrOpen(false)}>
               <ModalHeader>Ler QR Code</ModalHeader>
               <ModalBody>
-                <QRCodeScanner onScan={handleScan} />
+                <QRCodeScanner onScan={handleScan}/>
               </ModalBody>
             </Modal>
           )}

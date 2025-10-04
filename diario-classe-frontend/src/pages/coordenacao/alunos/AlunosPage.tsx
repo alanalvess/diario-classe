@@ -1,10 +1,21 @@
 import {useContext, useEffect, useState} from "react";
-import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
+import {
+  Button,
+  Modal, ModalBody,
+  ModalHeader,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeadCell,
+  TableRow
+} from "flowbite-react";
 import {AuthContext} from "../../../contexts/AuthContext.tsx";
 import type {Aluno, Turma} from "../../../models";
 import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {RotatingLines} from "react-loader-spinner";
+import {jsPDF} from "jspdf";
 
 export default function AlunosPage() {
   const {usuario, isHydrated} = useContext(AuthContext);
@@ -12,6 +23,7 @@ export default function AlunosPage() {
 
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [turmas, setTurmas] = useState<Turma[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Formulário
   const [nome, setNome] = useState("");
@@ -19,7 +31,9 @@ export default function AlunosPage() {
   const [dataNascimento, setDataNascimento] = useState("");
   const [turmaId, setTurmaId] = useState<number | "">("");
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [qrImage, setQrImage] = useState<string | null>(null);
+  const [qrAlunoNome, setQrAlunoNome] = useState<string>("");
 
   // 🔹 Buscar alunos e turmas
   useEffect(() => {
@@ -75,6 +89,34 @@ export default function AlunosPage() {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  // 🔹 Gerar QR Code (abre modal)
+  async function gerarQrCode(aluno: Aluno) {
+    try {
+      const response = await fetch(`http://localhost:8080/alunos/${aluno.id}/qrcode`, {
+        headers: {Authorization: `Bearer ${token}`},
+      });
+      if (!response.ok) throw new Error("Erro ao gerar QR Code");
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setQrImage(url);
+      setQrAlunoNome(aluno.nome);
+      setQrModalOpen(true);
+    } catch (error) {
+      console.error(error);
+      ToastAlerta("Erro ao gerar QR Code", Toast.Error);
+    }
+  }
+
+  // 🔹 Imprimir / Exportar QR em PDF
+  function imprimirQrCode() {
+    if (!qrImage) return;
+    const pdf = new jsPDF();
+    pdf.text(`QR Code - ${qrAlunoNome}`, 10, 10);
+    pdf.addImage(qrImage, "PNG", 30, 20, 150, 150);
+    pdf.save(`qrcode_${qrAlunoNome}.pdf`);
   }
 
   // 🔹 Helper para nome da turma
@@ -149,6 +191,9 @@ export default function AlunosPage() {
                 <TableCell>{new Date(aluno.dataNascimento).toLocaleDateString()}</TableCell>
                 <TableCell>{getTurmaNome(aluno.turmaId)}</TableCell>
                 <TableCell>
+                  <Button color="purple" size="xs" onClick={() => gerarQrCode(aluno)}>
+                    QR Code
+                  </Button>
                   <Button color="failure" size="xs" onClick={() => excluirAluno(aluno.id)}>Excluir</Button>
                 </TableCell>
               </TableRow>
@@ -156,6 +201,21 @@ export default function AlunosPage() {
           </TableBody>
         </Table>
       )}
+
+      {/* Modal QR Code */}
+      <Modal show={qrModalOpen} onClose={() => setQrModalOpen(false)}>
+        <ModalHeader>QR Code de {qrAlunoNome}</ModalHeader>
+        <ModalBody className="flex flex-col items-center gap-4">
+          {qrImage ? (
+            <>
+              <img src={qrImage} alt="QR Code" className="w-48 h-48" />
+              <Button color="success" onClick={imprimirQrCode}>📄 Imprimir / Baixar PDF</Button>
+            </>
+          ) : (
+            <p>Carregando QR Code...</p>
+          )}
+        </ModalBody>
+      </Modal>
     </div>
   );
 }
