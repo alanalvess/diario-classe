@@ -14,7 +14,7 @@ import {
 import {AuthContext} from "../../../contexts/AuthContext.tsx";
 import {buscar} from "../../../services/Service.ts";
 import {Card} from "flowbite-react";
-import {Aluno, Disciplina, Observacao, Professor, Turma} from "../../../models";
+import type {Aluno, Disciplina, Observacao, Professor, Turma} from "../../../models";
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 

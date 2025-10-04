@@ -1,12 +1,13 @@
 import {useContext, useEffect, useState} from "react";
 import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
 import {AuthContext} from "../../../contexts/AuthContext.tsx";
-import {Disciplina, Professor, Turma} from "../../../models";
+import type {Disciplina, Professor, Turma} from "../../../models";
 import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
+import {RotatingLines} from "react-loader-spinner";
 
 export default function ProfessoresPage() {
-  const { usuario, isHydrated } = useContext(AuthContext);
+  const {usuario, isHydrated} = useContext(AuthContext);
   const token = usuario.token;
 
   const [professores, setProfessores] = useState<Professor[]>([]);
@@ -18,12 +19,14 @@ export default function ProfessoresPage() {
   const [disciplinaIdsSelecionadas, setDisciplinaIdsSelecionadas] = useState<number[]>([]);
   const [turmaIdsSelecionadas, setTurmaIdsSelecionadas] = useState<number[]>([]);
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   // 🔹 Buscar dados iniciais
   useEffect(() => {
     if (!isHydrated || !token) return;
-    buscar("/professores", setProfessores, { headers: { Authorization: `Bearer ${token}` } });
-    buscar("/disciplinas", setDisciplinas, { headers: { Authorization: `Bearer ${token}` } });
-    buscar("/turmas", setTurmas, { headers: { Authorization: `Bearer ${token}` } });
+    buscar("/professores", setProfessores, {headers: {Authorization: `Bearer ${token}`}});
+    buscar("/disciplinas", setDisciplinas, {headers: {Authorization: `Bearer ${token}`}});
+    buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${token}`}});
   }, [isHydrated, token]);
 
   // 🔹 Criar professor
@@ -49,21 +52,29 @@ export default function ProfessoresPage() {
         setTurmaIdsSelecionadas([]);
         ToastAlerta("✅ Professor criado com sucesso", Toast.Success);
       }, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+        headers: {Authorization: `Bearer ${token}`, "Content-Type": "application/json"}
       });
-    } catch (err) {
-      ToastAlerta("Erro ao criar professor", Toast.Error);
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao criar professor", Toast.Error);
+      }
+    } finally {
+      setIsLoading(false);
     }
   }
 
   // 🔹 Excluir professor
   async function excluirProfessor(id: number) {
     try {
-      await deletar(`/professores/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      await deletar(`/professores/${id}`, {headers: {Authorization: `Bearer ${token}`}});
       setProfessores(prev => prev.filter(p => p.id !== id));
       ToastAlerta("✅ Professor excluído", Toast.Success);
-    } catch (err) {
-      ToastAlerta("Erro ao excluir professor", Toast.Error);
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao excluir professor", Toast.Error);
+      }
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -71,6 +82,7 @@ export default function ProfessoresPage() {
   function getDisciplinaNome(id: number) {
     return disciplinas.find(d => d.id === id)?.nome || "N/A";
   }
+
   function getTurmaNome(id: number) {
     return turmas.find(t => t.id === id)?.nome || "N/A";
   }
@@ -124,7 +136,17 @@ export default function ProfessoresPage() {
           {turmas.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
         </select>
 
-        <Button color="success" onClick={salvarProfessor}>Adicionar Professor</Button>
+        <Button color="success" onClick={salvarProfessor}>
+          {isLoading ?
+            <RotatingLines
+              strokeColor="white"
+              strokeWidth="5"
+              animationDuration="0.75"
+              width="24"
+              visible={true}
+            /> :
+            <span>Adicionar Professor</span>}
+        </Button>
       </div>
 
       {/* Tabela */}

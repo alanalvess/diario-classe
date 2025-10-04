@@ -1,6 +1,6 @@
 import {useContext} from 'react'
 import {Link} from 'react-router-dom'
-import {SignIn} from '@phosphor-icons/react'
+import {PiSignInDuotone} from "react-icons/pi"
 
 import {AuthContext} from '../../contexts/AuthContext'
 
@@ -93,7 +93,7 @@ function NavbarElement() {
         <Button
           className='bg-rose-600 hover:bg-rose-700 dark:bg-rose-600 dark:hover:bg-rose-700 focus:outline-none focus:ring-0 cursor-pointer'>
           <span className='text-xl '>Entrar</span>
-          <SignIn className='p-1 rounded-lg ' size={40} weight='fill'/>
+          <PiSignInDuotone className='p-1 rounded-lg ' size={40}/>
         </Button>
       </Link>
 

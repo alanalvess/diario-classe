@@ -1,12 +1,12 @@
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Button, Label, TextInput } from "flowbite-react";
+import {type ChangeEvent, type FormEvent, useEffect, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {Button, Label, TextInput} from "flowbite-react";
 
-import Usuario from "../../models/Usuario";
+import type {Usuario} from "../../models";
 import {cadastrarUsuario} from "../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../utils/ToastAlerta.ts";
 
-// import { RotatingLines } from "react-loader-spinner";
+import {RotatingLines} from "react-loader-spinner";
 import {Roles} from "../../enums/Roles.ts";
 
 function Cadastro() {
@@ -34,12 +34,16 @@ function Cadastro() {
         await cadastrarUsuario(`/usuarios/cadastrar`, usuario, setUsuario);
         ToastAlerta("Usuário cadastrado com sucesso", Toast.Success);
       } catch (error) {
-        ToastAlerta("Erro ao cadastrar usuário", Toast.Error);
+        if (error instanceof Error) {
+          ToastAlerta("Erro ao cadastrar usuário", Toast.Error);
+        }
+      } finally {
+        setIsLoading(false);
       }
 
     } else {
       ToastAlerta("Dados inconsistentes. Verifique as informações de cadastro.", Toast.Warning);
-      setUsuario({ ...usuario, senha: "" });
+      setUsuario({...usuario, senha: ""});
       setConfirmarSenha("");
     }
 
@@ -55,12 +59,12 @@ function Cadastro() {
   }
 
   function atualizarEstado(e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
-    const { name, value } = e.target;
+    const {name, value} = e.target;
 
     if (name === "roles") {
-      setUsuario({ ...usuario, roles: [value as Roles] });
+      setUsuario({...usuario, roles: [value as Roles]});
     } else {
-      setUsuario({ ...usuario, [name]: value });
+      setUsuario({...usuario, [name]: value});
     }
   }
 
@@ -73,7 +77,8 @@ function Cadastro() {
   return (
     <>
       <div className='justify-center lg:py-14 pt-28'>
-        <div className="flex justify-center mx-[10vw] lg:mx-[30vw] shadow-xl shadow-cinza-300 dark:shadow-preto-600 bg-cinza-100 dark:bg-preto-300 py-[3vh] lg:py-[10vh] rounded-2xl font-bold">
+        <div
+          className="flex justify-center mx-[10vw] lg:mx-[30vw] shadow-xl shadow-cinza-300 dark:shadow-preto-600 bg-cinza-100 dark:bg-preto-300 py-[3vh] lg:py-[10vh] rounded-2xl font-bold">
           <form className="flex w-[80%] flex-col gap-4" onSubmit={cadastrarNovoUsuario}>
             <h2 className="text-slate-900 dark:text-cinza-100 my-4 text-center text-4xl">
               Cadastro
@@ -81,7 +86,7 @@ function Cadastro() {
 
             <div>
               <div className="mb-2 block">
-                <Label htmlFor="nome" />
+                <Label htmlFor="nome"/>
               </div>
 
               <TextInput
@@ -100,7 +105,7 @@ function Cadastro() {
 
             <div>
               <div className="mb-2 block">
-                <Label htmlFor="email" />
+                <Label htmlFor="email"/>
               </div>
 
               <TextInput
@@ -119,7 +124,7 @@ function Cadastro() {
 
             <div>
               <div className="mb-2 block">
-                <Label htmlFor="senha" />
+                <Label htmlFor="senha"/>
               </div>
 
               <TextInput
@@ -156,7 +161,7 @@ function Cadastro() {
 
             {/* Tipo de Usuário */}
             <div>
-              <Label htmlFor="roles" />
+              <Label htmlFor="roles"/>
               <select
                 id="roles"
                 name="roles"
@@ -176,18 +181,17 @@ function Cadastro() {
 
             <Button type="submit" className='bg-rosa-200 mt-6'>
               {isLoading ?
-                // <RotatingLines
-                //   strokeColor="white"
-                //   strokeWidth="5"
-                //   animationDuration="0.75"
-                //   width="24"
-                //   visible={true}
-                // />
-                <span></span> :
+                <RotatingLines
+                  strokeColor="white"
+                  strokeWidth="5"
+                  animationDuration="0.75"
+                  width="24"
+                  visible={true}
+                /> :
                 <span>Cadastrar</span>}
             </Button>
 
-            <hr className="border-cinza-200 w-full" />
+            <hr className="border-cinza-200 w-full"/>
           </form>
         </div>
       </div>

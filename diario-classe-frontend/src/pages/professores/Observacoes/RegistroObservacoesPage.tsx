@@ -1,14 +1,10 @@
-import { useState, useEffect, useContext } from "react";
+import {useContext, useEffect, useState} from "react";
 import {AuthContext} from "../../../contexts/AuthContext.tsx";
 import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
 import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
-import {Observacao} from "../../../models/Observacao.ts";
-
-interface Turma { id: number; nome: string; ano: number; }
-interface Disciplina { id: number; nome: string; }
-interface Aluno { id: number; nome: string; matricula: string; }
-
+import type {Aluno, Disciplina, Observacao, Turma} from "../../../models";
+import {RotatingLines} from "react-loader-spinner";
 
 // export default function RegistroObservacoesPage() {
 //   const { usuario, isHydrated } = useContext(AuthContext);
@@ -168,7 +164,7 @@ interface Aluno { id: number; nome: string; matricula: string; }
 // }
 
 export default function RegistroObservacoesPage() {
-  const { usuario, isHydrated } = useContext(AuthContext);
+  const {usuario, isHydrated} = useContext(AuthContext);
   const token = usuario.token;
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
@@ -183,10 +179,12 @@ export default function RegistroObservacoesPage() {
   const [categoria, setCategoria] = useState("");
   const [data, setData] = useState(new Date().toISOString().split("T")[0]);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   // 🔹 Buscar turmas do professor
   useEffect(() => {
     if (isHydrated && token) {
-      buscar("/turmas", setTurmas, { headers: { Authorization: `Bearer ${token}` } });
+      buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${token}`}});
     }
   }, [token, isHydrated]);
 
@@ -194,7 +192,7 @@ export default function RegistroObservacoesPage() {
   useEffect(() => {
     if (!turmaSelecionada) return;
     buscar(`/disciplinas/turma/${turmaSelecionada}`, setDisciplinas, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {Authorization: `Bearer ${token}`},
     });
   }, [turmaSelecionada, token]);
 
@@ -202,7 +200,7 @@ export default function RegistroObservacoesPage() {
   useEffect(() => {
     if (!disciplinaSelecionada) return;
     buscar(`/alunos/disciplina/${disciplinaSelecionada}`, setAlunos, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {Authorization: `Bearer ${token}`},
     });
   }, [disciplinaSelecionada, token]);
 
@@ -215,7 +213,7 @@ export default function RegistroObservacoesPage() {
       url = `/observacoes/aluno/${alunoSelecionado}`;
     }
 
-    buscar(url, setObservacoes, { headers: { Authorization: `Bearer ${token}` } });
+    buscar(url, setObservacoes, {headers: {Authorization: `Bearer ${token}`}});
   }, [turmaSelecionada, disciplinaSelecionada, alunoSelecionado, token]);
 
   // 🔹 Salvar nova observação
@@ -232,7 +230,7 @@ export default function RegistroObservacoesPage() {
     };
 
     try {
-      await cadastrar("/observacoes", body, (novaObs: any) => {
+      await cadastrar("/observacoes", body, (novaObs: Observacao) => {
         setObservacoes(prev => [...prev, novaObs]);
         setDescricao("");
         setCategoria("");
@@ -244,8 +242,12 @@ export default function RegistroObservacoesPage() {
       });
 
       ToastAlerta("✅ Observação salva", Toast.Success);
-    } catch (err) {
-      ToastAlerta("Erro ao salvar observação", Toast.Error);
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao salvar observação", Toast.Error);
+      }
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -254,12 +256,16 @@ export default function RegistroObservacoesPage() {
     try {
       await deletar(`/observacoes/${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {Authorization: `Bearer ${token}`},
       });
       setObservacoes(prev => prev.filter(observacao => observacao.id !== id));
       ToastAlerta("✅ Observação excluída", Toast.Success);
-    } catch (err) {
-      ToastAlerta("Erro ao excluir observação", Toast.Error);
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao excluir observação", Toast.Error);
+      }
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -271,7 +277,7 @@ export default function RegistroObservacoesPage() {
       <div className="flex flex-wrap gap-4 mb-6">
         <select value={turmaSelecionada ?? ""} onChange={e => setTurmaSelecionada(Number(e.target.value))}>
           <option value="">Selecione a turma</option>
-          {turmas.map(t => <option key={t.id} value={t.id}>{t.nome} ({t.ano})</option>)}
+          {turmas.map(t => <option key={t.id} value={t.id}>{t.nome} ({t.anoLetivo})</option>)}
         </select>
 
         <select value={disciplinaSelecionada ?? ""} onChange={e => setDisciplinaSelecionada(Number(e.target.value))}>
@@ -288,11 +294,21 @@ export default function RegistroObservacoesPage() {
       {/* Formulário de observação */}
       <div className="flex flex-col gap-2 mb-6">
         <input type="date" value={data} onChange={e => setData(e.target.value)} className="border rounded p-2"/>
-        <input type="text" placeholder="Categoria" value={categoria} onChange={e => setCategoria(e.target.value)} className="border rounded p-2"/>
-        <textarea placeholder="Descrição" value={descricao} onChange={e => setDescricao(e.target.value)} className="border rounded p-2"/>
+        <input type="text" placeholder="Categoria" value={categoria} onChange={e => setCategoria(e.target.value)}
+               className="border rounded p-2"/>
+        <textarea placeholder="Descrição" value={descricao} onChange={e => setDescricao(e.target.value)}
+                  className="border rounded p-2"/>
 
         <Button color="success" onClick={salvarObservacao}>
-          Salvar Observação
+          {isLoading ?
+            <RotatingLines
+              strokeColor="white"
+              strokeWidth="5"
+              animationDuration="0.75"
+              width="24"
+              visible={true}
+            /> :
+            <span>Salvar Observação</span>}
         </Button>
       </div>
 

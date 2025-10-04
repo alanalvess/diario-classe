@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { Button, Table, TableHead, TableHeadCell, TableRow, TableBody, TableCell } from "flowbite-react";
 import {AuthContext} from "../../../contexts/AuthContext.tsx";
-import {Avaliacao, Disciplina, Turma} from "../../../models";
+import type {Avaliacao, Disciplina, Turma} from "../../../models";
 import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 

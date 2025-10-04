@@ -1,5 +1,3 @@
-import Usuario from "./Usuario.ts";
-
 export interface Avaliacao {
   id: number;
   titulo: string;

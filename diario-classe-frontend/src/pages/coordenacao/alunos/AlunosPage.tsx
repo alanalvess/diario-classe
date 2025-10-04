@@ -1,12 +1,13 @@
-import { useEffect, useState, useContext } from "react";
-import { Button, Table, TableHead, TableHeadCell, TableBody, TableRow, TableCell } from "flowbite-react";
+import {useContext, useEffect, useState} from "react";
+import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
 import {AuthContext} from "../../../contexts/AuthContext.tsx";
-import {Aluno, Responsavel, Turma} from "../../../models";
+import type {Aluno, Turma} from "../../../models";
 import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
+import {RotatingLines} from "react-loader-spinner";
 
 export default function AlunosPage() {
-  const { usuario, isHydrated } = useContext(AuthContext);
+  const {usuario, isHydrated} = useContext(AuthContext);
   const token = usuario.token;
 
   const [alunos, setAlunos] = useState<Aluno[]>([]);
@@ -18,11 +19,13 @@ export default function AlunosPage() {
   const [dataNascimento, setDataNascimento] = useState("");
   const [turmaId, setTurmaId] = useState<number | "">("");
 
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
   // 🔹 Buscar alunos e turmas
   useEffect(() => {
     if (!isHydrated || !token) return;
-    buscar("/alunos", setAlunos, { headers: { Authorization: `Bearer ${token}` } });
-    buscar("/turmas", setTurmas, { headers: { Authorization: `Bearer ${token}` } });
+    buscar("/alunos", setAlunos, {headers: {Authorization: `Bearer ${token}`}});
+    buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${token}`}});
   }, [isHydrated, token]);
 
   // 🔹 Criar aluno
@@ -48,21 +51,29 @@ export default function AlunosPage() {
         setTurmaId("");
         ToastAlerta("✅ Aluno cadastrado com sucesso", Toast.Success);
       }, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+        headers: {Authorization: `Bearer ${token}`, "Content-Type": "application/json"}
       });
-    } catch (err) {
-      ToastAlerta("Erro ao criar aluno", Toast.Error);
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao criar aluno", Toast.Error);
+      }
+    } finally {
+      setIsLoading(false);
     }
   }
 
   // 🔹 Excluir aluno
   async function excluirAluno(id: number) {
     try {
-      await deletar(`/alunos/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      await deletar(`/alunos/${id}`, {headers: {Authorization: `Bearer ${token}`}});
       setAlunos(prev => prev.filter(a => a.id !== id));
       ToastAlerta("✅ Aluno excluído", Toast.Success);
-    } catch (err) {
-      ToastAlerta("Erro ao excluir aluno", Toast.Error);
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao excluir aluno", Toast.Error);
+      }
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -107,7 +118,17 @@ export default function AlunosPage() {
           {turmas.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
         </select>
 
-        <Button color="success" onClick={salvarAluno}>Adicionar Aluno</Button>
+        <Button color="success" onClick={salvarAluno}>
+          {isLoading ?
+            <RotatingLines
+              strokeColor="white"
+              strokeWidth="5"
+              animationDuration="0.75"
+              width="24"
+              visible={true}
+            /> :
+            <span>Adicionar Aluno</span>}
+        </Button>
       </div>
 
       {/* Tabela */}

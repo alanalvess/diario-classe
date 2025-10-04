@@ -1,22 +1,24 @@
-import { useEffect, useState, useContext } from "react";
-import { Button, Table, TableHead, TableHeadCell, TableBody, TableRow, TableCell } from "flowbite-react";
+import {useContext, useEffect, useState} from "react";
+import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
 import {AuthContext} from "../../../contexts/AuthContext.tsx";
-import {Disciplina} from "../../../models";
+import type {Disciplina} from "../../../models";
 import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
+import {RotatingLines} from "react-loader-spinner";
 
 export default function DisciplinasPage() {
-  const { usuario, isHydrated } = useContext(AuthContext);
+  const {usuario, isHydrated} = useContext(AuthContext);
   const token = usuario.token;
 
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [nome, setNome] = useState("");
   const [codigo, setCodigo] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // 🔹 Buscar disciplinas
   useEffect(() => {
     if (!isHydrated || !token) return;
-    buscar("/disciplinas", setDisciplinas, { headers: { Authorization: `Bearer ${token}` } });
+    buscar("/disciplinas", setDisciplinas, {headers: {Authorization: `Bearer ${token}`}});
   }, [isHydrated, token]);
 
   // 🔹 Criar disciplina
@@ -26,7 +28,7 @@ export default function DisciplinasPage() {
       return;
     }
 
-    const body = { nome, codigo };
+    const body = {nome, codigo};
 
     try {
       await cadastrar("/disciplinas", body, (novaDisciplina: Disciplina) => {
@@ -35,21 +37,29 @@ export default function DisciplinasPage() {
         setCodigo("");
         ToastAlerta("✅ Disciplina criada com sucesso", Toast.Success);
       }, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+        headers: {Authorization: `Bearer ${token}`, "Content-Type": "application/json"}
       });
-    } catch (err) {
-      ToastAlerta("Erro ao criar disciplina", Toast.Error);
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao criar disciplina", Toast.Error);
+      }
+    } finally {
+      setIsLoading(false);
     }
   }
 
   // 🔹 Excluir disciplina
   async function excluirDisciplina(id: number) {
     try {
-      await deletar(`/disciplinas/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      await deletar(`/disciplinas/${id}`, {headers: {Authorization: `Bearer ${token}`}});
       setDisciplinas(prev => prev.filter(d => d.id !== id));
       ToastAlerta("✅ Disciplina excluída", Toast.Success);
-    } catch (err) {
-      ToastAlerta("Erro ao excluir disciplina", Toast.Error);
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao excluir disciplina", Toast.Error);
+      }
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -73,7 +83,17 @@ export default function DisciplinasPage() {
           onChange={e => setCodigo(e.target.value)}
           className="border rounded p-2"
         />
-        <Button color="success" onClick={salvarDisciplina}>Adicionar Disciplina</Button>
+        <Button color="success" onClick={salvarDisciplina}>
+          {isLoading ?
+            <RotatingLines
+              strokeColor="white"
+              strokeWidth="5"
+              animationDuration="0.75"
+              width="24"
+              visible={true}
+            /> :
+            <span>Adicionar Disciplina</span>}
+        </Button>
       </div>
 
       {/* Tabela */}

@@ -1,5 +1,3 @@
-import {useContext} from "react";
-
 export interface Disciplina {
   id: number;
   nome: string;

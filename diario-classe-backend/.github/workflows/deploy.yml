@@ -1,0 +1,33 @@
+name: CI - Testes e Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      SECRET: ${{ secrets.SECRET }}
+      ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      ADMIN_NAME: ${{ secrets.ADMIN_NAME }}
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'oracle'
+          java-version: '21'
+
+      - name: Permissão do wrapper
+        run: chmod +x mvnw
+
+      - name: Build e Testes
+        run: ./mvnw clean install
+

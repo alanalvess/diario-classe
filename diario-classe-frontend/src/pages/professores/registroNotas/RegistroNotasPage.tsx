@@ -3,7 +3,8 @@ import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow}
 import {buscar, cadastrar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {AuthContext} from "../../../contexts/AuthContext.tsx";
-import {Aluno, Avaliacao, Disciplina, Nota, Turma} from "../../../models";
+import type {Aluno, Avaliacao, Disciplina, Nota, Turma} from "../../../models";
+import {RotatingLines} from "react-loader-spinner";
 
 // export default function RegistroNotasPage() {
 //   const {usuario, handleLogout, isHydrated} = useContext(AuthContext);
@@ -302,7 +303,7 @@ import {Aluno, Avaliacao, Disciplina, Nota, Turma} from "../../../models";
 // }
 
 export default function RegistroNotasPage() {
-  const { usuario, handleLogout, isHydrated } = useContext(AuthContext);
+  const {usuario, isHydrated} = useContext(AuthContext);
   const token = usuario.token;
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
@@ -320,7 +321,7 @@ export default function RegistroNotasPage() {
   // 🔹 Buscar turmas do professor
   useEffect(() => {
     if (isHydrated && token) {
-      buscar("/turmas", setTurmas, { headers: { Authorization: `Bearer ${token}` } });
+      buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${token}`}});
     }
   }, [token, isHydrated]);
 
@@ -328,7 +329,7 @@ export default function RegistroNotasPage() {
   async function buscarDisciplinas() {
     if (!turmaSelecionada) return;
     await buscar(`/disciplinas/turma/${turmaSelecionada}`, setDisciplinas, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {Authorization: `Bearer ${token}`},
     });
   }
 
@@ -336,7 +337,7 @@ export default function RegistroNotasPage() {
   async function buscarAvaliacoes() {
     if (!disciplinaSelecionada) return;
     await buscar(`/avaliacoes/disciplina/${disciplinaSelecionada}`, setAvaliacoes, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {Authorization: `Bearer ${token}`},
     });
   }
 
@@ -344,7 +345,7 @@ export default function RegistroNotasPage() {
   async function buscarAlunos() {
     if (!disciplinaSelecionada) return;
     await buscar(`/alunos/disciplina/${disciplinaSelecionada}`, setAlunos, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {Authorization: `Bearer ${token}`},
     });
   }
 
@@ -354,10 +355,13 @@ export default function RegistroNotasPage() {
     setIsLoading(true);
     try {
       await buscar(`/notas/avaliacao/${avaliacaoSelecionada}`, setNotas, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {Authorization: `Bearer ${token}`},
       });
-    } catch (err) {
-      ToastAlerta("Erro ao carregar notas", Toast.Error);
+
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao carregar notas", Toast.Error);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -393,15 +397,20 @@ export default function RegistroNotasPage() {
     };
 
     try {
-      await cadastrar("/notas", body, () => {}, {
+      await cadastrar("/notas", body, () => {
+      }, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
       ToastAlerta(`✅ Nota de ${nota.alunoNome} salva`, Toast.Success);
-    } catch (err) {
-      ToastAlerta("Erro ao salvar nota", Toast.Error);
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao salvar nota", Toast.Error);
+      }
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -450,7 +459,7 @@ export default function RegistroNotasPage() {
           <option value="">Selecione a turma</option>
           {turmas.map(t => (
             <option key={t.id} value={t.id}>
-              {t.nome} ({t.ano})
+              {t.nome} ({t.anoLetivo})
             </option>
           ))}
         </select>
@@ -482,7 +491,15 @@ export default function RegistroNotasPage() {
         </select>
 
         <Button color="success" onClick={buscarNotas} disabled={!avaliacaoSelecionada}>
-          Carregar notas
+          {isLoading ?
+            <RotatingLines
+              strokeColor="white"
+              strokeWidth="5"
+              animationDuration="0.75"
+              width="24"
+              visible={true}
+            /> :
+            <span>Adicionar Professor</span>}
         </Button>
       </div>
 
@@ -512,7 +529,7 @@ export default function RegistroNotasPage() {
                         if (existe) {
                           // Atualiza a nota existente
                           return prev.map(x =>
-                            x.alunoId === nota.alunoId ? { ...x, valor: novoValor } : x
+                            x.alunoId === nota.alunoId ? {...x, valor: novoValor} : x
                           );
                         } else {
                           // Cria nova nota para aluno que ainda não tem

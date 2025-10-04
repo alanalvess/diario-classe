@@ -1,15 +1,15 @@
-import { useEffect, useState, useContext } from "react";
-import { Button, Table, TableHead, TableHeadCell, TableBody, TableRow, TableCell } from "flowbite-react";
-import { jsPDF } from "jspdf";
+import {useContext, useEffect, useState} from "react";
+import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
+import {jsPDF} from "jspdf";
 import * as XLSX from "xlsx";
 import {AuthContext} from "../../../contexts/AuthContext.tsx";
-import {Filtro} from "../../../models/Filtro.ts";
-import {Relatorio} from "../../../models/Relatorio.ts";
 import {buscar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
+import type {Filtro, Relatorio} from "../../../models";
+import {RotatingLines} from "react-loader-spinner";
 
 export default function RelatoriosPage() {
-  const { usuario, isHydrated } = useContext(AuthContext);
+  const {usuario, isHydrated} = useContext(AuthContext);
   const token = usuario.token;
 
   const [filtros, setFiltros] = useState<Filtro>({
@@ -23,12 +23,14 @@ export default function RelatoriosPage() {
   const [professores, setProfessores] = useState<{ id: number; nome: string }[]>([]);
   const [relatorio, setRelatorio] = useState<Relatorio[]>([]);
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   // 🔹 Buscar opções de filtro iniciais
   useEffect(() => {
     if (!isHydrated || !token) return;
 
-    buscar("/turmas", setTurmas, { headers: { Authorization: `Bearer ${token}` } });
-    buscar("/professores", setProfessores, { headers: { Authorization: `Bearer ${token}` } });
+    buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${token}`}});
+    buscar("/professores", setProfessores, {headers: {Authorization: `Bearer ${token}`}});
   }, [isHydrated, token]);
 
   // 🔹 Buscar disciplinas quando seleciona uma turma
@@ -38,7 +40,7 @@ export default function RelatoriosPage() {
       return;
     }
 
-    buscar(`/disciplinas/turma/${filtros.turmaId}`, setDisciplinas, { headers: { Authorization: `Bearer ${token}` } });
+    buscar(`/disciplinas/turma/${filtros.turmaId}`, setDisciplinas, {headers: {Authorization: `Bearer ${token}`}});
   }, [filtros.turmaId, token, isHydrated]);
 
   // 🔹 Gerar relatório PDF ou Excel
@@ -46,12 +48,12 @@ export default function RelatoriosPage() {
     try {
       const query = new URLSearchParams({
         tipo,
-        ...(filtros.turmaId ? { turmaId: filtros.turmaId.toString() } : {}),
-        ...(filtros.disciplinaId ? { disciplinaId: filtros.disciplinaId.toString() } : {}),
+        ...(filtros.turmaId ? {turmaId: filtros.turmaId.toString()} : {}),
+        ...(filtros.disciplinaId ? {disciplinaId: filtros.disciplinaId.toString()} : {}),
       });
 
       const response = await fetch(`http://localhost:8080/relatorios?${query.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {Authorization: `Bearer ${token}`},
       });
 
       if (!response.ok) throw new Error("Erro ao gerar relatório");
@@ -67,8 +69,12 @@ export default function RelatoriosPage() {
       window.URL.revokeObjectURL(url);
 
       ToastAlerta("✅ Relatório gerado", Toast.Success);
-    } catch (err) {
-      ToastAlerta("Erro ao gerar relatório", Toast.Error);
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao gerar relatório", Toast.Error);
+      }
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -107,12 +113,12 @@ export default function RelatoriosPage() {
           type="text"
           placeholder="Ano Letivo"
           value={filtros.anoLetivo}
-          onChange={(e) => setFiltros(prev => ({ ...prev, anoLetivo: e.target.value }))}
+          onChange={(e) => setFiltros(prev => ({...prev, anoLetivo: e.target.value}))}
           className="border rounded p-2"
         />
         <select
           value={filtros.turmaId ?? ""}
-          onChange={(e) => setFiltros(prev => ({ ...prev, turmaId: Number(e.target.value) || null }))}
+          onChange={(e) => setFiltros(prev => ({...prev, turmaId: Number(e.target.value) || null}))}
           className="border rounded p-2"
         >
           <option value="">Todas as Turmas</option>
@@ -120,14 +126,36 @@ export default function RelatoriosPage() {
         </select>
         <select
           value={filtros.disciplinaId ?? ""}
-          onChange={(e) => setFiltros(prev => ({ ...prev, disciplinaId: Number(e.target.value) || null }))}
+          onChange={(e) => setFiltros(prev => ({...prev, disciplinaId: Number(e.target.value) || null}))}
           className="border rounded p-2"
         >
           <option value="">Todas as Disciplinas</option>
           {disciplinas.map(d => <option key={d.id} value={d.id}>{d.nome}</option>)}
         </select>
-        <Button color="success" onClick={() => gerarRelatorio("pdf")}>Gerar PDF</Button>
-        <Button color="info" onClick={() => gerarRelatorio("xlsx")}>Gerar Excel</Button>
+        <Button color="success" onClick={() => gerarRelatorio("pdf")}>
+          {isLoading ?
+            <RotatingLines
+              strokeColor="white"
+              strokeWidth="5"
+              animationDuration="0.75"
+              width="24"
+              visible={true}
+            /> :
+            <span>Gerar PDF</span>
+          }
+          </Button>
+        <Button color="info" onClick={() => gerarRelatorio("xlsx")}>
+          {isLoading ?
+            <RotatingLines
+              strokeColor="white"
+              strokeWidth="5"
+              animationDuration="0.75"
+              width="24"
+              visible={true}
+            /> :
+            <span>Gerar Excel</span>
+          }
+          </Button>
       </div>
 
       {/* Tabela */}

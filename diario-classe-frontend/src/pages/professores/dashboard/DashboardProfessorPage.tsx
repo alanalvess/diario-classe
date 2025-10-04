@@ -1,18 +1,17 @@
-import { useEffect, useState, useContext } from "react";
-import { Card } from "flowbite-react";
+import {Card} from "flowbite-react";
 
-import { Bar, Pie, Line } from "react-chartjs-2";
+import {Bar, Line, Pie} from "react-chartjs-2";
 import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
   ArcElement,
-  CategoryScale,
-  LinearScale,
   BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
   LineElement,
   PointElement,
+  Title,
+  Tooltip,
 } from "chart.js";
 
 // Registrar módulos do Chart.js
@@ -47,18 +46,8 @@ export default function DashboardProfessorPage() {
     ],
   };
 
-  const observacoesData = {
-    labels: ["Faltas", "Comportamento", "Participação"],
-    datasets: [
-      {
-        data: [12, 5, 8],
-        backgroundColor: ["#f87171", "#60a5fa", "#34d399"],
-      },
-    ],
-  };
-
   // 1️⃣ Observações por categoria (Pie)
-  const obsData = {
+  const observacoesData = {
     labels: ["Comportamento", "Atraso", "Disciplina", "Destaque"],
     datasets: [
       {
@@ -119,7 +108,6 @@ export default function DashboardProfessorPage() {
     ],
   };
 
-
   return (
     <div className="p-6 pt-28 space-y-6">
       <h1 className="text-2xl font-bold">📊 Dashboard do Professor</h1>
@@ -149,7 +137,7 @@ export default function DashboardProfessorPage() {
       <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
         <Card>
           <h2 className="font-bold mb-2">Evolução de Notas ao Longo do Tempo</h2>
-          <Line data={evolucaoData} />
+          <Line data={evolucaoData}/>
         </Card>
 
       </div>
@@ -157,22 +145,22 @@ export default function DashboardProfessorPage() {
       <div className="p-6 pt-28 grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <h2 className="font-bold mb-2">Observações por Categoria</h2>
-          <Pie data={obsData} />
+          <Pie data={observacoesData}/>
         </Card>
 
         <Card>
           <h2 className="font-bold mb-2">Média de Notas por Disciplina</h2>
-          <Bar data={notasData} options={{ indexAxis: "x" }} />
+          <Bar data={notasData} options={{indexAxis: "x"}}/>
         </Card>
 
         <Card>
           <h2 className="font-bold mb-2">Frequência de Presença por Aluno</h2>
-          <Bar data={freqData} options={{ indexAxis: "y" }} />
+          <Bar data={freqData} options={{indexAxis: "y"}}/>
         </Card>
 
         <Card>
           <h2 className="text-lg font-semibold mb-2">📅 Presenças e Faltas</h2>
-          <Line data={presencasData} />
+          <Line data={presencasData}/>
         </Card>
 
 

@@ -16,7 +16,9 @@ import {
 import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {AuthContext} from "../../../contexts/AuthContext.tsx";
-import {Presenca, Turma} from "../../../models";
+import type {Presenca, Turma} from "../../../models";
+import {RotatingLines} from "react-loader-spinner";
+import QRCodeScanner from "../../../components/qrCodeScanner/QrCodeScanner.tsx";
 
 export default function RegistroPresencaPage() {
   const {usuario, handleLogout, isHydrated} = useContext(AuthContext);
@@ -51,7 +53,7 @@ export default function RegistroPresencaPage() {
         setPresencas,
         {headers: {Authorization: `Bearer ${token}`}}
       );
-    } catch (error: any) {
+    } catch (error) {
       if (error.toString().includes("403")) {
         ToastAlerta("O token expirou, favor logar novamente", Toast.Error);
         handleLogout();
@@ -65,35 +67,50 @@ export default function RegistroPresencaPage() {
     if (isHydrated && token) buscarPresencas();
   }, [token, isHydrated]);
 
+  // useEffect(() => {
+  //   async function pedirPermissaoCamera() {
+  //     try {
+  //       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  //       stream.getTracks().forEach(track => track.stop()); // libera imediatamente
+  //       console.log("✅ Permissão da câmera concedida!");
+  //     } catch (err) {
+  //       console.error("❌ Permissão da câmera negada:", err);
+  //     }
+  //   }
+  //
+  //   pedirPermissaoCamera();
+  // }, []);
 
-  async function salvarTodasPresencas() {
-    try {
-      await Promise.all(
-        presencas.map(presenca => {
-          const body = {
-            data: dataChamada,
-            presente: presenca.presente,
-            alunoId: presenca.alunoId,
-            turmaId: presenca.turmaId,
-            metodoChamada: "MANUAL",
-          };
 
-          return cadastrar("/presencas/batch", body, () => {
-          }, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          });
-        })
-      );
 
-      ToastAlerta("✅ Todas as presenças salvas", Toast.Success);
-    } catch (error) {
-      console.error("Erro ao salvar presenças", error);
-      ToastAlerta("Erro ao salvar presenças", Toast.Error);
-    }
-  }
+  // async function salvarTodasPresencas() {
+  //   try {
+  //     await Promise.all(
+  //       presencas.map(presenca => {
+  //         const body = {
+  //           data: dataChamada,
+  //           presente: presenca.presente,
+  //           alunoId: presenca.alunoId,
+  //           turmaId: presenca.turmaId,
+  //           metodoChamada: "MANUAL",
+  //         };
+  //
+  //         return cadastrar("/presencas/batch", body, () => {
+  //         }, {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //             "Content-Type": "application/json",
+  //           },
+  //         });
+  //       })
+  //     );
+  //
+  //     ToastAlerta("✅ Todas as presenças salvas", Toast.Success);
+  //   } catch (error) {
+  //     console.error("Erro ao salvar presenças", error);
+  //     ToastAlerta("Erro ao salvar presenças", Toast.Error);
+  //   }
+  // }
 
   async function salvarPresenca(presenca: Presenca) {
     try {
@@ -131,7 +148,7 @@ export default function RegistroPresencaPage() {
   }
 
   // Quando ler o QR Code
-  const handleScan = async (result: any) => {
+  const handleScan = async (result) => {
     if (result?.text) {
       setScanResult(result.text);
       setQrOpen(false);
@@ -182,7 +199,16 @@ export default function RegistroPresencaPage() {
             disabled={!turmaSelecionada}
             className="w-full md:w-auto"
           >
-            Carregar alunos
+            {isLoading ?
+              <RotatingLines
+                strokeColor="white"
+                strokeWidth="5"
+                animationDuration="0.75"
+                width="24"
+                visible={true}
+              /> :
+              <span>Carregar alunos</span>}
+
           </Button>
         </div>
 
@@ -199,13 +225,30 @@ export default function RegistroPresencaPage() {
 
       <Modal show={qrOpen} onClose={() => setQrOpen(false)}>
         <ModalHeader>Ler QR Code</ModalHeader>
+        {/*<ModalBody>*/}
+        {/*  /!*<QrReader*!/*/}
+        {/*  /!*  constraints={{facingMode: "environment"}}*!/*/}
+        {/*  /!*  onResult={handleScan}*!/*/}
+        {/*  /!*  style={{width: "100%"}}*!/*/}
+
+        {/*    <p className="text-red-500 mt-2">*/}
+        {/*      ⚠️ Erro ao acessar câmera: {error.message || "Verifique as permissões do navegador."}*/}
+        {/*    </p>*/}
+        {/*  )}*/}
+        {/*  <video ref={ref} style={{ width: "100%", borderRadius: "8px" }} />*/}
+
+        {/*</ModalBody>*/}
         <ModalBody>
-          {/*<QrReader*/}
-          {/*  constraints={{facingMode: "environment"}}*/}
-          {/*  onResult={handleScan}*/}
-          {/*  style={{width: "100%"}}*/}
-          {/*/>*/}
+          {qrOpen && (
+            <Modal show={qrOpen} onClose={() => setQrOpen(false)}>
+              <ModalHeader>Ler QR Code</ModalHeader>
+              <ModalBody>
+                <QRCodeScanner onScan={handleScan} />
+              </ModalBody>
+            </Modal>
+          )}
         </ModalBody>
+
       </Modal>
 
       {presencas.length > 0 && (
