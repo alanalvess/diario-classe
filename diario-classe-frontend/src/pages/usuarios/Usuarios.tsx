@@ -29,8 +29,7 @@ function Usuarios() {
 
     const navigate = useNavigate();
 
-    const {usuario, handleLogout, isHydrated} = useContext(AuthContext);
-    const token = usuario.token;
+    const {usuario, handleLogout, isHydrated, isAuthenticated} = useContext(AuthContext);
 
     const [isLoading, setIsLoading] = useState(true);
 
@@ -45,8 +44,8 @@ function Usuarios() {
     async function buscarUsuarios() {
         try {
             setIsLoading(true);
-            await buscar('/usuarios/all', setUsuarios, {headers: {Authorization: token}});
-        } catch (error: any) {
+            await buscar('/usuarios/all', setUsuarios, {headers: {Authorization: usuario.token}});
+        } catch (error) {
             if (error.toString().includes('403')) {
                 ToastAlerta('O token expirou, favor logar novamente', Toast.Error);
                 handleLogout();
@@ -61,17 +60,17 @@ function Usuarios() {
     useEffect(() => {
         if (!isHydrated) return;
 
-        if (token === '') {
+        if (isAuthenticated) {
             ToastAlerta('Você precisa estar logado', Toast.Warning);
             navigate('/login');
         }
-    }, [token, isHydrated]);
+    }, [isAuthenticated, isHydrated]);
 
     useEffect(() => {
-        if (isHydrated && token !== '') {
+        if (isHydrated && isAuthenticated) {
             buscarUsuarios();
         }
-    }, [token, isHydrated]);
+    }, [isAuthenticated, isHydrated]);
 
     const usuariosParaExibir = [...usuarios].sort((a, b) => {
         const aNum = parseFloat(a.nome);

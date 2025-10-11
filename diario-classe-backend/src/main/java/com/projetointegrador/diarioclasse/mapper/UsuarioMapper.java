@@ -5,6 +5,7 @@ import com.projetointegrador.diarioclasse.dto.response.UsuarioResponse;
 import com.projetointegrador.diarioclasse.entity.Usuario;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 @Component
@@ -16,7 +17,7 @@ public class UsuarioMapper {
         entity.setNome(request.nome());
         entity.setEmail(request.email());
         entity.setSenha(request.senha());
-        entity.setRoles(request.roles() != null ? request.roles() : new HashSet<>());
+        entity.setRoles(request.roles() != null ? request.roles() : new ArrayList<>());
 
         return entity;
     }

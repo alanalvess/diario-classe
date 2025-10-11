@@ -7,7 +7,7 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
+import java.util.List;
 
 @Service
 public class AdminSetupService {
@@ -34,7 +34,7 @@ public class AdminSetupService {
                     .nome(adminProperties.getAdminName())
                     .email(adminProperties.getAdminEmail())
                     .senha(encoder.encode(adminProperties.getAdminPassword()))
-                    .roles(Set.of(Role.ADMIN))
+                    .roles(List.of(Role.ADMIN))
                     .build();
             repository.save(admin);
         }

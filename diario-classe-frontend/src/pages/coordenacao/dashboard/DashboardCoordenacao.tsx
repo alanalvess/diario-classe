@@ -19,8 +19,7 @@ import type {Aluno, Disciplina, Observacao, Professor, Turma} from "../../../mod
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 export default function DashboardCoordenacaoPage() {
-  const { usuario, isHydrated } = useContext(AuthContext);
-  const token = usuario.token;
+  const { usuario, isHydrated, isAuthenticated} = useContext(AuthContext);
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [professores, setProfessores] = useState<Professor[]>([]);
@@ -29,13 +28,13 @@ export default function DashboardCoordenacaoPage() {
   const [observacoes, setObservacoes] = useState<Observacao[]>([]);
 
   useEffect(() => {
-    if (!isHydrated || !token) return;
-    buscar("/turmas", setTurmas, { headers: { Authorization: `Bearer ${token}` } });
-    buscar("/professores", setProfessores, { headers: { Authorization: `Bearer ${token}` } });
-    buscar("/alunos", setAlunos, { headers: { Authorization: `Bearer ${token}` } });
-    buscar("/disciplinas", setDisciplinas, { headers: { Authorization: `Bearer ${token}` } });
-    buscar("/observacoes", setObservacoes, { headers: { Authorization: `Bearer ${token}` } });
-  }, [isHydrated, token]);
+    if (!isHydrated || !isAuthenticated) return;
+    buscar("/turmas", setTurmas, { headers: { Authorization: `Bearer ${usuario.token}` } });
+    buscar("/professores", setProfessores, { headers: { Authorization: `Bearer ${usuario.token}` } });
+    buscar("/alunos", setAlunos, { headers: { Authorization: `Bearer ${usuario.token}` } });
+    buscar("/disciplinas", setDisciplinas, { headers: { Authorization: `Bearer ${usuario.token}` } });
+    buscar("/observacoes", setObservacoes, { headers: { Authorization: `Bearer ${usuario.token}` } });
+  }, [isHydrated, isAuthenticated]);
 
   // 🔹 Alunos por turma
   const alunosPorTurma = turmas.map(t => ({
@@ -78,7 +77,7 @@ export default function DashboardCoordenacaoPage() {
   };
 
   return (
-    <div className="p-6 pt-28">
+    <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
       <h1 className="text-2xl font-bold mb-6">Dashboard da Coordenação</h1>
 
       {/* Indicadores principais */}

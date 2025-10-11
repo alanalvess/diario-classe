@@ -4,7 +4,6 @@ import com.projetointegrador.diarioclasse.entity.Responsavel;
 import com.projetointegrador.diarioclasse.entity.Turma;
 
 import java.time.LocalDate;
-import java.util.Set;
 
 public record AlunoRequest(
         String nome,

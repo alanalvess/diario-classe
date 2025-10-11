@@ -7,8 +7,7 @@ import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {RotatingLines} from "react-loader-spinner";
 
 export default function DisciplinasPage() {
-  const {usuario, isHydrated} = useContext(AuthContext);
-  const token = usuario.token;
+  const {usuario, isHydrated, isAuthenticated} = useContext(AuthContext);
 
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [nome, setNome] = useState("");
@@ -17,9 +16,9 @@ export default function DisciplinasPage() {
 
   // 🔹 Buscar disciplinas
   useEffect(() => {
-    if (!isHydrated || !token) return;
-    buscar("/disciplinas", setDisciplinas, {headers: {Authorization: `Bearer ${token}`}});
-  }, [isHydrated, token]);
+    if (!isHydrated || !isAuthenticated) return;
+    buscar("/disciplinas", setDisciplinas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+  }, [isHydrated, isAuthenticated]);
 
   // 🔹 Criar disciplina
   async function salvarDisciplina() {
@@ -37,7 +36,7 @@ export default function DisciplinasPage() {
         setCodigo("");
         ToastAlerta("✅ Disciplina criada com sucesso", Toast.Success);
       }, {
-        headers: {Authorization: `Bearer ${token}`, "Content-Type": "application/json"}
+        headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}
       });
     } catch (error) {
       if (error instanceof Error) {
@@ -51,7 +50,7 @@ export default function DisciplinasPage() {
   // 🔹 Excluir disciplina
   async function excluirDisciplina(id: number) {
     try {
-      await deletar(`/disciplinas/${id}`, {headers: {Authorization: `Bearer ${token}`}});
+      await deletar(`/disciplinas/${id}`, {headers: {Authorization: `Bearer ${usuario.token}`}});
       setDisciplinas(prev => prev.filter(d => d.id !== id));
       ToastAlerta("✅ Disciplina excluída", Toast.Success);
     } catch (error) {
@@ -64,7 +63,7 @@ export default function DisciplinasPage() {
   }
 
   return (
-    <div className="p-6 pt-28">
+    <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
       <h1 className="text-2xl font-bold mb-6">Gestão de Disciplinas</h1>
 
       {/* Formulário */}
@@ -83,7 +82,7 @@ export default function DisciplinasPage() {
           onChange={e => setCodigo(e.target.value)}
           className="border rounded p-2"
         />
-        <Button color="success" onClick={salvarDisciplina}>
+        <Button onClick={salvarDisciplina}>
           {isLoading ?
             <RotatingLines
               strokeColor="white"

@@ -12,6 +12,7 @@ public record NotaResponse(
         Long alunoId,
         String alunoNome,
         Long disciplinaId,
+        String disciplinaNome,
         Long avaliacaoId,
         LocalDate dataLancamento
 ) {

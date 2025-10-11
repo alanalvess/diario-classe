@@ -15,7 +15,6 @@ interface SearchBarUsuarioProps {
 function SearchBarUsuario({onSearch, onClear}: SearchBarUsuarioProps) {
 
     const {usuario, handleLogout} = useContext(AuthContext);
-    const token = usuario.token;
 
     const [query, setQuery] = useState('');
 
@@ -31,7 +30,7 @@ function SearchBarUsuario({onSearch, onClear}: SearchBarUsuarioProps) {
 
         const pesquisa = query.trim();
 
-        const authHeaders = {headers: {Authorization: token}};
+        const authHeaders = {headers: {Authorization: usuario.token}};
 
         try {
 
@@ -87,7 +86,7 @@ function SearchBarUsuario({onSearch, onClear}: SearchBarUsuarioProps) {
 
                 <Button
                     onClick={handleClear}
-                    className="cursor-pointer h-10 flex items-center justify-center gap-2 px-3 rounded-md transition-all hover:text-rose-500 dark:hover:text-rose-500 focus:outline-none focus:ring-0"
+                    className="cursor-pointer h-10 flex items-center justify-center gap-2 px-3 rounded-md transition-all hover:text-green-500 dark:hover:text-green-500 focus:outline-none focus:ring-0"
                     color="alternative"
                 >
                     <FiX size={22}/>

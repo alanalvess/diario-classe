@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Entity
@@ -32,7 +31,7 @@ public class Responsavel {
             joinColumns = @JoinColumn(name = "responsavel_id"),
             inverseJoinColumns = @JoinColumn(name = "aluno_id")
     )
-    private Set<Aluno> alunos;
+    private List<Aluno> alunos = new ArrayList<>();
 
     public Responsavel(Long id, String nome, String email) {
         this.id = id;

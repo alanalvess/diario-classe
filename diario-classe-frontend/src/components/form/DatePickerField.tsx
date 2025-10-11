@@ -79,8 +79,8 @@ export default function DatePickerField({
                     popup: {
                         footer: {
                             button: {
-                                base: "focus:ring-0 focus:ring-teal-300",
-                                today: "bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-700",
+                                base: "focus:ring-0 focus:ring-green-300",
+                                today: "bg-green-700 text-white hover:bg-green-800 dark:bg-green-600 dark:hover:bg-green-700",
                             }
                         }
                     },
@@ -88,14 +88,14 @@ export default function DatePickerField({
                         days: {
                             items: {
                                 item: {
-                                    selected: "bg-teal-600 text-white hover:bg-teal-700 dark:hover:bg-teal-500",
+                                    selected: "bg-green-600 text-white hover:bg-green-700 dark:hover:bg-green-500",
                                 }
                             }
                         },
                         decades: {
                             items: {
                                 item: {
-                                    selected: "bg-teal-700 hover:bg-teal-600",
+                                    selected: "bg-green-700 hover:bg-green-600",
                                     disabled: "text-gray-500"
                                 }
                             }

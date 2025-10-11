@@ -34,7 +34,7 @@ public class Avaliacao {
     private Disciplina disciplina;
 
     @OneToMany(mappedBy = "avaliacao")
-    private List<Nota> notas;
+    private List<Nota> notas = new ArrayList<>();
 
     public Double calcularMedia() {
         if (notas == null || notas.isEmpty()) return 0.0;

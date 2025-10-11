@@ -39,7 +39,7 @@ public class NotificationTestController {
                                 resp.setNome(r.nome());
                                 resp.setEmail(r.email());
                                 return resp;
-                            }).collect(Collectors.toSet())
+                            }).collect(Collectors.toList())
                     );
 
                     return new Predicao(

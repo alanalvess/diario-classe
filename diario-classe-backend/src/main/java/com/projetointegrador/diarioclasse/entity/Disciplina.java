@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Entity
@@ -28,13 +27,13 @@ public class Disciplina {
     private Double frequenciaMedia;
 
     @ManyToMany(mappedBy = "disciplinas")
-    private Set<Professor> professores;
+    private List<Professor> professores = new ArrayList<>();
 
     @ManyToMany(mappedBy = "disciplinas")
-    private Set<Turma> turmas;
+    private List<Turma> turmas = new ArrayList<>();
 
     @OneToMany(mappedBy = "disciplina")
-    private List<Avaliacao> avaliacoes;
+    private List<Avaliacao> avaliacoes = new ArrayList<>();
 
     // média dos alunos na disciplina
     public Double calcularMediaDisciplina(Turma turma) {

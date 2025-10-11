@@ -5,167 +5,10 @@ import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import type {Aluno, Disciplina, Observacao, Turma} from "../../../models";
 import {RotatingLines} from "react-loader-spinner";
-
-// export default function RegistroObservacoesPage() {
-//   const { usuario, isHydrated } = useContext(AuthContext);
-//   const token = usuario.token;
-//
-//   const [turmas, setTurmas] = useState<Turma[]>([]);
-//   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
-//   const [alunos, setAlunos] = useState<Aluno[]>([]);
-//   const [observacoes, setObservacoes] = useState<Observacao[]>([]);
-//
-//   const [turmaSelecionada, setTurmaSelecionada] = useState<number | null>(null);
-//   const [disciplinaSelecionada, setDisciplinaSelecionada] = useState<number | null>(null);
-//   const [alunoSelecionado, setAlunoSelecionado] = useState<number | null>(null);
-//   const [descricao, setDescricao] = useState("");
-//   const [categoria, setCategoria] = useState("");
-//   const [observacao, setObservacao] = useState<Observacao>();
-//   const [data, setData] = useState(new Date().toISOString().split("T")[0]);
-//
-//   // 🔹 Buscar turmas do professor
-//   useEffect(() => {
-//     if (isHydrated && token) {
-//       buscar("/turmas", setTurmas, { headers: { Authorization: `Bearer ${token}` } });
-//     }
-//   }, [token, isHydrated]);
-//
-//
-//   // 🔹 Buscar disciplinas da turmas selecionada
-//   async function buscarDisciplinas() {
-//     if (!turmaSelecionada) return;
-//     await buscar(`/disciplinas/turmas/${turmaSelecionada}`, setDisciplinas, {
-//       headers: { Authorization: `Bearer ${token}` },
-//     });
-//   }
-//
-//   // 🔹 Buscar alunos da disciplina
-//   async function buscarAlunos() {
-//     if (!disciplinaSelecionada) return;
-//     await buscar(`/alunos/disciplina/${disciplinaSelecionada}`, setAlunos, {
-//       headers: { Authorization: `Bearer ${token}` },
-//     });
-//   }
-//
-//   useEffect(() => {
-//     if (turmaSelecionada && token) buscarDisciplinas();
-//   }, [turmaSelecionada, token]);
-//
-//   useEffect(() => {
-//     if (disciplinaSelecionada && token) {
-//       buscarAlunos();
-//     }
-//   }, [disciplinaSelecionada, token]);
-//
-//   async function salvarObservacao() {
-//     if (!alunoSelecionado || !turmaSelecionada || !disciplinaSelecionada) return;
-//
-//     const body = {
-//       // não precisa do id para criação
-//       data,
-//       descricao,
-//       categoria,
-//       alunoId: alunoSelecionado,
-//       // professorId: usuario.id,
-//       turmaId: turmaSelecionada,
-//       disciplinaId: disciplinaSelecionada,
-//     };
-//
-//     console.log("Observação a enviar:", {
-//       data,
-//       descricao,
-//       categoria,
-//       alunoId: alunoSelecionado,
-//       professorId: usuario.id,
-//       turmaId: turmaSelecionada,
-//       disciplinaId: disciplinaSelecionada,
-//     });
-//
-//
-//     try {
-//       await cadastrar("/observacoes", body, (novaObs: any) => {
-//         // adiciona a observação retornada do backend na lista
-//         setObservacoes(prev => [...prev, novaObs]);
-//         // limpa campos
-//         setDescricao("");
-//         setCategoria("");
-//       }, {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//           "Content-Type": "application/json",
-//         },
-//       });
-//
-//       ToastAlerta("✅ Observação salva", Toast.Success);
-//     } catch (err) {
-//       ToastAlerta("Erro ao salvar observação", Toast.Error);
-//     }
-//   }
-//
-//
-//
-//   return (
-//     <div className="p-6 pt-28">
-//       <h1 className="text-2xl font-bold mb-6">Registro de Observações</h1>
-//
-//       {/* Filtros */}
-//       <div className="flex flex-wrap gap-4 mb-6">
-//         <select value={turmaSelecionada ?? ""} onChange={e => setTurmaSelecionada(Number(e.target.value))}>
-//           <option value="">Selecione a turmas</option>
-//           {turmas.map(t => <option key={t.id} value={t.id}>{t.nome} ({t.ano})</option>)}
-//         </select>
-//
-//         <select value={disciplinaSelecionada ?? ""} onChange={e => setDisciplinaSelecionada(Number(e.target.value))}>
-//           <option value="">Selecione a disciplina</option>
-//           {disciplinas.map(d => <option key={d.id} value={d.id}>{d.nome}</option>)}
-//         </select>
-//
-//         <select value={alunoSelecionado ?? ""} onChange={e => setAlunoSelecionado(Number(e.target.value))}>
-//           <option value="">Selecione o aluno</option>
-//           {alunos.map(a => <option key={a.id} value={a.id}>{a.nome}</option>)}
-//         </select>
-//       </div>
-//
-//       {/* Formulário de observação */}
-//       <div className="flex flex-col gap-2 mb-6">
-//         <input type="date" value={data} onChange={e => setData(e.target.value)} className="border rounded p-2"/>
-//         <input type="text" placeholder="Categoria" value={categoria} onChange={e => setCategoria(e.target.value)} className="border rounded p-2"/>
-//         <textarea placeholder="Descrição" value={descricao} onChange={e => setDescricao(e.target.value)} className="border rounded p-2"/>
-//
-//         <Button
-//           color="success"
-//           onClick={salvarObservacao}
-//         >
-//           Salvar Observação
-//         </Button>
-//       </div>
-//
-//       {/* Tabela de observações */}
-//       {observacoes.length > 0 && (
-//         <Table>
-//           <TableHead>
-//             <TableHeadCell>Data</TableHeadCell>
-//             <TableHeadCell>Categoria</TableHeadCell>
-//             <TableHeadCell>Descrição</TableHeadCell>
-//           </TableHead>
-//           <TableBody>
-//             {observacoes.map((observacao, i) => (
-//               <TableRow key={i}>
-//                 <TableCell>{observacao.data}</TableCell>
-//                 <TableCell>{observacao.categoria}</TableCell>
-//                 <TableCell>{observacao.descricao}</TableCell>
-//               </TableRow>
-//             ))}
-//           </TableBody>
-//         </Table>
-//       )}
-//     </div>
-//   );
-// }
+import {CategoriaObservacao} from "../../../enums/CategoriaObservacao.ts";
 
 export default function RegistroObservacoesPage() {
-  const {usuario, isHydrated} = useContext(AuthContext);
-  const token = usuario.token;
+  const {usuario, isHydrated, isAuthenticated} = useContext(AuthContext);
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
@@ -183,26 +26,26 @@ export default function RegistroObservacoesPage() {
 
   // 🔹 Buscar turmas do professor
   useEffect(() => {
-    if (isHydrated && token) {
-      buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${token}`}});
+    if (isHydrated && isAuthenticated) {
+      buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${usuario.token}`}});
     }
-  }, [token, isHydrated]);
+  }, [isHydrated, isAuthenticated]);
 
   // 🔹 Buscar disciplinas da turmas
   useEffect(() => {
     if (!turmaSelecionada) return;
     buscar(`/disciplinas/turma/${turmaSelecionada}`, setDisciplinas, {
-      headers: {Authorization: `Bearer ${token}`},
+      headers: {Authorization: `Bearer ${usuario.token}`},
     });
-  }, [turmaSelecionada, token]);
+  }, [turmaSelecionada, isAuthenticated]);
 
   // 🔹 Buscar alunos da disciplina
   useEffect(() => {
     if (!disciplinaSelecionada) return;
     buscar(`/alunos/disciplina/${disciplinaSelecionada}`, setAlunos, {
-      headers: {Authorization: `Bearer ${token}`},
+      headers: {Authorization: `Bearer ${usuario.token}`},
     });
-  }, [disciplinaSelecionada, token]);
+  }, [disciplinaSelecionada, isAuthenticated]);
 
   // 🔹 Buscar observações da turmas + disciplina (opcional filtro por aluno)
   useEffect(() => {
@@ -213,8 +56,8 @@ export default function RegistroObservacoesPage() {
       url = `/observacoes/aluno/${alunoSelecionado}`;
     }
 
-    buscar(url, setObservacoes, {headers: {Authorization: `Bearer ${token}`}});
-  }, [turmaSelecionada, disciplinaSelecionada, alunoSelecionado, token]);
+    buscar(url, setObservacoes, {headers: {Authorization: `Bearer ${usuario.token}`}});
+  }, [turmaSelecionada, disciplinaSelecionada, alunoSelecionado, isAuthenticated]);
 
   // 🔹 Salvar nova observação
   async function salvarObservacao() {
@@ -236,7 +79,7 @@ export default function RegistroObservacoesPage() {
         setCategoria("");
       }, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${usuario.token}`,
           "Content-Type": "application/json",
         },
       });
@@ -256,7 +99,7 @@ export default function RegistroObservacoesPage() {
     try {
       await deletar(`/observacoes/${id}`, {
         method: "DELETE",
-        headers: {Authorization: `Bearer ${token}`},
+        headers: {Authorization: `Bearer ${usuario.token}`},
       });
       setObservacoes(prev => prev.filter(observacao => observacao.id !== id));
       ToastAlerta("✅ Observação excluída", Toast.Success);
@@ -270,7 +113,7 @@ export default function RegistroObservacoesPage() {
   }
 
   return (
-    <div className="p-6 pt-28">
+    <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
       <h1 className="text-2xl font-bold mb-6">Registro de Observações</h1>
 
       {/* Filtros */}
@@ -294,12 +137,25 @@ export default function RegistroObservacoesPage() {
       {/* Formulário de observação */}
       <div className="flex flex-col gap-2 mb-6">
         <input type="date" value={data} onChange={e => setData(e.target.value)} className="border rounded p-2"/>
-        <input type="text" placeholder="Categoria" value={categoria} onChange={e => setCategoria(e.target.value)}
-               className="border rounded p-2"/>
+
+        <select
+          id="categoria"
+          value={categoria}
+          onChange={(e) => setCategoria(e.target.value as CategoriaObservacao)}
+          className="border rounded p-2 w-full bg-white dark:bg-gray-800 dark:text-gray-200"
+        >
+          <option value="">Selecione uma categoria</option>
+          {Object.values(CategoriaObservacao).map((valor) => (
+            <option key={valor} value={valor}>
+              {valor.charAt(0) + valor.slice(1).toLowerCase()}
+            </option>
+          ))}
+        </select>
+
         <textarea placeholder="Descrição" value={descricao} onChange={e => setDescricao(e.target.value)}
                   className="border rounded p-2"/>
 
-        <Button color="success" onClick={salvarObservacao}>
+        <Button  onClick={salvarObservacao}>
           {isLoading ?
             <RotatingLines
               strokeColor="white"

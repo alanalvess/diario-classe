@@ -1,5 +1,5 @@
 import './App.css'
-import {AuthProvider} from "./contexts/AuthContext.tsx";
+import {AuthProvider} from "./contexts/AuthProvider.tsx";
 import NavbarElement from "./components/navbarElement/NavbarElement.tsx";
 import Home from "./pages/home/Home.tsx";
 import RegistroPresencaPage from "./pages/professores/registroPresenca/RegistroPresencaPage.tsx";
@@ -15,12 +15,12 @@ import MatriculasPage from "./pages/coordenacao/matriculas/MatriculasPage.tsx";
 import DashboardCoordenacaoPage from "./pages/coordenacao/dashboard/DashboardCoordenacao.tsx";
 import RelatoriosPage from "./pages/coordenacao/relatorios/RelatoriosPage.tsx";
 import Login from "./pages/login/Login.tsx";
-import Cadastro from "./pages/cadastro/Cadastro.tsx";
+import Cadastro from "./pages/usuario/cadastro/Cadastro.tsx";
 import FormularioUsuario from "./components/usuarios/formularioUsuario/FormularioUsuario.tsx";
 import Perfil from "./pages/usuario/perfil/Perfil.tsx";
 import Usuarios from "./pages/usuarios/Usuarios.tsx";
 import EditarUsuario from "./pages/usuario/editarUsuario/EditarUsuario.tsx";
-import Admin from "./pages/usuario/admin/Admin.tsx";
+import Admin from "./pages/usuario/usuarios/ListarUsuarios.tsx";
 import Sobre from "./pages/sobre/Sobre.tsx";
 import Duvidas from "./pages/duvidas/Duvidas.tsx";
 import Erro500 from "./pages/erros/Erro500.tsx";
@@ -28,6 +28,9 @@ import Erro404 from "./pages/erros/Error404.tsx";
 import FooterElement from "./components/footerElement/FooterElement.tsx";
 import {BrowserRouter, Route, Routes} from 'react-router-dom';
 import {ToastContainer} from "react-toastify";
+import NotasPage from "./pages/responsavel/notasPage/NotasPage.tsx";
+import PresencaPage from "./pages/responsavel/presencaPage/PresencaPage.tsx";
+import ObservacoesPage from "./pages/responsavel/observacaoPage/ObservacaoPage.tsx";
 
 function App() {
 
@@ -62,9 +65,13 @@ function App() {
                 <Route path='/dashboardCoordenacao' element={<DashboardCoordenacaoPage/>}/>
                 <Route path='/relatorios' element={<RelatoriosPage/>}/>
 
+                <Route path='/notasAluno' element={<NotasPage/>}/>
+                <Route path='/presencaAluno' element={<PresencaPage/>}/>
+                <Route path='/observacoesAluno' element={<ObservacoesPage/>}/>
+
 
                 <Route path='/login' element={<Login/>}/>
-                <Route path='/cadastro' element={<Cadastro/>}/>
+                {/*<Route path='/cadastro' element={<Cadastro/>}/>*/}
                 <Route path='/cadastroUsuario' element={<FormularioUsuario/>}/>
 
                 <Route path='/presenca' element={<RegistroPresencaPage/>}/>

@@ -13,8 +13,11 @@ import {
   Title,
   Tooltip,
 } from "chart.js";
+import {useAuth} from "../../../contexts/UseAuth.ts";
+import {useEffect, useState} from "react";
+import type {Observacao} from "../../../models";
+import {buscar} from "../../../services/Service.ts";
 
-// Registrar módulos do Chart.js
 ChartJS.register(
   Title,
   Tooltip,
@@ -28,6 +31,49 @@ ChartJS.register(
 );
 
 export default function DashboardProfessorPage() {
+
+  const {usuario, isAuthenticated} = useAuth();
+
+  const [observacoes, setObservacoes] = useState<Observacao[]>([]);
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  const categoriaMap: Record<string, string> = {
+    FALTA: "Falta",
+    INDISCIPLINA: "Indisciplina",
+    ATIVIDADE: "Atividade Pós-Classe",
+  };
+
+  const totalObservacoes = observacoes.length;
+
+  const categoriasContagem = observacoes.reduce((acc: Record<string, number>, observacao) => {
+    const key = observacao.categoria || "Sem Categoria";
+    const friendlyKey = categoriaMap[key] || key; // converte para nome amigável
+    acc[friendlyKey] = (acc[friendlyKey] || 0) + 1;
+    return acc;
+  }, {});
+
+  const categoriasLabels = Object.keys(categoriasContagem);
+  const categoriasValores = Object.values(categoriasContagem);
+
+  async function carregarObservacoes() {
+    try {
+      await buscar("/observacoes", setObservacoes, {
+        headers: {Authorization: `Bearer ${usuario.token}`}
+      });
+    } catch (error) {
+      console.error("Erro ao buscar observações:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (isAuthenticated && usuario?.token) {
+      carregarObservacoes();
+    }
+  }, [isAuthenticated]);
+
   const presencasData = {
     labels: ["Jan", "Fev", "Mar", "Abr", "Mai"],
     datasets: [
@@ -46,19 +92,17 @@ export default function DashboardProfessorPage() {
     ],
   };
 
-  // 1️⃣ Observações por categoria (Pie)
   const observacoesData = {
-    labels: ["Comportamento", "Atraso", "Disciplina", "Destaque"],
+    labels: categoriasLabels,
     datasets: [
       {
         label: "Observações",
-        data: [12, 7, 5, 3],
-        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"],
+        data: categoriasValores,
+        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#A78BFA"],
       },
     ],
   };
 
-  // 2️⃣ Média de notas por disciplina (Bar)
   const notasData = {
     labels: ["Matemática", "Português", "História", "Ciências"],
     datasets: [
@@ -70,19 +114,6 @@ export default function DashboardProfessorPage() {
     ],
   };
 
-  // const notasData = {
-  //   labels: ["Matemática", "Português", "História", "Ciências"],
-  //   datasets: [
-  //     {
-  //       label: "Média das Notas",
-  //       data: [7.5, 8.2, 6.9, 7.8],
-  //       backgroundColor: "#3b82f6",
-  //     },
-  //   ],
-  // };
-
-
-  // 3️⃣ Frequência de presença por aluno (Horizontal Bar)
   const freqData = {
     labels: ["João", "Maria", "Pedro", "Ana", "Lucas"],
     datasets: [
@@ -94,7 +125,6 @@ export default function DashboardProfessorPage() {
     ],
   };
 
-  // 4️⃣ Evolução de notas ao longo do tempo (Line)
   const evolucaoData = {
     labels: ["Semana 1", "Semana 2", "Semana 3", "Semana 4", "Semana 5"],
     datasets: [
@@ -109,7 +139,8 @@ export default function DashboardProfessorPage() {
   };
 
   return (
-    <div className="p-6 pt-28 space-y-6">
+    <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10 space-y-6">
+
       <h1 className="text-2xl font-bold">📊 Dashboard do Professor</h1>
 
       {/* Cards de resumo */}
@@ -128,8 +159,11 @@ export default function DashboardProfessorPage() {
 
         <Card>
           <h2 className="text-lg font-semibold">Observações</h2>
-          <p className="text-3xl font-bold text-red-600">25</p>
-          <p className="text-sm text-gray-500">No último mês</p>
+          <p className="text-3xl font-bold text-red-600">
+            {isLoading ? "..." : totalObservacoes}
+
+          </p>
+          <p className="text-sm text-gray-500">Registradas</p>
         </Card>
       </div>
 
@@ -162,8 +196,6 @@ export default function DashboardProfessorPage() {
           <h2 className="text-lg font-semibold mb-2">📅 Presenças e Faltas</h2>
           <Line data={presencasData}/>
         </Card>
-
-
       </div>
     </div>
   );

@@ -9,8 +9,7 @@ import type {Filtro, Relatorio} from "../../../models";
 import {RotatingLines} from "react-loader-spinner";
 
 export default function RelatoriosPage() {
-  const {usuario, isHydrated} = useContext(AuthContext);
-  const token = usuario.token;
+  const {usuario, isHydrated, isAuthenticated} = useContext(AuthContext);
 
   const [filtros, setFiltros] = useState<Filtro>({
     anoLetivo: new Date().getFullYear().toString(),
@@ -27,21 +26,21 @@ export default function RelatoriosPage() {
 
   // 🔹 Buscar opções de filtro iniciais
   useEffect(() => {
-    if (!isHydrated || !token) return;
+    if (!isHydrated || !isAuthenticated) return;
 
-    buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${token}`}});
-    buscar("/professores", setProfessores, {headers: {Authorization: `Bearer ${token}`}});
-  }, [isHydrated, token]);
+    buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+    buscar("/professores", setProfessores, {headers: {Authorization: `Bearer ${usuario.token}`}});
+  }, [isHydrated, isAuthenticated]);
 
   // 🔹 Buscar disciplinas quando seleciona uma turma
   useEffect(() => {
-    if (!isHydrated || !token || !filtros.turmaId) {
+    if (!isHydrated || !isAuthenticated || !filtros.turmaId) {
       setDisciplinas([]);
       return;
     }
 
-    buscar(`/disciplinas/turma/${filtros.turmaId}`, setDisciplinas, {headers: {Authorization: `Bearer ${token}`}});
-  }, [filtros.turmaId, token, isHydrated]);
+    buscar(`/disciplinas/turma/${filtros.turmaId}`, setDisciplinas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+  }, [filtros.turmaId, isAuthenticated, isHydrated]);
 
   // 🔹 Gerar relatório PDF ou Excel
   async function gerarRelatorio(tipo: "pdf" | "xlsx") {
@@ -53,7 +52,7 @@ export default function RelatoriosPage() {
       });
 
       const response = await fetch(`http://localhost:8080/relatorios?${query.toString()}`, {
-        headers: {Authorization: `Bearer ${token}`},
+        headers: {Authorization: `Bearer ${usuario.token}`},
       });
 
       if (!response.ok) throw new Error("Erro ao gerar relatório");
@@ -114,7 +113,7 @@ export default function RelatoriosPage() {
   }
 
   return (
-    <div className="p-6 pt-28">
+    <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
       <h1 className="text-2xl font-bold mb-6">Relatórios da Coordenação</h1>
 
       {/* Filtros */}
@@ -142,7 +141,7 @@ export default function RelatoriosPage() {
           <option value="">Todas as Disciplinas</option>
           {disciplinas.map(d => <option key={d.id} value={d.id}>{d.nome}</option>)}
         </select>
-        <Button color="success" onClick={() => gerarRelatorio("pdf")}>
+        <Button onClick={() => gerarRelatorio("pdf")}>
           {isLoading ?
             <RotatingLines
               strokeColor="white"
@@ -154,7 +153,7 @@ export default function RelatoriosPage() {
             <span>Gerar PDF</span>
           }
           </Button>
-        <Button color="info" onClick={() => gerarRelatorio("xlsx")}>
+        <Button  onClick={() => gerarRelatorio("xlsx")}>
           {isLoading ?
             <RotatingLines
               strokeColor="white"

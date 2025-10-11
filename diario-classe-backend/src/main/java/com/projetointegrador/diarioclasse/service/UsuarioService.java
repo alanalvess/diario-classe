@@ -2,10 +2,11 @@ package com.projetointegrador.diarioclasse.service;
 
 import com.projetointegrador.diarioclasse.dto.request.UsuarioRequest;
 import com.projetointegrador.diarioclasse.dto.response.UsuarioResponse;
+import com.projetointegrador.diarioclasse.entity.Usuario;
+import com.projetointegrador.diarioclasse.enums.Role;
 import com.projetointegrador.diarioclasse.exeption.PermissaoNegadaException;
 import com.projetointegrador.diarioclasse.exeption.UsuarioNaoEncontradoException;
 import com.projetointegrador.diarioclasse.mapper.UsuarioMapper;
-import com.projetointegrador.diarioclasse.entity.Usuario;
 import com.projetointegrador.diarioclasse.repository.UsuarioRepository;
 import com.projetointegrador.diarioclasse.validation.EmailValidator;
 import com.projetointegrador.diarioclasse.validation.UsuarioValidator;
@@ -18,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class UsuarioService {
@@ -45,9 +47,25 @@ public class UsuarioService {
         this.usuarioValidator = usuarioValidator;
     }
 
+    //    public List<UsuarioResponse> listarTodos(String emailAutenticado) {
+//        if (!emailAutenticado.equals(adminProperties.getAdminEmail())) {
+//            throw new PermissaoNegadaException("Apenas o ADMIN pode visualizar todos os usuários.");
+//        }
+//
+//        return repository.findAll()
+//                .stream()
+//                .map(mapper::toResponseSemToken)
+//                .toList();
+//    }
     public List<UsuarioResponse> listarTodos(String emailAutenticado) {
-        if (!emailAutenticado.equals(adminProperties.getAdminEmail())) {
-            throw new PermissaoNegadaException("Apenas o ADMIN pode visualizar todos os usuários.");
+        Usuario usuarioLogado = repository.findByEmail(emailAutenticado)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        boolean isAdminOuCoord = usuarioLogado.getRoles().contains(Role.ADMIN)
+                || usuarioLogado.getRoles().contains(Role.COORDENADOR);
+
+        if (!isAdminOuCoord) {
+            throw new PermissaoNegadaException("Apenas ADMIN ou COORDENADOR podem visualizar todos os usuários.");
         }
 
         return repository.findAll()

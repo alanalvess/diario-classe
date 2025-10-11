@@ -6,8 +6,6 @@ import lombok.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-
 
 @Data
 @Entity
@@ -29,10 +27,12 @@ public class Professor {
             joinColumns = @JoinColumn(name = "professor_id"),
             inverseJoinColumns = @JoinColumn(name = "disciplina_id")
     )
-    private List<Disciplina> disciplinas;
+    private List<Disciplina> disciplinas = new ArrayList<>();
 
     @ManyToMany(mappedBy = "professores")
-    private Set<Turma> turmas;
+    private List<Turma> turmas = new ArrayList<>();
+
+
 
     public Nota registrarNota(Aluno aluno, Avaliacao avaliacao, Double valor) {
         return Nota.builder()

@@ -1,9 +1,6 @@
 package com.projetointegrador.diarioclasse.dto.response;
 
-import com.projetointegrador.diarioclasse.entity.Aluno;
-
 import java.util.List;
-import java.util.Set;
 
 public record TurmaResponse(
         Long id,
@@ -11,8 +8,11 @@ public record TurmaResponse(
         String anoLetivo,
         Double mediaTurma,
         Double frequenciaMedia,
-        Set<Long> professorIds,
+        List<Long> professorIds,
+        List<String> professorNomes,
         List<Long> disciplinaIds,
-        List<Long> alunoIds
+        List<String> disciplinaNomes,
+        List<Long> alunoIds,
+        List<String> alunoNomes
 ) {
 }

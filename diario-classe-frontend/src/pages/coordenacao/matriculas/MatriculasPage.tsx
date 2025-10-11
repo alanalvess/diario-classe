@@ -7,8 +7,7 @@ import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {RotatingLines} from "react-loader-spinner";
 
 export default function MatriculasPage() {
-  const {usuario, isHydrated} = useContext(AuthContext);
-  const token = usuario.token;
+  const {usuario, isHydrated, isAuthenticated} = useContext(AuthContext);
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
@@ -23,17 +22,17 @@ export default function MatriculasPage() {
 
   // 🔹 Buscar turmas, disciplinas e alunos gerais
   useEffect(() => {
-    if (!isHydrated || !token) return;
-    buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${token}`}});
-    buscar("/disciplinas", setDisciplinas, {headers: {Authorization: `Bearer ${token}`}});
-    buscar("/alunos", setAlunos, {headers: {Authorization: `Bearer ${token}`}});
-  }, [isHydrated, token]);
+    if (!isHydrated || !isAuthenticated) return;
+    buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+    buscar("/disciplinas", setDisciplinas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+    buscar("/alunos", setAlunos, {headers: {Authorization: `Bearer ${usuario.token}`}});
+  }, [isHydrated, isAuthenticated]);
 
   // 🔹 Buscar matriculas da turma selecionada
   useEffect(() => {
     if (!turmaSelecionada) return;
-    buscar(`/alunos-disciplinas/turma/${turmaSelecionada}`, setMatriculas, {headers: {Authorization: `Bearer ${token}`}});
-  }, [turmaSelecionada, token]);
+    buscar(`/alunos-disciplinas/turma/${turmaSelecionada}`, setMatriculas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+  }, [turmaSelecionada, isAuthenticated]);
 
   // 🔹 Filtrar matriculas por disciplina
   const matriculasFiltradas = disciplinaSelecionada
@@ -63,7 +62,7 @@ export default function MatriculasPage() {
         });
         setAlunoSelecionado(null);
         ToastAlerta("✅ Aluno matriculado", Toast.Success);
-      }, {headers: {Authorization: `Bearer ${token}`, "Content-Type": "application/json"}});
+      }, {headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}});
     } catch {
       ToastAlerta("Erro ao matricular aluno", Toast.Error);
     }
@@ -71,7 +70,7 @@ export default function MatriculasPage() {
 
   async function excluirMatricula(id: number) {
     try {
-      await deletar(`/alunos-disciplinas/${id}`, {headers: {Authorization: `Bearer ${token}`}});
+      await deletar(`/alunos-disciplinas/${id}`, {headers: {Authorization: `Bearer ${usuario.token}`}});
       setMatriculas(prev => prev.filter(m => m.id !== id));
       ToastAlerta("✅ Matrícula removida", Toast.Success);
     } catch (error) {
@@ -84,7 +83,7 @@ export default function MatriculasPage() {
   }
 
   return (
-    <div className="p-6 pt-28">
+    <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
       <h1 className="text-2xl font-bold mb-6">Matrículas de Alunos</h1>
 
       {/* Filtros */}
@@ -107,16 +106,19 @@ export default function MatriculasPage() {
           {alunos.map(a => <option key={a.id} value={a.id}>{a.nome}</option>)}
         </select>
 
-        <Button color="success" onClick={matricularAluno}>
-          {isLoading ?
-            <RotatingLines
-              strokeColor="white"
-              strokeWidth="5"
-              animationDuration="0.75"
-              width="24"
-              visible={true}
-            /> :
-            <span>Matricular</span>}
+        <Button  onClick={matricularAluno}>
+          {/*{isLoading ?*/}
+          {/*  <RotatingLines*/}
+          {/*    strokeColor="white"*/}
+          {/*    strokeWidth="5"*/}
+          {/*    animationDuration="0.75"*/}
+          {/*    width="24"*/}
+          {/*    visible={true}*/}
+          {/*  /> :*/}
+            <span>
+              Matricular
+            </span>
+          {/*}*/}
         </Button>
       </div>
 

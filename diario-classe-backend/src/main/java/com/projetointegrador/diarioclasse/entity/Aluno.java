@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 import org.apache.catalina.util.ResourceSet;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
@@ -41,121 +41,24 @@ public class Aluno {
     private Turma turma;
 
     @ManyToMany(mappedBy = "alunos")
-    private Set<Responsavel> responsaveis;
+    private List<Responsavel> responsaveis = new ArrayList<>();
 
     @OneToMany(mappedBy = "aluno")
-    private List<AlunoDisciplina> alunoDisciplinas;
+    private List<AlunoDisciplina> alunoDisciplinas = new ArrayList<>();
 
     @OneToMany(mappedBy = "aluno")
-    private List<Presenca> presencas;
+    private List<Presenca> presencas = new ArrayList<>();
 
     @OneToMany(mappedBy = "aluno")
-    private List<Observacao> observacoes;
+    private List<Observacao> observacoes = new ArrayList<>();
 
     public Aluno(Long id, String nome, List<ResponsavelDTO> responsaveisDto) {
         this.id = id;
         this.nome = nome;
         this.responsaveis = responsaveisDto.stream()
-                .map(r -> new Responsavel(null, r.nome(), r.email())).collect(Collectors.toSet());
+                .map(r -> new Responsavel(null, r.nome(), r.email())).collect(Collectors.toList());
     }
 
-    //    // média de todas as notas
-//    public double calcularMediaGeral() {
-//        if (alunoDisciplinas == null || alunoDisciplinas.isEmpty()) return 0.0;
-//
-//        double somaNotas = 0.0;
-//        double somaPesos = 0.0;
-//
-//        for (AlunoDisciplina ad : alunoDisciplinas) {
-//            if (ad.getNotaFinal() != null && ad.getDisciplina() != null && ad.getDisciplina().getAvaliacoes() != null) {
-//                for (Avaliacao av : ad.getDisciplina().getAvaliacoes()) {
-//                    if (av.getNotas() != null) {
-//                        Nota nota = av.getNotas().stream()
-//                                .filter(n -> n.getAluno().equals(this))
-//                                .map(Nota::getValor)
-//                                .findFirst()
-//                                .orElse(ad.getNotaFinal()); // fallback
-//                        somaNotas += nota * av.getPeso();
-//                        somaPesos += av.getPeso();
-//                    }
-//                }
-//            }
-//        }
-//        return somaPesos > 0 ? somaNotas / somaPesos : 0.0;
-//    }
-//
-//    // % de presenças
-//    public double calcularFrequenciaGeral() {
-//        if (alunoDisciplinas == null || alunoDisciplinas.isEmpty()) return 0.0;
-//
-//        double somaFrequencia = 0.0;
-//        int count = 0;
-//
-//        for (AlunoDisciplina ad : alunoDisciplinas) {
-//            double freqDisciplina = getFrequenciaPorDisciplina(ad.getDisciplina());
-//            if (freqDisciplina >= 0) {
-//                somaFrequencia += freqDisciplina;
-//                count++;
-//            }
-//        }
-//
-//        return count > 0 ? somaFrequencia / count : 0.0;
-//    }
-//
-//    public double getFrequenciaPorDisciplina(Disciplina disciplina) {
-//        if (presencas == null || presencas.isEmpty()) return 0.0;
-//
-//        List<Presenca> presencasDisciplina = presencas.stream()
-//                .filter(p -> p.getTurma().getDisciplinas().contains(disciplina))
-//                .toList();
-//
-//        if (presencasDisciplina.isEmpty()) return 0.0;
-//
-//        long total = presencasDisciplina.size();
-//        long presentes = presencasDisciplina.stream().filter(Presenca::isPresente).count();
-//
-//        return (presentes * 100.0) / total;
-//    }
-//
-//    // pode chamar ML ou regras simples
-//    public boolean estaEmRiscoReprovacao(double notaMinima) {
-//        return calcularMediaGeral() < notaMinima;
-//    }
-//
-//    public boolean estaEmRiscoReprovacao(Disciplina disciplina, double notaMinima) {
-//        List<Double> notas = getNotasPorDisciplina(disciplina);
-//        if (notas.isEmpty()) return true;
-//        double media = notas.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
-//        return media < notaMinima;
-//    }
-//
-//    // idem
-//    public boolean estaEmRiscoEvasao(double frequenciaMinima) {
-//        return calcularFrequenciaGeral() < frequenciaMinima;
-//    }
-//
-//    public boolean estaEmRiscoEvasao(Disciplina disciplina, double frequenciaMinima) {
-//        double freq = getFrequenciaPorDisciplina(disciplina);
-//        return freq < frequenciaMinima;
-//    }
-//
-//    public List<Double> getNotasPorDisciplina(Disciplina disciplina) {
-//        if (alunoDisciplinas == null) return Collections.emptyList();
-//
-//        return alunoDisciplinas.stream()
-//                .filter(ad -> ad.getDisciplina().equals(disciplina) && ad.getNotaFinal() != null)
-//                .map(AlunoDisciplina::getNotaFinal)
-//                .toList();
-//    }
-//
-//    public List<Boolean> getPresencasPorDisciplina(Disciplina disciplina) {
-//        if (presencas == null) return Collections.emptyList();
-//
-//        return presencas.stream()
-//                .filter(p -> p.getTurma().getDisciplinas().contains(disciplina))
-//                .map(Presenca::isPresente)
-//                .toList();
-//    }
     public Double calcularMediaGeral() {
         if (alunoDisciplinas == null || alunoDisciplinas.isEmpty()) return 0.0;
 

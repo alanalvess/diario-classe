@@ -12,7 +12,6 @@ import UserImg from "../../../assets/images/user.png"
 export default function Perfil() {
 
     const {usuario, handleLogout, isHydrated} = useContext(AuthContext);
-    const token = usuario.token;
     const id = useParams<{ id: string }>();
 
     const [isLoading, setIsLoading] = useState(true);
@@ -22,7 +21,7 @@ export default function Perfil() {
     async function buscarUsuario() {
         try {
             setIsLoading(true);
-            await buscar(`/usuarios/${id}`, setUsuarios, {headers: {Authorization: token}});
+            await buscar(`/usuarios/${id}`, setUsuarios, {headers: {Authorization: usuario.token}});
         } catch (error) {
             if (error.toString().includes('403')) {
                 ToastAlerta('O token expirou, favor logar novamente', Toast.Error);
@@ -43,7 +42,7 @@ export default function Perfil() {
 
     return (
         <>
-            <div className="py-20 px-5 md:px-40 space-y-4 mt-10">
+            <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10 space-y-6">
 
                 <div className="flex justify-between items-center gap-4 flex-wrap">
                     <h1 className="text-2xl font-bold text-gray-700 dark:text-gray-300">Perfil</h1>

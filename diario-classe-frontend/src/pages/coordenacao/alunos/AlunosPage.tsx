@@ -18,8 +18,7 @@ import {RotatingLines} from "react-loader-spinner";
 import {jsPDF} from "jspdf";
 
 export default function AlunosPage() {
-  const {usuario, isHydrated} = useContext(AuthContext);
-  const token = usuario.token;
+  const {usuario, isHydrated, isAuthenticated} = useContext(AuthContext);
 
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [turmas, setTurmas] = useState<Turma[]>([]);
@@ -37,10 +36,10 @@ export default function AlunosPage() {
 
   // 🔹 Buscar alunos e turmas
   useEffect(() => {
-    if (!isHydrated || !token) return;
-    buscar("/alunos", setAlunos, {headers: {Authorization: `Bearer ${token}`}});
-    buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${token}`}});
-  }, [isHydrated, token]);
+    if (!isHydrated || !isAuthenticated) return;
+    buscar("/alunos", setAlunos, {headers: {Authorization: `Bearer ${usuario.token}`}});
+    buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+  }, [isHydrated, isAuthenticated]);
 
   // 🔹 Criar aluno
   async function salvarAluno() {
@@ -65,7 +64,7 @@ export default function AlunosPage() {
         setTurmaId("");
         ToastAlerta("✅ Aluno cadastrado com sucesso", Toast.Success);
       }, {
-        headers: {Authorization: `Bearer ${token}`, "Content-Type": "application/json"}
+        headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}
       });
     } catch (error) {
       if (error instanceof Error) {
@@ -79,7 +78,7 @@ export default function AlunosPage() {
   // 🔹 Excluir aluno
   async function excluirAluno(id: number) {
     try {
-      await deletar(`/alunos/${id}`, {headers: {Authorization: `Bearer ${token}`}});
+      await deletar(`/alunos/${id}`, {headers: {Authorization: `Bearer ${usuario.token}`}});
       setAlunos(prev => prev.filter(a => a.id !== id));
       ToastAlerta("✅ Aluno excluído", Toast.Success);
     } catch (error) {
@@ -95,7 +94,7 @@ export default function AlunosPage() {
   async function gerarQrCode(aluno: Aluno) {
     try {
       const response = await fetch(`http://localhost:8080/alunos/${aluno.id}/qrcode`, {
-        headers: {Authorization: `Bearer ${token}`},
+        headers: {Authorization: `Bearer ${usuario.token}`},
       });
       if (!response.ok) throw new Error("Erro ao gerar QR Code");
 
@@ -125,7 +124,7 @@ export default function AlunosPage() {
   }
 
   return (
-    <div className="p-6 pt-28">
+    <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
       <h1 className="text-2xl font-bold mb-6">Gestão de Alunos</h1>
 
       {/* Formulário */}
@@ -160,16 +159,19 @@ export default function AlunosPage() {
           {turmas.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
         </select>
 
-        <Button color="success" onClick={salvarAluno}>
-          {isLoading ?
-            <RotatingLines
-              strokeColor="white"
-              strokeWidth="5"
-              animationDuration="0.75"
-              width="24"
-              visible={true}
-            /> :
-            <span>Adicionar Aluno</span>}
+        <Button  onClick={salvarAluno}>
+          {/*{isLoading ?*/}
+          {/*  <RotatingLines*/}
+          {/*    strokeColor="white"*/}
+          {/*    strokeWidth="5"*/}
+          {/*    animationDuration="0.75"*/}
+          {/*    width="24"*/}
+          {/*    visible={true}*/}
+          {/*  /> :*/}
+            <span>
+              Adicionar Aluno
+            </span>
+          {/* }*/}
         </Button>
       </div>
 
@@ -209,7 +211,7 @@ export default function AlunosPage() {
           {qrImage ? (
             <>
               <img src={qrImage} alt="QR Code" className="w-48 h-48" />
-              <Button color="success" onClick={imprimirQrCode}>📄 Imprimir / Baixar PDF</Button>
+              <Button  onClick={imprimirQrCode}>📄 Imprimir / Baixar PDF</Button>
             </>
           ) : (
             <p>Carregando QR Code...</p>

@@ -1,11 +1,11 @@
-import {useContext, useState} from 'react'
-import {AuthContext} from '../../../contexts/AuthContext'
+import {useState} from 'react'
 import {Toast, ToastAlerta} from '../../../utils/ToastAlerta'
 import {deletar} from '../../../services/Service'
 
 import {Button, Card, Modal, ModalBody, ModalHeader, Spinner} from 'flowbite-react';
 import DeleteImg from "../../../assets/images/delete.png";
 import type {Usuario} from "../../../models";
+import {useAuth} from "../../../contexts/UseAuth.ts";
 
 interface DeletarUsuarioProps {
   isOpen: boolean;
@@ -15,8 +15,7 @@ interface DeletarUsuarioProps {
 }
 
 function DeletarUsuario({isOpen, onClose, excluindo, aoDeletar}: DeletarUsuarioProps) {
-  const {usuario} = useContext(AuthContext);
-  const token = usuario.token;
+  const {usuario} = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const podeDeletar =
@@ -31,7 +30,7 @@ function DeletarUsuario({isOpen, onClose, excluindo, aoDeletar}: DeletarUsuarioP
     setIsLoading(true);
     try {
       await deletar(`/usuarios/${excluindo.id}`, {
-        headers: {Authorization: token},
+        headers: {Authorization: usuario.token},
       });
       ToastAlerta('Usuário deletado com sucesso', Toast.Success);
       aoDeletar(excluindo.id);
@@ -79,7 +78,7 @@ function DeletarUsuario({isOpen, onClose, excluindo, aoDeletar}: DeletarUsuarioP
                   Não
                 </Button>
                 <Button
-                  className="cursor-pointer text-white bg-rose-600 hover:bg-rose-800 w-24 dark:bg-rose-600 dark:hover:bg-rose-700 flex justify-center focus:outline-none focus:ring-0"
+                  className="cursor-pointer text-white bg-green-600 hover:bg-green-800 w-24 dark:bg-green-600 dark:hover:bg-green-700 flex justify-center focus:outline-none focus:ring-0"
                   onClick={deletarUsuario}
                 >
                   {isLoading ? (

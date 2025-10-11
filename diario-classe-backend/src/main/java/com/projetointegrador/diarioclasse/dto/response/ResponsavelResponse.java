@@ -1,14 +1,12 @@
 package com.projetointegrador.diarioclasse.dto.response;
 
-import com.projetointegrador.diarioclasse.entity.Aluno;
-
-import java.util.Set;
+import java.util.List;
 
 public record ResponsavelResponse(
         Long id,
         String nome,
         String email,
         String telefone,
-        Set<Long> alunoIds
+        List<Long> alunoIds
 ) {
 }

@@ -17,6 +17,5 @@ public class AdminProperties {
 
     @Value("${admin.name}")
     private String adminName;
-
 }
 

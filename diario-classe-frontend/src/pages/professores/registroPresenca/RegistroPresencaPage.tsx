@@ -13,7 +13,7 @@ import {
   TableRow
 } from "flowbite-react";
 // import {QrReader} from "react-qr-reader";
-import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
+import {buscar, cadastrar, deletar, registrarPresencaQRCode} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {AuthContext} from "../../../contexts/AuthContext.tsx";
 import type {Presenca, Turma} from "../../../models";
@@ -21,8 +21,7 @@ import {RotatingLines} from "react-loader-spinner";
 import QRCodeScanner from "../../../components/qrCodeScanner/QrCodeScanner.tsx";
 
 export default function RegistroPresencaPage() {
-  const {usuario, handleLogout, isHydrated} = useContext(AuthContext);
-  const token = usuario.token;
+  const {usuario, handleLogout, isHydrated, isAuthenticated} = useContext(AuthContext);
 
   const [presencas, setPresencas] = useState<Presenca[]>([]);
   const [qrOpen, setQrOpen] = useState(false);
@@ -36,22 +35,27 @@ export default function RegistroPresencaPage() {
   );
 
   useEffect(() => {
-    if (isHydrated && token) {
+    if (isHydrated && isAuthenticated) {
       buscar("/turmas", setTurmas, {
-        headers: {Authorization: `Bearer ${token}`},
+        headers: {Authorization: `Bearer ${usuario.token}`},
       });
     }
-  }, [token, isHydrated]);
+  }, [isAuthenticated, isHydrated]);
 
 
   async function buscarPresencas() {
-    if (!turmaSelecionada) return;
+    if (!turmaSelecionada || !dataChamada) {
+      ToastAlerta("Selecione uma turma e uma data", Toast.Error);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       await buscar(
         `/presencas/turmas/${turmaSelecionada}?data=${dataChamada}`,
         setPresencas,
-        {headers: {Authorization: `Bearer ${token}`}}
+        { headers: { Authorization: `Bearer ${usuario.token}` } }
       );
     } catch (error) {
       if (error.toString().includes("403")) {
@@ -63,53 +67,13 @@ export default function RegistroPresencaPage() {
     }
   }
 
+
   useEffect(() => {
-    if (isHydrated && token) buscarPresencas();
-  }, [token, isHydrated]);
+    if (isHydrated && isAuthenticated && turmaSelecionada && dataChamada) {
+      buscarPresencas();
+    }
+  }, [isAuthenticated, isHydrated, turmaSelecionada, dataChamada]);
 
-  // useEffect(() => {
-  //   async function pedirPermissaoCamera() {
-  //     try {
-  //       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-  //       stream.getTracks().forEach(track => track.stop()); // libera imediatamente
-  //       console.log("✅ Permissão da câmera concedida!");
-  //     } catch (err) {
-  //       console.error("❌ Permissão da câmera negada:", err);
-  //     }
-  //   }
-  //
-  //   pedirPermissaoCamera();
-  // }, []);
-
-
-  // async function salvarTodasPresencas() {
-  //   try {
-  //     await Promise.all(
-  //       presencas.map(presenca => {
-  //         const body = {
-  //           data: dataChamada,
-  //           presente: presenca.presente,
-  //           alunoId: presenca.alunoId,
-  //           turmaId: presenca.turmaId,
-  //           metodoChamada: "MANUAL",
-  //         };
-  //
-  //         return cadastrar("/presencas/batch", body, () => {
-  //         }, {
-  //           headers: {
-  //             Authorization: `Bearer ${token}`,
-  //             "Content-Type": "application/json",
-  //           },
-  //         });
-  //       })
-  //     );
-  //
-  //     ToastAlerta("✅ Todas as presenças salvas", Toast.Success);
-  //   } catch (error) {
-  //     console.error("Erro ao salvar presenças", error);
-  //     ToastAlerta("Erro ao salvar presenças", Toast.Error);
-  //   }
-  // }
 
   async function salvarPresenca(presenca: Presenca) {
     try {
@@ -126,13 +90,13 @@ export default function RegistroPresencaPage() {
           },
           () => {
           },
-          {headers: {Authorization: `Bearer ${token}`, "Content-Type": "application/json"}}
+          {headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}}
         );
       } else {
         // deletar presença se existir
         await deletar(
           `/presencas/turma/${presenca.turmaId}/aluno/${presenca.alunoId}?data=${dataChamada}`,
-          {headers: {Authorization: `Bearer ${token}`}}
+          {headers: {Authorization: `Bearer ${usuario.token}`}}
         );
       }
 
@@ -155,11 +119,11 @@ export default function RegistroPresencaPage() {
       const [alunoId, nome, turmaId] = result.text.split(";");
 
       try {
-        await fetch("http://localhost:8080/presencas/presenca/scan", {
-          method: "POST",
-          headers: {"Content-Type": "application/x-www-form-urlencoded"},
-          body: new URLSearchParams({alunoId, turmaId, metodoChamada: "QR_CODE"}),
-        });
+          await registrarPresencaQRCode(
+            "/presencas/presenca/scan",
+            { alunoId: String(alunoId), turmaId: String(turmaId), metodoChamada: "QR_CODE" },
+            { headers: { Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/x-www-form-urlencoded" } }
+          );
 
         // ✅ Exibir confirmação amigável
         ToastAlerta(`✅ Presença registrada via QR Code para ${nome}`, Toast.Success);
@@ -177,7 +141,7 @@ export default function RegistroPresencaPage() {
 
 
   return (
-    <div className="p-6 pt-28">
+    <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
 
       <h1 className="text-2xl font-bold mb-6">Registro de Presença</h1>
 
@@ -205,22 +169,23 @@ export default function RegistroPresencaPage() {
           />
 
           <Button
-            // color="success"
             onClick={buscarPresencas}
-            disabled={!turmaSelecionada}
+            disabled={!turmaSelecionada || !dataChamada || isLoading}
             className="w-full md:w-auto"
           >
-            {isLoading ?
+            {isLoading ? (
               <RotatingLines
                 strokeColor="white"
                 strokeWidth="5"
                 animationDuration="0.75"
                 width="24"
                 visible={true}
-              /> :
-              <span>Carregar alunos</span>}
-
+              />
+            ) : (
+              <span>Carregar alunos</span>
+            )}
           </Button>
+
         </div>
 
         {/* Direita: botão QR Code */}

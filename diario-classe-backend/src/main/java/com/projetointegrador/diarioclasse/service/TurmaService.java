@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,10 +29,10 @@ public class TurmaService {
     private final AlunoRepository alunoRepository;
 
     public TurmaResponse criar(TurmaRequest request) {
-        Set<Professor> professores = request.professorIds().stream()
+        List<Professor> professores = request.professorIds().stream()
                 .map(id -> professorRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Professor não encontrado: " + id)))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
         List<Disciplina> disciplinas = request.disciplinaIds().stream()
                 .map(id -> disciplinaRepository.findById(id)
@@ -56,10 +55,10 @@ public class TurmaService {
         Turma turma = turmaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Turma não encontrada"));
 
-        Set<Professor> professores = request.professorIds().stream()
+        List<Professor> professores = request.professorIds().stream()
                 .map(pid -> professorRepository.findById(pid)
                         .orElseThrow(() -> new RuntimeException("Professor não encontrado: " + pid)))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
         List<Disciplina> disciplinas = request.disciplinaIds().stream()
                 .map(did -> disciplinaRepository.findById(did)
@@ -105,16 +104,27 @@ public class TurmaService {
     }
 
     private TurmaResponse toResponse(Turma turma) {
-        Set<Long> professorIds = turma.getProfessores() != null
-                ? turma.getProfessores().stream().map(Professor::getId).collect(Collectors.toSet())
-                : Collections.emptySet();
+        List<Long> professorIds = turma.getProfessores() != null
+                ? turma.getProfessores().stream().map(Professor::getId).collect(Collectors.toList())
+                : Collections.emptyList();
+        List<String> professorNomes = turma.getProfessores() != null
+                ? turma.getProfessores().stream().map(Professor::getNome).collect(Collectors.toList())
+                : Collections.emptyList();
 
         List<Long> disciplinaIds = turma.getDisciplinas() != null
                 ? turma.getDisciplinas().stream().map(Disciplina::getId).collect(Collectors.toList())
                 : Collections.emptyList();
 
+        List<String> disciplinaNomes = turma.getDisciplinas() != null
+                ? turma.getDisciplinas().stream().map(Disciplina::getNome).collect(Collectors.toList())
+                : Collections.emptyList();
+
         List<Long> alunoIds = turma.getAlunos() != null
                 ? turma.getAlunos().stream().map(Aluno::getId).toList()
+                : Collections.emptyList();
+
+        List<String> alunoNomes = turma.getAlunos() != null
+                ? turma.getAlunos().stream().map(Aluno::getNome).toList()
                 : Collections.emptyList();
 
         return new TurmaResponse(
@@ -124,8 +134,11 @@ public class TurmaService {
                 turma.calcularMediaTurma(),
                 turma.calcularFrequenciaMedia(),
                 professorIds,
+                professorNomes,
                 disciplinaIds,
-                alunoIds
+                disciplinaNomes,
+                alunoIds,
+                alunoNomes
         );
     }
 }

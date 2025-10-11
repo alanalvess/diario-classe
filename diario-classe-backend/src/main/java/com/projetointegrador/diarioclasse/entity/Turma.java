@@ -7,7 +7,6 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Entity
@@ -32,7 +31,7 @@ public class Turma {
             joinColumns = @JoinColumn(name = "turma_id"),
             inverseJoinColumns = @JoinColumn(name = "professor_id")
     )
-    private Set<Professor> professores;
+    private List<Professor> professores = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
@@ -40,14 +39,14 @@ public class Turma {
             joinColumns = @JoinColumn(name = "turma_id"),
             inverseJoinColumns = @JoinColumn(name = "disciplina_id")
     )
-    private List<Disciplina> disciplinas;
+    private List<Disciplina> disciplinas = new ArrayList<>();
 
     @OneToMany(mappedBy = "turma")
     @JsonIgnoreProperties("turma")
-    private List<Aluno> alunos;
+    private List<Aluno> alunos = new ArrayList<>();
 
     @OneToMany(mappedBy = "turma")
-    private List<Avaliacao> avaliacoes;
+    private List<Avaliacao> avaliacoes = new ArrayList<>();
 
     public Double calcularMediaTurma() {
         if (alunos == null || alunos.isEmpty()) return 0.0;

@@ -7,8 +7,7 @@ import type {Disciplina, Professor, Turma} from "../../../models";
 import {RotatingLines} from "react-loader-spinner";
 
 export default function TurmasPage() {
-  const {usuario, isHydrated} = useContext(AuthContext);
-  const token = usuario.token;
+  const {usuario, isHydrated, isAuthenticated} = useContext(AuthContext);
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [professores, setProfessores] = useState<Professor[]>([]);
@@ -23,11 +22,11 @@ export default function TurmasPage() {
 
   // 🔹 Buscar turmas
   useEffect(() => {
-    if (!isHydrated || !token) return;
-    buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${token}`}});
-    buscar("/professores", setProfessores, {headers: {Authorization: `Bearer ${token}`}});
-    buscar("/disciplinas", setDisciplinas, {headers: {Authorization: `Bearer ${token}`}});
-  }, [isHydrated, token]);
+    if (!isHydrated || !isAuthenticated) return;
+    buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+    buscar("/professores", setProfessores, {headers: {Authorization: `Bearer ${usuario.token}`}});
+    buscar("/disciplinas", setDisciplinas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+  }, [isHydrated, isAuthenticated]);
 
   // 🔹 Criar nova turmas
   async function salvarTurma() {
@@ -49,7 +48,7 @@ export default function TurmasPage() {
         setDisciplinaIdsSelecionadas([]);
         ToastAlerta("✅ Turma criada com sucesso", Toast.Success);
       }, {
-        headers: {Authorization: `Bearer ${token}`, "Content-Type": "application/json"}
+        headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}
       });
     } catch (error) {
       if (error instanceof Error) {
@@ -65,7 +64,7 @@ export default function TurmasPage() {
     try {
       await deletar(`/turmas/${id}`, {
         method: "DELETE",
-        headers: {Authorization: `Bearer ${token}`},
+        headers: {Authorization: `Bearer ${usuario.token}`},
       });
 
       // Atualiza a tabela local
@@ -82,7 +81,7 @@ export default function TurmasPage() {
 
 
   return (
-    <div className="p-6 pt-28">
+    <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
       <h1 className="text-2xl font-bold mb-6">Gestão de Turmas</h1>
 
       {/* Formulário de criação */}
@@ -128,7 +127,7 @@ export default function TurmasPage() {
           {disciplinas.map(d => <option key={d.id} value={d.id}>{d.nome}</option>)}
         </select>
 
-        <Button color="success" onClick={salvarTurma}>
+        <Button onClick={salvarTurma}>
           {isLoading ?
             <RotatingLines
               strokeColor="white"
@@ -153,14 +152,24 @@ export default function TurmasPage() {
             <TableHeadCell>Ações</TableHeadCell>
           </TableHead>
           <TableBody>
-            {turmas.map((t, i) => (
+            {turmas.map((turma, i) => (
               <TableRow key={i}>
-                <TableCell>{t.nome}</TableCell>
-                <TableCell>{t.anoLetivo}</TableCell>
-                <TableCell>{t.professorIds.join(", ")}</TableCell>
-                <TableCell>{t.disciplinaIds.join(", ")}</TableCell>
+                <TableCell>{turma.nome}</TableCell>
+                <TableCell>{turma.anoLetivo}</TableCell>
                 <TableCell>
-                  <Button color="danger" size="xs" onClick={() => excluirTurma(t.id)}>Excluir</Button>
+                  {turma.professorNomes.map((nome, index) => (
+                    <div key={index}>{nome}</div>
+                  ))}
+                </TableCell>
+
+                <TableCell>
+                  {turma.disciplinaNomes.map((nome, index) => (
+                    <div key={index}>{nome}</div>
+                  ))}
+                </TableCell>
+
+                <TableCell>
+                  <Button color="danger" size="xs" onClick={() => excluirTurma(turma.id)}>Excluir</Button>
                 </TableCell>
               </TableRow>
             ))}

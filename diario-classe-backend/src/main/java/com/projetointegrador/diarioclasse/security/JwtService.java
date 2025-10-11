@@ -11,10 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -59,7 +56,7 @@ public class JwtService {
         return extractUsername(token).equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
-    private String createToken(Map<String, Object> claims, String userName, Set<Role> roles) {
+    private String createToken(Map<String, Object> claims, String userName, List<Role> roles) {
         claims.put("roles", roles.stream().map(Enum::name).collect(Collectors.toList()));
 
         return Jwts.builder()
@@ -71,7 +68,7 @@ public class JwtService {
                 .compact();
     }
 
-    public String generateToken(String userName, Set<Role> roles) {
+    public String generateToken(String userName, List<Role> roles) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userName, roles);
     }

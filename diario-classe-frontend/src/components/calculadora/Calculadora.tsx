@@ -1,130 +1,129 @@
 import {useState} from 'react';
-import {Drawer, Button, DrawerHeader, DrawerItems} from 'flowbite-react';
+import {Button, Drawer, DrawerHeader, DrawerItems} from 'flowbite-react';
 import InputField from "../form/InputField.tsx";
-import SelectField from "../form/SelectField.tsx";
 
 export function Calculadora({open, onClose}) {
-    const [modo, setModo] = useState(''); // modo padrão
-    const [custo, setCusto] = useState('');
-    const [venda, setVenda] = useState('');
-    const [margem, setMargem] = useState('');
-    const [lucro, setLucro] = useState('');
+  const [notas, setNotas] = useState([{ valor: "", peso: "" }]);
+  const [mediaMinima, setMediaMinima] = useState(7);
+  const [pesoRestante, setPesoRestante] = useState("");
+  const [resultado, setResultado] = useState<null | { media: number; falta: number }>(null);
 
-    const custoNum = parseFloat(custo);
-    const vendaNum = parseFloat(venda);
-    const margemNum = parseFloat(margem);
-    const lucroNum = parseFloat(lucro);
+  function adicionarNota() {
+    setNotas([...notas, { valor: "", peso: "" }]);
+  }
 
-    const modosDeCalculo = [
-        {value: 'venda-com-margem', label: 'Margem Desejada (%)'},
-        {value: 'venda-com-lucro', label: 'Lucro Desejado (R$)'},
-        {value: 'lucro-com-venda', label: 'Valor de Venda (R$)'},
-    ];
+  function atualizarNota(index: number, campo: "valor" | "peso", valor: string) {
+    const novasNotas = [...notas];
+    novasNotas[index][campo] = valor;
+    setNotas(novasNotas);
+  }
 
-    let resultado = null;
+  function calcular() {
+    const valores = notas.map((n) => parseFloat(n.valor) || 0);
+    const pesos = notas.map((n) => parseFloat(n.peso) || 0);
+    const somaPesos = pesos.reduce((a, b) => a + b, 0);
+    const somaNotas = valores.reduce((acc, nota, i) => acc + nota * pesos[i], 0);
+    const media = somaPesos ? somaNotas / somaPesos : 0;
 
-    if (modo === 'lucro-com-venda' && !isNaN(custoNum) && !isNaN(vendaNum)) {
-        const lucro = vendaNum - custoNum;
-        const margemLucro = (lucro / custoNum) * 100;
-        resultado = (
-            <>
-                <p>Lucro: <strong>R$ {lucro.toFixed(2)}</strong></p>
-                <p>Margem: <strong>{margemLucro.toFixed(2)}%</strong></p>
-            </>
-        );
-    }
+    const pesoRest = parseFloat(pesoRestante) || 0;
+    const notaNecessaria = pesoRest
+      ? ((mediaMinima * (somaPesos + pesoRest)) - somaNotas) / pesoRest
+      : 0;
 
-    if (modo === 'venda-com-margem' && !isNaN(custoNum) && !isNaN(margemNum)) {
-        const precoVenda = custoNum * (1 + margemNum / 100);
-        const lucro = precoVenda - custoNum;
-        resultado = (
-            <>
-                <p>Preço de Venda: <strong>R$ {precoVenda.toFixed(2)}</strong></p>
-                <p>Lucro: <strong>R$ {lucro.toFixed(2)}</strong></p>
-            </>
-        );
-    }
+    setResultado({ media, falta: notaNecessaria });
+  }
 
-    if (modo === 'venda-com-lucro' && !isNaN(custoNum) && !isNaN(lucroNum)) {
-        const precoVenda = custoNum + lucroNum;
-        const margemLucro = (lucroNum / custoNum) * 100;
-        resultado = (
-            <>
-                <p>Preço de Venda: <strong>R$ {precoVenda.toFixed(2)}</strong></p>
-                <p>Margem: <strong>{margemLucro.toFixed(2)}%</strong></p>
-            </>
-        );
-    }
+  function novoCalculo() {
+    setNotas([{ valor: "", peso: "" }]);
+    setMediaMinima(7);
+    setPesoRestante("");
+    setResultado(null);
+  }
 
-    return (
-        <Drawer open={open} onClose={onClose} position="right">
-            <DrawerHeader title="Calculadora de Lucro"/>
-            <DrawerItems>
-                <div className="flex flex-col gap-4 p-4">
+  return (
+    <Drawer open={open} onClose={onClose} position="right">
+      <DrawerHeader title="Calculadora de Notas" />
+      <DrawerItems>
+        <div className="flex flex-col gap-4 p-4 pt-20">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Insira suas notas e pesos para ver sua média atual e quanto falta para atingir a média mínima.
+          </p>
 
-                    <SelectField
-                        label="Modo de Cálculo"
-                        name="modo"
-                        value={modo}
-                        onChange={(e) => setModo(e.target.value)}
-                        options={modosDeCalculo}
-                        required
-                    />
+          {notas.map((nota, index) => (
+            <div key={index} className="flex gap-2 items-center">
+              <InputField
+                name="valor"
+                label={`Nota ${index + 1}`}
+                type="number"
+                value={nota.valor}
+                onChange={(e) => atualizarNota(index, "valor", e.target.value)}
+                placeholder="Ex: 8.5"
+              />
+              <InputField
+                name="peso"
+                label="Peso"
+                type="number"
+                value={nota.peso}
+                onChange={(e) => atualizarNota(index, "peso", e.target.value)}
+                placeholder="Ex: 2"
+              />
+            </div>
+          ))}
 
-                    <InputField
-                        label='Valor de Custo (R$)'
-                        name="custo"
-                        type="number"
-                        value={custo}
-                        onChange={(e) => setCusto(e.target.value)}
-                        placeholder="Ex: 50.00"
-                    />
+          <Button
+            className="bg-blue-500 hover:bg-blue-600 text-white w-fit"
+            onClick={adicionarNota}
+          >
+            + Adicionar Nota
+          </Button>
 
-                    {modo === 'lucro-com-venda' && (
-                        <InputField
-                            label='Valor de Venda (R$)'
-                            name="venda"
-                            type="number"
-                            value={venda}
-                            onChange={(e) => setVenda(e.target.value)}
-                            placeholder="Ex: 80.00"
-                        />
-                    )}
+          <InputField
+            name="mediaMinima"
+            label="Média mínima para aprovação"
+            type="number"
+            value={mediaMinima}
+            onChange={(e) => setMediaMinima(parseFloat(e.target.value))}
+            placeholder="Ex: 7.0"
+          />
 
-                    {modo === 'venda-com-margem' && (
-                        <InputField
-                            label="Margem Desejada (%)"
-                            name="margem"
-                            type="number"
-                            value={margem}
-                            onChange={(e) => setMargem(e.target.value)}
-                            placeholder="Ex: 60"
-                        />
-                    )}
+          <InputField
+            name="pesoRestante"
+            label="Peso restante (próxima avaliação)"
+            type="number"
+            value={pesoRestante}
+            onChange={(e) => setPesoRestante(e.target.value)}
+            placeholder="Ex: 2"
+          />
 
-                    {modo === 'venda-com-lucro' && (
-                        <InputField
-                            label='Lucro Desejado (R$)'
-                            name="lucro"
-                            type="number"
-                            value={lucro}
-                            onChange={(e) => setLucro(e.target.value)}
-                            placeholder="Ex: 30.00"
-                        />
-                    )}
+          <Button
+            className="bg-green-600 hover:bg-green-700 text-white focus:outline-none focus:ring-0 cursor-pointer"
+            onClick={calcular}
+          >
+            Calcular
+          </Button>
 
-                    {resultado && (
-                        <div
-                            className="p-4 bg-gray-100 rounded-lg dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-lg">
-                            {resultado}
-                        </div>
-                    )}
+          {resultado && (
+            <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-800 dark:text-gray-200 text-lg">
+              <p>📊 Média atual: <strong>{resultado.media.toFixed(2)}</strong></p>
+              <p>🎯 Nota necessária para atingir {mediaMinima}: <strong>{resultado.falta.toFixed(2)}</strong></p>
 
-                    <Button
-                        className='bg-rose-600 dark:bg-rose-600 hover:bg-rose-700 dark:hover:bg-rose-700 focus:outline-none focus:ring-0 cursor-pointer'
-                        onClick={onClose}>Fechar</Button>
-                </div>
-            </DrawerItems>
-        </Drawer>
-    );
+              <Button
+                className="mt-3 bg-yellow-500 hover:bg-yellow-600 text-white focus:outline-none focus:ring-0 cursor-pointer"
+                onClick={novoCalculo}
+              >
+                Novo Cálculo
+              </Button>
+            </div>
+          )}
+
+          <Button
+            className="bg-gray-500 hover:bg-gray-600 text-white focus:outline-none focus:ring-0 cursor-pointer"
+            onClick={onClose}
+          >
+            Fechar
+          </Button>
+        </div>
+      </DrawerItems>
+    </Drawer>
+  );
 }

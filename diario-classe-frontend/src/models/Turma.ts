@@ -5,6 +5,9 @@ export interface Turma {
   mediaTurma?: number;
   frequenciaMedia?: number;
   professorIds: number[];
+  professorNomes: string[];
   disciplinaIds: number[];
+  disciplinaNomes: string[];
   alunoIds: number[];
+  alunoNomes: string[];
 }

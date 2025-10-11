@@ -66,7 +66,7 @@ public class BasicSecurityConfig {
                         .requestMatchers("/usuarios/cadastrar").permitAll()
                         .requestMatchers("/error/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/usuarios/all").hasAuthority("COORDENADOR")
+                        .requestMatchers(HttpMethod.GET, "/usuarios/all").hasAnyAuthority("ADMIN", "COORDENADOR")
                         .requestMatchers(HttpMethod.GET, "/presencas/turma/{id}").hasAuthority("PROFESSOR")
                         .requestMatchers(HttpMethod.PUT, "/usuarios/{id}").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/usuarios/{id}").authenticated()

@@ -6,8 +6,7 @@ import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 
 export default function AvaliacoesPage() {
-  const { usuario, isHydrated } = useContext(AuthContext);
-  const token = usuario.token;
+  const { usuario, isHydrated, isAuthenticated } = useContext(AuthContext);
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
@@ -23,30 +22,30 @@ export default function AvaliacoesPage() {
 
   // 🔹 Buscar turmas
   useEffect(() => {
-    if (isHydrated && token) {
+    if (isHydrated && isAuthenticated) {
       buscar("/turmas", setTurmas, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${usuario.token}` },
       });
     }
-  }, [token, isHydrated]);
+  }, [isAuthenticated, isHydrated]);
 
   // 🔹 Buscar disciplinas da turmas
   useEffect(() => {
-    if (turmaSelecionada && token) {
+    if (turmaSelecionada && isAuthenticated) {
       buscar(`/disciplinas/turma/${turmaSelecionada}`, setDisciplinas, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${usuario.token}` },
       });
     }
-  }, [turmaSelecionada, token]);
+  }, [turmaSelecionada, isAuthenticated]);
 
   // 🔹 Buscar avaliações da disciplina
   useEffect(() => {
-    if (disciplinaSelecionada && token) {
+    if (disciplinaSelecionada && isAuthenticated) {
       buscar(`/avaliacoes/disciplina/${disciplinaSelecionada}`, setAvaliacoes, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${usuario.token}` },
       });
     }
-  }, [disciplinaSelecionada, token]);
+  }, [disciplinaSelecionada, isAuthenticated]);
 
   // Criar avaliação
   async function salvarAvaliacao() {
@@ -65,14 +64,14 @@ export default function AvaliacoesPage() {
 
     try {
       await cadastrar("/avaliacoes", body, () => {}, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: { Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json" },
       });
       ToastAlerta("✅ Avaliação cadastrada", Toast.Success);
       setTitulo("");
       setData("");
       setPeso(1);
       buscar(`/avaliacoes/disciplina/${disciplinaSelecionada}`, setAvaliacoes, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${usuario.token}` },
       });
     } catch {
       ToastAlerta("Erro ao salvar avaliação", Toast.Error);
@@ -82,7 +81,7 @@ export default function AvaliacoesPage() {
   async function excluirAvaliacao(id: number) {
     try {
       await deletar(`/avaliacoes/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${usuario.token}` },
       });
       ToastAlerta("🗑️ Avaliação excluída", Toast.Success);
       setAvaliacoes((prev) => prev.filter((a) => a.id !== id));
@@ -92,7 +91,7 @@ export default function AvaliacoesPage() {
   }
 
   return (
-    <div className="p-6 pt-28">
+    <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
       <h1 className="text-2xl font-bold mb-6">Avaliações</h1>
 
       {/* Filtros */}
@@ -147,7 +146,7 @@ export default function AvaliacoesPage() {
             onChange={(e) => setPeso(Number(e.target.value))}
             min={1}
           />
-          <Button color="success" onClick={salvarAvaliacao}>
+          <Button  onClick={salvarAvaliacao}>
             Salvar Avaliação
           </Button>
         </div>

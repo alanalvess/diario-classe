@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,10 +22,10 @@ public class ResponsavelService {
     private final AlunoRepository alunoRepository;
 
     public ResponsavelResponse criar(ResponsavelRequest request) {
-        Set<Aluno> alunos = request.alunoIds().stream()
+        List<Aluno> alunos = request.alunoIds().stream()
                 .map(id -> alunoRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Aluno não encontrado: " + id)))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
         Responsavel responsavel = Responsavel.builder()
                 .nome(request.nome())
@@ -43,10 +42,10 @@ public class ResponsavelService {
         Responsavel responsavel = responsavelRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Responsável não encontrado"));
 
-        Set<Aluno> alunos = request.alunoIds().stream()
+        List<Aluno> alunos = request.alunoIds().stream()
                 .map(alunoId -> alunoRepository.findById(alunoId)
                         .orElseThrow(() -> new RuntimeException("Aluno não encontrado: " + alunoId)))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
         responsavel.setNome(request.nome());
         responsavel.setEmail(request.email());
@@ -88,9 +87,9 @@ public class ResponsavelService {
     }
 
     private ResponsavelResponse toResponse(Responsavel r) {
-        Set<Long> alunoIds = r.getAlunos() != null
-                ? r.getAlunos().stream().map(Aluno::getId).collect(Collectors.toSet())
-                : Collections.emptySet();
+        List<Long> alunoIds = r.getAlunos() != null
+                ? r.getAlunos().stream().map(Aluno::getId).collect(Collectors.toList())
+                : Collections.emptyList();
 
         return new ResponsavelResponse(
                 r.getId(),

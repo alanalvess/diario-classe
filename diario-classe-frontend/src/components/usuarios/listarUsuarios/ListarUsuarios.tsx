@@ -71,7 +71,7 @@ function ListarUsuarios({listando, aoDeletar}: ListarUsuariosProps) {
                                     setUsuarioSelecionado(listando);
                                     setOpenModalExcluir(true);
                                 }}
-                                className='cursor-pointer focus:outline-none focus:ring-0 text-rose-600 dark:text-rose-400'
+                                className='cursor-pointer focus:outline-none focus:ring-0 text-green-600 dark:text-green-400'
                         >
                             <HiTrash className="h-4 w-4"/>
                             <span className="ml-1">Excluir</span>

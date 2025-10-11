@@ -1,7 +1,6 @@
-import {type ChangeEvent, useContext, useEffect, useState} from 'react'
+import {type ChangeEvent, useEffect, useState} from 'react'
 import {useNavigate, useParams} from 'react-router-dom'
 
-import {AuthContext} from "../../../contexts/AuthContext.tsx";
 import {Toast, ToastAlerta} from '../../../utils/ToastAlerta'
 import {atualizarAtributo, buscar, cadastrar} from '../../../services/Service'
 
@@ -12,6 +11,7 @@ import {HiChevronLeft} from "react-icons/hi2";
 import SelectField from "../../form/SelectField.tsx";
 import {Roles} from "../../../enums/Roles.ts";
 import {Role} from "../../../utils/Role.ts";
+import {useAuth} from "../../../contexts/UseAuth.ts";
 
 const usuarioInicial: Usuario = {
   id: 0,
@@ -25,8 +25,7 @@ function FormularioUsuario() {
 
   const navigate = useNavigate();
   const {id} = useParams<{ id: string }>();
-  const {usuario} = useContext(AuthContext);
-  const token = usuario.token;
+  const {usuario, isAuthenticated} = useAuth();
   const [confirmaSenha, setConfirmaSenha] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -42,22 +41,22 @@ function FormularioUsuario() {
     roles: [] as 'success' | 'failure' | [],
   });
 
-  const authHeaders = {headers: {Authorization: token}};
+  const authHeaders = {headers: {Authorization: usuario.token}};
 
   useEffect(() => {
-    if (!token) {
+    if (!isAuthenticated) {
       ToastAlerta('Você precisa estar logado', Toast.Warning);
     } else {
       carregarDados();
     }
-  }, [token, id]);
+  }, [isAuthenticated, id]);
 
   useEffect(() => {
     setEstado(prev => ({
       ...prev,
       usuario: {
         ...prev.usuario,
-        token
+        token: usuario.token,
       }
     }));
   }, []);
@@ -65,27 +64,28 @@ function FormularioUsuario() {
   async function carregarDados() {
     try {
       if (id) {
-        await buscar(`/usuarios/${id}`, (data) => {
-          const usuarioFormatado = {
-            ...data,
-            senha: '',
-            token: usuario.token
-          };
+        await buscar(`/usuarios/${id}`,
+          (data: Usuario) => {
+            const usuarioFormatado = {
+              ...data,
+              senha: '',
+              token: usuario.token
+            };
 
-          setEstado(prev => ({
-            ...prev,
-            usuario: usuarioFormatado
-          }));
+            setEstado(prev => ({
+              ...prev,
+              usuario: usuarioFormatado
+            }));
 
-          localStorage.setItem('usuario-logado', JSON.stringify(usuarioFormatado));
+            localStorage.setItem('usuario-logado', JSON.stringify(usuarioFormatado));
 
-          setValidacaoCampos({
-            nome: usuarioFormatado.nome.length >= 3 ? 'success' : 'failure',
-            email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(usuarioFormatado.email) ? 'success' : 'failure',
-            senha: 'success',
-            roles: usuarioFormatado.roles ? 'success' : 'failure',
-          });
-        }, authHeaders);
+            setValidacaoCampos({
+              nome: usuarioFormatado.nome.length >= 3 ? 'success' : 'failure',
+              email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(usuarioFormatado.email) ? 'success' : 'failure',
+              senha: 'success',
+              roles: usuarioFormatado.roles ? 'success' : 'failure',
+            });
+          }, authHeaders);
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -138,7 +138,7 @@ function FormularioUsuario() {
 
 
   async function salvarUsuario() {
-    const endpoint = id ? `/usuarios/atualizar` : '/usuarios/cadastrar';
+    const endpoint = id ? `/usuarios/${usuario.id}` : '/usuarios/cadastrar';
     const metodo = id ? atualizarAtributo : cadastrar;
     const mensagem = id ? 'Usuário atualizado' : 'Usuário cadastrado';
 
@@ -146,7 +146,7 @@ function FormularioUsuario() {
       await metodo(
         endpoint,
         estado.usuario,
-        (data) => setEstado(prev => ({
+        (data: Usuario) => setEstado(prev => ({
           ...prev,
           usuario: {
             ...data,
@@ -300,7 +300,7 @@ function FormularioUsuario() {
             <Button
               type='submit'
               disabled={validacaoCampos.nome !== 'success' || estado.isLoading}
-              className='disabled:bg-gray-400 disabled:text-gray-800 cursor-pointer rounded text-gray-100 bg-teal-500 hover:bg-teal-700 w-1/2 py-2 mx-auto flex justify-center dark:bg-teal-600 dark:hover:bg-teal-800 focus:ring-0'
+              className='disabled:bg-gray-400 disabled:text-gray-800 cursor-pointer rounded text-gray-100 bg-green-500 hover:bg-green-700 w-1/2 py-2 mx-auto flex justify-center dark:bg-green-600 dark:hover:bg-green-800 focus:ring-0'
             >
               {isLoading
                 ? <Spinner aria-label="Default status example"/>

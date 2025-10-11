@@ -14,9 +14,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Entity
@@ -45,7 +43,7 @@ public class Usuario {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "usuario_roles", joinColumns = @JoinColumn(name = "usuario_id"))
     @Enumerated(EnumType.STRING)
-    private Set<Role> roles = new HashSet<>();
+    private List<Role> roles = new ArrayList<>();
 
     public Boolean isAdminPadrao(String adminEmail) {
         return roles.contains(Role.ADMIN) && this.email.equals(adminEmail);
@@ -77,7 +75,7 @@ public class Usuario {
                 case "email" -> this.email = (String) valor;
                 case "senha" -> this.senha = passwordEncoder.encode((String) valor);
                 case "roles" -> {
-                    Set<Role> novasRoles = (Set<Role>) valor;
+                    List<Role> novasRoles = (List<Role>) valor;
                     if (novasRoles != null && !novasRoles.isEmpty()) {
                         validarAtualizacaoRoles(novasRoles, usuarioLogado);
                         this.roles = novasRoles;
@@ -89,7 +87,7 @@ public class Usuario {
     }
 
 
-    private void validarAtualizacaoRoles(Set<Role> novasRoles, Usuario usuarioLogado) {
+    private void validarAtualizacaoRoles(List<Role> novasRoles, Usuario usuarioLogado) {
         boolean temAdminAtual = this.roles.contains(Role.ADMIN);
         boolean vaiAdicionarAdmin = novasRoles.contains(Role.ADMIN);
         boolean vaiRemoverAdmin = !vaiAdicionarAdmin && temAdminAtual;

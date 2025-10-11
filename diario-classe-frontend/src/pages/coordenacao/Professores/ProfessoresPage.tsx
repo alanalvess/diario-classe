@@ -7,8 +7,7 @@ import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {RotatingLines} from "react-loader-spinner";
 
 export default function ProfessoresPage() {
-  const {usuario, isHydrated} = useContext(AuthContext);
-  const token = usuario.token;
+  const {usuario, isHydrated, isAuthenticated} = useContext(AuthContext);
 
   const [professores, setProfessores] = useState<Professor[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
@@ -23,11 +22,11 @@ export default function ProfessoresPage() {
 
   // 🔹 Buscar dados iniciais
   useEffect(() => {
-    if (!isHydrated || !token) return;
-    buscar("/professores", setProfessores, {headers: {Authorization: `Bearer ${token}`}});
-    buscar("/disciplinas", setDisciplinas, {headers: {Authorization: `Bearer ${token}`}});
-    buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${token}`}});
-  }, [isHydrated, token]);
+    if (!isHydrated || !isAuthenticated) return;
+    buscar("/professores", setProfessores, {headers: {Authorization: `Bearer ${usuario.token}`}});
+    buscar("/disciplinas", setDisciplinas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+    buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+  }, [isHydrated, isAuthenticated]);
 
   // 🔹 Criar professor
   async function salvarProfessor() {
@@ -52,7 +51,7 @@ export default function ProfessoresPage() {
         setTurmaIdsSelecionadas([]);
         ToastAlerta("✅ Professor criado com sucesso", Toast.Success);
       }, {
-        headers: {Authorization: `Bearer ${token}`, "Content-Type": "application/json"}
+        headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}
       });
     } catch (error) {
       if (error instanceof Error) {
@@ -66,7 +65,7 @@ export default function ProfessoresPage() {
   // 🔹 Excluir professor
   async function excluirProfessor(id: number) {
     try {
-      await deletar(`/professores/${id}`, {headers: {Authorization: `Bearer ${token}`}});
+      await deletar(`/professores/${id}`, {headers: {Authorization: `Bearer ${usuario.token}`}});
       setProfessores(prev => prev.filter(p => p.id !== id));
       ToastAlerta("✅ Professor excluído", Toast.Success);
     } catch (error) {
@@ -88,7 +87,7 @@ export default function ProfessoresPage() {
   }
 
   return (
-    <div className="p-6 pt-28">
+    <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
       <h1 className="text-2xl font-bold mb-6">Gestão de Professores</h1>
 
       {/* Formulário */}
@@ -136,7 +135,7 @@ export default function ProfessoresPage() {
           {turmas.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
         </select>
 
-        <Button color="success" onClick={salvarProfessor}>
+        <Button onClick={salvarProfessor}>
           {isLoading ?
             <RotatingLines
               strokeColor="white"
