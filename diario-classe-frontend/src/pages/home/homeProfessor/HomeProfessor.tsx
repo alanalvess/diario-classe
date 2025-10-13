@@ -54,7 +54,7 @@ export default function HomeProfessor() {
 
         <Card className="bg-gray-100 dark:bg-gray-800 text-center shadow-md">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-            Olá, Professor {usuario?.nome?.split(' ')[0]} 👋
+            Olá, Professor(a) {usuario?.nome?.split(' ')[0]} 👋
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
             Gerencie suas turmas, registre presenças e acompanhe o desempenho dos alunos.

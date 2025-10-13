@@ -32,7 +32,7 @@ export default function HomeCoordenador() {
         {/* Saudação */}
         <Card className="p-6 bg-gray-100 dark:bg-gray-800 mt-20 text-center shadow-md">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-            Olá, Coordenador {usuario?.nome?.split(' ')[0]} 👋
+            Olá, Coordenador(a) {usuario?.nome?.split(' ')[0]} 👋
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
             Acompanhe o desempenho da escola, gerencie professores e turmas com eficiência.
