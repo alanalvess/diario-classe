@@ -13,9 +13,8 @@ import ExcluiTurma from '../../../assets/images/duvidas/coordenador/exclui-turma
 import AdicionaDisciplina from '../../../assets/images/duvidas/coordenador/adiciona-disciplina.png'
 import VisualizaDisciplina from '../../../assets/images/duvidas/coordenador/visualiza-disciplina.png'
 import ExcluiDisciplina from '../../../assets/images/duvidas/coordenador/exclui-disciplina.png'
-import MatriculaAluno from '../../../assets/images/duvidas/coordenador/matricula-aluno.png'
-import AlunosDisciplina from '../../../assets/images/duvidas/coordenador/alunos-disciplina.png'
-import ExcluiAlunoMatricula from '../../../assets/images/duvidas/coordenador/exclui-aluno-matricula.png'
+import Dashboard from '../../../assets/images/duvidas/coordenador/dashboard.png'
+import Relatorios from '../../../assets/images/duvidas/coordenador/relatorios.png'
 
 interface DuvidasCoordenadorProps {
   usuarioTipo: string;
@@ -495,102 +494,72 @@ function DuvidasCoordenador({usuarioTipo}: DuvidasCoordenadorProps) {
 
           </Accordion>
 
-          <h3 className='bg-gray-700 text-gray-100 p-2 text-2xl rounded-lg'>Sessão de Matrículas</h3>
+          <h3 className='bg-gray-700 text-gray-100 p-2 text-2xl rounded-lg'>Sessão Dashboard</h3>
           <Accordion collapseAll>
             <AccordionPanel>
               <AccordionTitle theme={{flush: {off: "focus:ring-0"}}}>
-                Como matricular um aluno em uma disciplina/turma?
+                Como visualizar os principais dados estatísticos?
               </AccordionTitle>
 
               <AccordionContent className="bg-white dark:bg-gray-900 px-6 py-4 space-y-4 rounded-b-xl shadow-sm">
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  Para matricular um aluno em uma disciplina, siga os passos abaixo:
+                  Para visualizar o dashboard da coordenação, siga os passos abaixo:
                 </p>
 
                 <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
                   <li>No menu lateral, acesse{" "}
-                    <span className="font-semibold text-blue-600 dark:text-blue-400">“Matrículas”</span>.
+                    <span className="font-semibold text-blue-600 dark:text-blue-400">“Dashboard”</span>.
                   </li>
-                  <li>Selecione a turma, a disciplina e o aluno que deseja vincular uma nova matrícula.</li>
-                  <li>Clique no botão {" "}
-                    <span className="font-semibold text-green-600 dark:text-green-400">“Matricular”</span>
-                    {" "} para concluir.
-                  </li>
+                  <li>Cada gráfico ou tabela representa um dado importante para gestão da escola.</li>
                 </ol>
 
                 <div className="mt-4 flex justify-center">
                   <img
-                    src={MatriculaAluno}
-                    alt="Exemplo de como matricular aluno em disciplina"
+                    src={Dashboard}
+                    alt="Exemplo de como visualizar dados em gráficos"
                     className="rounded-xl shadow-md border border-gray-200 dark:border-gray-700 max-w-full lg:max-w-2xl"
                   />
                 </div>
               </AccordionContent>
             </AccordionPanel>
+          </Accordion>
 
+          <h3 className='bg-gray-700 text-gray-100 p-2 text-2xl rounded-lg'>Sessão Relatórios</h3>
+          <Accordion collapseAll>
             <AccordionPanel>
               <AccordionTitle theme={{flush: {off: "focus:ring-0"}}}>
-                Como visualizar os alunos matriculados por turma/disciplina?
+                Como emitir relatórios?
               </AccordionTitle>
 
               <AccordionContent className="bg-white dark:bg-gray-900 px-6 py-4 space-y-4 rounded-b-xl shadow-sm">
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  Para visualizar todos as matrículas no sistema, siga os passos abaixo:
+                  Para relatórios em arquivos PDF ou de Planilhas Eletrônicas, siga os passos abaixo:
                 </p>
 
                 <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                  <li>Acesse o menu lateral e clique em{" "}
-                    <span className="font-semibold text-green-600 dark:text-green-400">“Matrículas”</span>.
+                  <li>No menu lateral, acesse{" "}
+                    <span className="font-semibold text-blue-600 dark:text-blue-400">“Relatórios”</span>.
                   </li>
-                  <li>Selecione a turma, a disciplina.</li>
-
-                  <li>A relação de alunos cadastrados na disciplina localiza-se logo abaixo do {" "}
-                    <span className="font-semibold text-green-600 dark:text-green-400">“Formulário de Matrícula”</span>.
+                  <li>Selecione os dados que deseja.</li>
+                  <li>Clique no botão do tipo de arquivo{" "}
+                    <span className="font-semibold text-blue-600 dark:text-blue-400">“Gerar PDF”</span> ou {" "}
+                    <span className="font-semibold text-blue-600 dark:text-blue-400">“Gerar Excel”</span>.
                   </li>
+                  <li>Salve ou imprima o arquivo gerado.</li>
+                  <p>
+                    💡 Os relatórios devem ser previamente solicitados ao setor de TI. No exemplo, está a relação de alunos por turma.
+                  </p>
                 </ol>
 
                 <div className="mt-4 flex justify-center">
                   <img
-                    src={AlunosDisciplina}
-                    alt="Exemplo de visualização de alunos cadastrados por turma/disciplina"
+                    src={Relatorios}
+                    alt="Exemplo de como emitir relatórios"
                     className="rounded-xl shadow-md border border-gray-200 dark:border-gray-700 max-w-full lg:max-w-2xl"
                   />
                 </div>
               </AccordionContent>
             </AccordionPanel>
-
-            <AccordionPanel>
-              <AccordionTitle theme={{flush: {off: "focus:ring-0"}}}>
-                Como excluir uma Matrícula?
-              </AccordionTitle>
-
-              <AccordionContent className="bg-white dark:bg-gray-900 px-6 py-4 space-y-4 rounded-b-xl shadow-sm">
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  Para excluir uma matrícula, siga os passos abaixo:
-                </p>
-
-                <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                  <li>Acesse o menu lateral e clique em{" "}
-                    <span className="font-semibold text-blue-600 dark:text-blue-400">“Matrículas”</span>.
-                  </li>
-                  <li>A relação de disciplinas cadastrados localiza-se logo abaixo do {" "}
-                    <span className="font-semibold text-green-600 dark:text-green-400">“Formulário de Matrícula”</span>.
-                  </li>
-                  <li>Para cada disciplina da lista, há um botão {" "}
-                    <span className="font-semibold text-blue-600 dark:text-blue-400">"Excluir"</span>.
-                    <div className="mt-4 flex justify-center">
-                      <img
-                        src={ExcluiAlunoMatricula}
-                        alt="Exemplo de exclusão de matrícula"
-                        className="rounded-xl shadow-md border border-gray-200 dark:border-gray-700 max-w-full lg:max-w-2xl"
-                      />
-                    </div>
-                  </li>
-                </ol>
-              </AccordionContent>
-            </AccordionPanel>
-
-
           </Accordion>
         </div>
       )}

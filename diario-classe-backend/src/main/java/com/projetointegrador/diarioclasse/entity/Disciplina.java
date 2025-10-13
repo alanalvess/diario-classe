@@ -32,16 +32,17 @@ public class Disciplina {
     @ManyToMany(mappedBy = "disciplinas")
     private List<Turma> turmas = new ArrayList<>();
 
+    @ManyToMany(mappedBy = "disciplinas")
+    private List<Aluno> alunos = new ArrayList<>();
+
     @OneToMany(mappedBy = "disciplina")
     private List<Avaliacao> avaliacoes = new ArrayList<>();
 
-    // média dos alunos na disciplina
     public Double calcularMediaDisciplina(Turma turma) {
         if (avaliacoes == null || avaliacoes.isEmpty()) return 0.0;
         return avaliacoes.stream().filter(a -> a.getTurma().equals(turma)).flatMap(a -> a.getNotas().stream()).mapToDouble(Nota::getValor).average().orElse(0.0);
     }
 
-    // alunos inscritos na disciplina via turma
     public List<Aluno> listarAlunos(Turma turma) {
         if (turma == null || turma.getAlunos() == null) return new ArrayList<>();
         return turma.getAlunos();

@@ -72,9 +72,6 @@ export default function SidebarMenu() {
                   <Link to="relatorios">
                     <SidebarItem icon={FaChartBar}>Relatórios</SidebarItem>
                   </Link>
-                  <Link to="matriculas">
-                    <SidebarItem icon={FaUsers}>Matrículas</SidebarItem>
-                  </Link>
                   <Link to="alertas">
                     <SidebarItem href="/alertas" icon={FaBell}>Alertas</SidebarItem>
                   </Link>

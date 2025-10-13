@@ -39,15 +39,6 @@ public class Responsavel {
         this.email = email;
     }
 
-    public List<Nota> visualizarNotasDoFilho(Aluno aluno) {
-        if (alunos == null || !alunos.contains(aluno)) return Collections.emptyList();
-        return aluno.getAlunoDisciplinas().stream()
-                .flatMap(ad -> ad.getDisciplina().getAvaliacoes().stream())
-                .flatMap(av -> av.getNotas().stream())
-                .filter(n -> n.getAluno().equals(aluno))
-                .toList();
-    }
-
     public List<Presenca> visualizarPresencaDoFilho(Aluno aluno) {
         if (alunos == null || !alunos.contains(aluno)) return Collections.emptyList();
         return aluno.getPresencas();

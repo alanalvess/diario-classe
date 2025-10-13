@@ -22,18 +22,17 @@ public class RelatoriosController {
             @RequestParam String tipo, // "pdf" ou "xlsx"
             @RequestParam(required = false) Long turmaId,
             @RequestParam(required = false) Long disciplinaId
-//            @RequestParam(required = false) Long professorId
     ) throws IOException {
         byte[] arquivo;
 
         if ("pdf".equalsIgnoreCase(tipo)) {
-            arquivo = relatorioService.gerarPdf(turmaId, disciplinaId);
+            arquivo = relatorioService.gerarPdf(turmaId);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=relatorio.pdf")
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(arquivo);
         } else if ("xlsx".equalsIgnoreCase(tipo)) {
-            arquivo = relatorioService.gerarExcel(turmaId, disciplinaId);
+            arquivo = relatorioService.gerarExcel(turmaId);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=relatorio.xlsx")
                     .contentType(MediaType.parseMediaType(

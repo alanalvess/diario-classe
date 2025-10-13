@@ -11,7 +11,7 @@ function Duvidas() {
 
 
   return (
-    <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
+    <div className="pt-32 md:pl-20 md:pr-20 pb-10 px-10">
       <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 text-center mb-10">
         Dúvidas & Tutoriais
       </h1>

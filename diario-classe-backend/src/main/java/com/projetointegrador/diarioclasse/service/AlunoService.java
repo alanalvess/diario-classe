@@ -4,12 +4,8 @@ import com.projetointegrador.diarioclasse.dto.request.AlunoRequest;
 import com.projetointegrador.diarioclasse.dto.request.patchrequest.AlunoPatchRequest;
 import com.projetointegrador.diarioclasse.dto.response.AlunoResponse;
 import com.projetointegrador.diarioclasse.entity.Aluno;
-import com.projetointegrador.diarioclasse.entity.AlunoDisciplina;
-import com.projetointegrador.diarioclasse.entity.Disciplina;
 import com.projetointegrador.diarioclasse.entity.Turma;
-import com.projetointegrador.diarioclasse.repository.AlunoDisciplinaRepository;
 import com.projetointegrador.diarioclasse.repository.AlunoRepository;
-import com.projetointegrador.diarioclasse.repository.DisciplinaRepository;
 import com.projetointegrador.diarioclasse.repository.TurmaRepository;
 import org.springframework.stereotype.Service;
 
@@ -20,16 +16,13 @@ public class AlunoService {
 
     private final AlunoRepository alunoRepository;
     private final TurmaRepository turmaRepository;
-    private final AlunoDisciplinaRepository alunoDisciplinaRepository;
 
     public AlunoService(
             AlunoRepository alunoRepository,
-            TurmaRepository turmaRepository,
-            AlunoDisciplinaRepository alunoDisciplinaRepository
+            TurmaRepository turmaRepository
     ) {
         this.alunoRepository = alunoRepository;
         this.turmaRepository = turmaRepository;
-        this.alunoDisciplinaRepository = alunoDisciplinaRepository;
     }
 
     public AlunoResponse criar(AlunoRequest request) {
@@ -113,17 +106,5 @@ public class AlunoService {
                 aluno.getTurma() != null ? aluno.getTurma().getId() : null
         );
     }
-
-    public List<AlunoResponse> listarPorDisciplina(Long disciplinaId) {
-        List<AlunoDisciplina> matriculas = alunoDisciplinaRepository.findByDisciplinaId(disciplinaId);
-
-        return matriculas.stream()
-                .map(AlunoDisciplina::getAluno)   // pega o aluno da relação
-                .distinct()                       // evita duplicados
-                .map(this::toResponse)     // converte para DTO
-                .toList();
-    }
-
-
 
 }

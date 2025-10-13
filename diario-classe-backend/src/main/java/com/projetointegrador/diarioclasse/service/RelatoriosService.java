@@ -1,7 +1,7 @@
 package com.projetointegrador.diarioclasse.service;
 
-import com.projetointegrador.diarioclasse.entity.AlunoDisciplina;
-import com.projetointegrador.diarioclasse.repository.AlunoDisciplinaRepository;
+import com.projetointegrador.diarioclasse.entity.Aluno;
+import com.projetointegrador.diarioclasse.repository.AlunoRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -24,16 +24,16 @@ import java.io.IOException;
 @Service
 public class RelatoriosService {
 
-    private final AlunoDisciplinaRepository alunoDisciplinaRepository;
+    private final AlunoRepository alunoRepository;
 
-    public RelatoriosService(AlunoDisciplinaRepository repository) {
-        this.alunoDisciplinaRepository = repository;
+    public RelatoriosService(AlunoRepository repository) {
+        this.alunoRepository = repository;
     }
 
-    public byte[] gerarPdf(Long turmaId, Long disciplinaId) {
+    public byte[] gerarPdf(Long turmaId) {
         try {
-            List<AlunoDisciplina> lista =
-                    alunoDisciplinaRepository.findByTurmaIdAndDisciplinaId(turmaId, disciplinaId);
+            List<Aluno> lista =
+                    alunoRepository.findByTurmaId(turmaId);
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             Document document = new Document();
@@ -41,26 +41,17 @@ public class RelatoriosService {
 
             document.open();
             document.add(new Paragraph("Relatório de Alunos"));
-            document.add(new Paragraph(" ")); // espaço em branco
+            document.add(new Paragraph(" "));
 
-            // Criar tabela com 5 colunas
-            PdfPTable table = new PdfPTable(5);
+            PdfPTable table = new PdfPTable(2);
             table.setWidthPercentage(100);
 
-            // Cabeçalho
             table.addCell(new PdfPCell(new Paragraph("Aluno")));
             table.addCell(new PdfPCell(new Paragraph("Turma")));
-            table.addCell(new PdfPCell(new Paragraph("Disciplina")));
-            table.addCell(new PdfPCell(new Paragraph("Nota")));
-            table.addCell(new PdfPCell(new Paragraph("Frequência")));
 
-            // Linhas
-            for (AlunoDisciplina ad : lista) {
-                table.addCell(ad.getAluno().getNome());
+            for (Aluno ad : lista) {
+                table.addCell(ad.getNome());
                 table.addCell(ad.getTurma().getNome());
-                table.addCell(ad.getDisciplina().getNome());
-                table.addCell(String.valueOf(ad.getNotaFinal()));
-                table.addCell(String.valueOf(ad.getFrequencia()));
             }
 
             document.add(table);
@@ -73,8 +64,8 @@ public class RelatoriosService {
         }
     }
 
-    public byte[] gerarExcel(Long turmaId, Long disciplinaId) throws IOException {
-        List<AlunoDisciplina> lista = alunoDisciplinaRepository.findByTurmaIdAndDisciplinaId(turmaId, disciplinaId);
+    public byte[] gerarExcel(Long turmaId) throws IOException {
+        List<Aluno> lista = alunoRepository.findByTurmaId(turmaId);
 
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Relatório");
@@ -82,18 +73,12 @@ public class RelatoriosService {
         Row header = sheet.createRow(0);
         header.createCell(0).setCellValue("Aluno");
         header.createCell(1).setCellValue("Turma");
-        header.createCell(2).setCellValue("Disciplina");
-        header.createCell(3).setCellValue("Nota");
-        header.createCell(4).setCellValue("Frequência");
 
         int rowNum = 1;
-        for (AlunoDisciplina ad : lista) {
+        for (Aluno ad : lista) {
             Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(ad.getAluno().getNome());
+            row.createCell(0).setCellValue(ad.getNome());
             row.createCell(1).setCellValue(ad.getTurma().getNome());
-            row.createCell(2).setCellValue(ad.getDisciplina().getNome());
-            row.createCell(3).setCellValue(ad.getNotaFinal());
-            row.createCell(4).setCellValue(ad.getFrequencia());
         }
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

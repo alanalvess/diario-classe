@@ -41,8 +41,8 @@ export default function RegistroObservacoesPage() {
 
   // 🔹 Buscar alunos da disciplina
   useEffect(() => {
-    if (!disciplinaSelecionada) return;
-    buscar(`/alunos/disciplina/${disciplinaSelecionada}`, setAlunos, {
+    if (!turmaSelecionada) return;
+    buscar(`/alunos/turma/${turmaSelecionada}`, setAlunos, {
       headers: {Authorization: `Bearer ${usuario.token}`},
     });
   }, [disciplinaSelecionada, isAuthenticated]);

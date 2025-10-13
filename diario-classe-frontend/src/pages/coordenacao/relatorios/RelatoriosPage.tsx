@@ -133,14 +133,14 @@ export default function RelatoriosPage() {
           <option value="">Todas as Turmas</option>
           {turmas.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
         </select>
-        <select
-          value={filtros.disciplinaId ?? ""}
-          onChange={(e) => setFiltros(prev => ({...prev, disciplinaId: Number(e.target.value) || null}))}
-          className="border rounded p-2"
-        >
-          <option value="">Todas as Disciplinas</option>
-          {disciplinas.map(d => <option key={d.id} value={d.id}>{d.nome}</option>)}
-        </select>
+        {/*<select*/}
+        {/*  value={filtros.disciplinaId ?? ""}*/}
+        {/*  onChange={(e) => setFiltros(prev => ({...prev, disciplinaId: Number(e.target.value) || null}))}*/}
+        {/*  className="border rounded p-2"*/}
+        {/*>*/}
+        {/*  <option value="">Todas as Disciplinas</option>*/}
+        {/*  {disciplinas.map(d => <option key={d.id} value={d.id}>{d.nome}</option>)}*/}
+        {/*</select>*/}
         <Button onClick={() => gerarRelatorio("pdf")}>
           {isLoading ?
             <RotatingLines
@@ -173,20 +173,20 @@ export default function RelatoriosPage() {
           <TableHead>
             <TableHeadCell>Aluno</TableHeadCell>
             <TableHeadCell>Turma</TableHeadCell>
-            <TableHeadCell>Disciplina</TableHeadCell>
-            <TableHeadCell>Nota</TableHeadCell>
-            <TableHeadCell>Frequência</TableHeadCell>
-            <TableHeadCell>Observações</TableHeadCell>
+            {/*<TableHeadCell>Disciplina</TableHeadCell>*/}
+            {/*<TableHeadCell>Nota</TableHeadCell>*/}
+            {/*<TableHeadCell>Frequência</TableHeadCell>*/}
+            {/*<TableHeadCell>Observações</TableHeadCell>*/}
           </TableHead>
           <TableBody>
             {relatorio.map((item, i) => (
               <TableRow key={i}>
                 <TableCell>{item.alunoNome}</TableCell>
                 <TableCell>{item.turma}</TableCell>
-                <TableCell>{item.disciplina}</TableCell>
-                <TableCell>{item.nota}</TableCell>
-                <TableCell>{item.frequencia}</TableCell>
-                <TableCell>{item.observacoes}</TableCell>
+                {/*<TableCell>{item.disciplina}</TableCell>*/}
+                {/*<TableCell>{item.nota}</TableCell>*/}
+                {/*<TableCell>{item.frequencia}</TableCell>*/}
+                {/*<TableCell>{item.observacoes}</TableCell>*/}
               </TableRow>
             ))}
           </TableBody>

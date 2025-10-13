@@ -131,8 +131,6 @@ public class TurmaService {
                 turma.getId(),
                 turma.getNome(),
                 turma.getAnoLetivo(),
-                turma.calcularMediaTurma(),
-                turma.calcularFrequenciaMedia(),
                 professorIds,
                 professorNomes,
                 disciplinaIds,

@@ -46,8 +46,8 @@ export default function RegistroNotasPage() {
 
   // 🔹 Buscar alunos da disciplina
   async function buscarAlunos() {
-    if (!disciplina) return;
-    await buscar(`/alunos/disciplina/${disciplina}`, setAlunos, {
+    if (!turma) return;
+    await buscar(`/alunos/turma/${turma}`, setAlunos, {
       headers: {Authorization: `Bearer ${usuario.token}`},
     });
   }

@@ -35,15 +35,15 @@ public class SchedulerService {
         List<Aluno> alunos = alunoRepository.findAll();
 
         // 1️⃣ Atualizar dashboard
-        double mediaTurma = dashboardService.calcularMediaTurma(alunos);
-        double frequenciaMedia = dashboardService.calcularFrequenciaMedia(alunos);
-        System.out.println("Dashboard atualizado: Média=" + mediaTurma + ", Frequência=" + frequenciaMedia);
+//        double mediaTurma = dashboardService.calcularMediaTurma(alunos);
+//        double frequenciaMedia = dashboardService.calcularFrequenciaMedia(alunos);
+//        System.out.println("Dashboard atualizado: Média=" + mediaTurma + ", Frequência=" + frequenciaMedia);
 
         // 2️⃣ Analisar risco
-        List<Predicao> predicoes = analiseRiscoService.analisarTurma(alunos);
+//        List<Predicao> predicoes = analiseRiscoService.analisarTurma(alunos);
 
         // 3️⃣ Enviar alertas
-        notificationService.enviarAlertas(predicoes);
+//        notificationService.enviarAlertas(predicoes);
     }
 }
 

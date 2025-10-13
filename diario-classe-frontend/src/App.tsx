@@ -11,7 +11,6 @@ import TurmasPage from "./pages/coordenacao/turmas/TurmasPage.tsx";
 import ProfessoresPage from "./pages/coordenacao/Professores/ProfessoresPage.tsx";
 import AlunosPage from "./pages/coordenacao/alunos/AlunosPage.tsx";
 import DisciplinasPage from "./pages/coordenacao/disciplinas/DisciplinasPage.tsx";
-import MatriculasPage from "./pages/coordenacao/matriculas/MatriculasPage.tsx";
 import DashboardCoordenacaoPage from "./pages/coordenacao/dashboard/DashboardCoordenacao.tsx";
 import RelatoriosPage from "./pages/coordenacao/relatorios/RelatoriosPage.tsx";
 import Login from "./pages/login/Login.tsx";
@@ -61,7 +60,6 @@ function App() {
                 <Route path='/professores' element={<ProfessoresPage/>}/>
                 <Route path='/alunos' element={<AlunosPage/>}/>
                 <Route path='/disciplinas' element={<DisciplinasPage/>}/>
-                <Route path='/matriculas' element={<MatriculasPage/>}/>
                 <Route path='/dashboardCoordenacao' element={<DashboardCoordenacaoPage/>}/>
                 <Route path='/relatorios' element={<RelatoriosPage/>}/>
 

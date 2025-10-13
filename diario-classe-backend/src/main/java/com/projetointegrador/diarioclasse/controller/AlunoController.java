@@ -63,10 +63,8 @@ public class AlunoController {
 
     @GetMapping("/{id}/qrcode")
     public ResponseEntity<byte[]> gerarQrCode(@PathVariable Long id) throws Exception {
-        // Buscar aluno via service (DTO ou entidade)
         AlunoResponse aluno = alunoService.buscarPorId(id);
 
-        // Criar JSON
         Map<String, Object> qrDataMap = Map.of(
                 "alunoId", aluno.id(),
                 "turmaId", aluno.turmaId(),
@@ -77,21 +75,13 @@ public class AlunoController {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(qrDataMap);
 
-        // Converter JSON para Base64
         String base64QrData = Base64.getEncoder()
                 .encodeToString(json.getBytes(StandardCharsets.UTF_8));
 
-        // Gerar QR Code
         ByteArrayOutputStream qrOut = QRCodeGenerator.generateQRCodeImage(base64QrData, 200, 200);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_PNG)
                 .body(qrOut.toByteArray());
     }
-
-    @GetMapping("/disciplina/{disciplinaId}")
-    public ResponseEntity<List<AlunoResponse>> listarPorDisciplina(@PathVariable Long disciplinaId) {
-        return ResponseEntity.ok(alunoService.listarPorDisciplina(disciplinaId));
-    }
-
 }

@@ -190,7 +190,7 @@ function ListarUsuarios() {
             onSaved={listarUsuarios}
           />
 
-           🗑️ Modal de confirmação de exclusão
+           {/*🗑️ Modal de confirmação de exclusão*/}
           {/*<DeletarUsuario*/}
           {/*  isOpen={modalExclusao}*/}
           {/*  onClose={() => setModalExclusao(false)}*/}

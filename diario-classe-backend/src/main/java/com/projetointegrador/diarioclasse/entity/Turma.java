@@ -48,23 +48,6 @@ public class Turma {
     @OneToMany(mappedBy = "turma")
     private List<Avaliacao> avaliacoes = new ArrayList<>();
 
-    public Double calcularMediaTurma() {
-        if (alunos == null || alunos.isEmpty()) return 0.0;
-        return alunos.stream()
-                .filter(a -> a.getAlunoDisciplinas() != null)
-                .mapToDouble(Aluno::calcularMediaGeral)
-                .average()
-                .orElse(0.0);
-    }
-
-    public Double calcularFrequenciaMedia() {
-        if (alunos == null || alunos.isEmpty()) return 0.0;
-        return alunos.stream()
-                .mapToDouble(Aluno::calcularFrequenciaGeral)
-                .average()
-                .orElse(0.0);
-    }
-
     public List<Aluno> listarAlunos() {
         return alunos != null ? alunos : Collections.emptyList();
     }

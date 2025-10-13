@@ -111,7 +111,7 @@ export default function PresencaPage() {
                         <FaCheckCircle /> Presente
                       </span>
                     ) : (
-                      <span className="flex items-center gap-2 text-green-600 font-medium">
+                      <span className="flex items-center gap-2 text-red-600 font-medium">
                         <FaTimesCircle /> Falta
                       </span>
                     )}
