@@ -1,19 +1,20 @@
 package com.projetointegrador.diarioclasse.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.projetointegrador.diarioclasse.dto.QRCodeDTO;
 import com.projetointegrador.diarioclasse.dto.request.PresencaRequest;
 import com.projetointegrador.diarioclasse.dto.response.PresencaResponse;
-import com.projetointegrador.diarioclasse.entity.Aluno;
-import com.projetointegrador.diarioclasse.entity.Presenca;
-import com.projetointegrador.diarioclasse.entity.Turma;
 import com.projetointegrador.diarioclasse.service.PresencaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/presencas")
@@ -49,23 +50,54 @@ public class PresencaController {
         return ResponseEntity.noContent().build();
     }
 
+//    @PostMapping("/presenca/scan")
+//    public ResponseEntity<String> registrarPresencaQR(@RequestParam Long alunoId,
+//                                                      @RequestParam Long turmaId) {
+//        // Monta o request para o service
+//        PresencaRequest request = new PresencaRequest(
+//                LocalDate.now(),   // data da leitura
+//                true,              // aluno presente
+//                alunoId,
+//                turmaId,
+//                "QR_CODE"          // método de chamada
+//        );
+//
+//        // Chama o service existente
+//        presencaService.registrar(request);
+//
+//        return ResponseEntity.ok("✅ Presença registrada via QR Code!");
+//    }
+
     @PostMapping("/presenca/scan")
-    public ResponseEntity<String> registrarPresencaQR(@RequestParam Long alunoId,
-                                                      @RequestParam Long turmaId) {
-        // Monta o request para o service
-        PresencaRequest request = new PresencaRequest(
-                LocalDate.now(),   // data da leitura
-                true,              // aluno presente
-                alunoId,
-                turmaId,
-                "QR_CODE"          // método de chamada
-        );
+    public ResponseEntity<String> registrarPresencaQR(@RequestParam String qrData) {
+        try {
+// Decodifica Base64
+            byte[] decodedBytes = Base64.getDecoder().decode(qrData);
+            String json = new String(decodedBytes, StandardCharsets.UTF_8);
 
-        // Chama o service existente
-        presencaService.registrar(request);
+            // Converte JSON para DTO
+            QRCodeDTO dados = new ObjectMapper().readValue(json, QRCodeDTO.class);
 
-        return ResponseEntity.ok("✅ Presença registrada via QR Code!");
+            // Cria PresencaRequest
+            PresencaRequest request = new PresencaRequest(
+                    LocalDate.now(),
+                    true,
+                    dados.alunoId(),
+                    dados.turmaId(),
+                    "QR_CODE"
+            );
+
+            presencaService.registrar(request);
+
+            return ResponseEntity.ok("✅ Presença registrada via QR Code!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("❌ Erro ao processar QR Code: " + e.getMessage());
+        }
     }
+
 
     @GetMapping("/turmas/{turmaId}")
     public ResponseEntity<List<PresencaResponse>> listarChamada(
@@ -98,7 +130,6 @@ public class PresencaController {
         presencaService.deletarPorAlunoTurmaData(alunoId, turmaId, data);
         return ResponseEntity.noContent().build();
     }
-
 
 
 }

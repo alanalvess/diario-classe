@@ -12,7 +12,7 @@ import {
 } from "flowbite-react";
 import {AuthContext} from "../../../contexts/AuthContext.tsx";
 import type {Aluno, Turma} from "../../../models";
-import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
+import {buscar, buscarQrCode, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {RotatingLines} from "react-loader-spinner";
 import {jsPDF} from "jspdf";
@@ -90,17 +90,31 @@ export default function AlunosPage() {
     }
   }
 
-  // 🔹 Gerar QR Code (abre modal)
+  // // 🔹 Gerar QR Code (abre modal)
+  // async function gerarQrCode(aluno: Aluno) {
+  //   try {
+  //     const response = await fetch(`http://localhost:8080/alunos/${aluno.id}/qrcode`, {
+  //       headers: {Authorization: `Bearer ${usuario.token}`},
+  //     });
+  //     if (!response.ok) throw new Error("Erro ao gerar QR Code");
+  //
+  //     const blob = await response.blob();
+  //     const url = URL.createObjectURL(blob);
+  //     setQrImage(url);
+  //     setQrAlunoNome(aluno.nome);
+  //     setQrModalOpen(true);
+  //   } catch (error) {
+  //     console.error(error);
+  //     ToastAlerta("Erro ao gerar QR Code", Toast.Error);
+  //   }
+  // }
+
   async function gerarQrCode(aluno: Aluno) {
     try {
-      const response = await fetch(`http://localhost:8080/alunos/${aluno.id}/qrcode`, {
-        headers: {Authorization: `Bearer ${usuario.token}`},
+      await buscarQrCode(`/alunos/${aluno.id}/qrcode`, setQrImage, {
+        headers: { Authorization: `Bearer ${usuario.token}` },
       });
-      if (!response.ok) throw new Error("Erro ao gerar QR Code");
 
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      setQrImage(url);
       setQrAlunoNome(aluno.nome);
       setQrModalOpen(true);
     } catch (error) {
@@ -108,6 +122,7 @@ export default function AlunosPage() {
       ToastAlerta("Erro ao gerar QR Code", Toast.Error);
     }
   }
+
 
   // 🔹 Imprimir / Exportar QR em PDF
   function imprimirQrCode() {

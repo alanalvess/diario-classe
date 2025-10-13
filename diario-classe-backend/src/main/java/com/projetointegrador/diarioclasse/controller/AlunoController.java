@@ -61,6 +61,29 @@ public class AlunoController {
         return ResponseEntity.ok(alunoService.listarPorTurma(turmaId));
     }
 
+//    @GetMapping("/{id}/qrcode")
+//    public ResponseEntity<byte[]> gerarQrCode(@PathVariable Long id) throws Exception {
+//        AlunoResponse aluno = alunoService.buscarPorId(id);
+//
+//        Map<String, Object> qrDataMap = Map.of(
+//                "alunoId", aluno.id(),
+//                "turmaId", aluno.turmaId(),
+//                "alunoNome", aluno.nome()
+//        );
+//
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        String json = objectMapper.writeValueAsString(qrDataMap);
+//
+//        String base64QrData = Base64.getEncoder()
+//                .encodeToString(json.getBytes(StandardCharsets.UTF_8));
+//
+//        ByteArrayOutputStream qrOut = QRCodeGenerator.generateQRCodeImage(base64QrData, 200, 200);
+//
+//        return ResponseEntity.ok()
+//                .contentType(MediaType.IMAGE_PNG)
+//                .body(qrOut.toByteArray());
+//    }
+
     @GetMapping("/{id}/qrcode")
     public ResponseEntity<byte[]> gerarQrCode(@PathVariable Long id) throws Exception {
         AlunoResponse aluno = alunoService.buscarPorId(id);
@@ -68,20 +91,23 @@ public class AlunoController {
         Map<String, Object> qrDataMap = Map.of(
                 "alunoId", aluno.id(),
                 "turmaId", aluno.turmaId(),
-                "nome", aluno.nome(),
-                "turmaid", aluno.turmaId()
+                "nome", aluno.nome()
         );
 
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(qrDataMap);
 
+        // 🔹 Codifica em Base64 para segurança e compatibilidade
         String base64QrData = Base64.getEncoder()
                 .encodeToString(json.getBytes(StandardCharsets.UTF_8));
 
+        // 🔹 Gera imagem do QR
         ByteArrayOutputStream qrOut = QRCodeGenerator.generateQRCodeImage(base64QrData, 200, 200);
 
         return ResponseEntity.ok()
+                .header("X-Aluno-Nome", aluno.nome())
                 .contentType(MediaType.IMAGE_PNG)
                 .body(qrOut.toByteArray());
     }
+
 }

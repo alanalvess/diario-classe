@@ -25,7 +25,7 @@ export default function RegistroPresencaPage() {
 
   const [presencas, setPresencas] = useState<Presenca[]>([]);
   const [qrOpen, setQrOpen] = useState(false);
-  const [scanResult, setScanResult] = useState<string | null>(null);
+  // const [scanResult, setScanResult] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const [turmas, setTurmas] = useState<Turma[]>([]); // lista de turmas do professor
@@ -110,34 +110,34 @@ export default function RegistroPresencaPage() {
     }
   }
 
-  // Quando ler o QR Code
-  const handleScan = async (result) => {
-    if (result?.text) {
-      setScanResult(result.text);
-      setQrOpen(false);
-
-      const [alunoId, nome, turmaId] = result.text.split(";");
-
-      try {
-          await registrarPresencaQRCode(
-            "/presencas/presenca/scan",
-            { alunoId: String(alunoId), turmaId: String(turmaId), metodoChamada: "QR_CODE" },
-            { headers: { Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/x-www-form-urlencoded" } }
-          );
-
-        // ✅ Exibir confirmação amigável
-        ToastAlerta(`✅ Presença registrada via QR Code para ${nome}`, Toast.Success);
-
-        await buscarPresencas();
-      } catch (error) {
-        if (error instanceof Error) {
-          ToastAlerta("❌ Erro ao registrar presença via QR Code", Toast.Error);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
+  // // Quando ler o QR Code
+  // const handleScan = async (result) => {
+  //   if (result?.text) {
+  //     setScanResult(result.text);
+  //     setQrOpen(false);
+  //
+  //     const [alunoId, turmaId, nome] = result.text.split(";");
+  //
+  //     try {
+  //         await registrarPresencaQRCode(
+  //           "/presencas/presenca/scan",
+  //           { alunoId: String(alunoId), turmaId: String(turmaId), metodoChamada: "QR_CODE" },
+  //           { headers: { Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/x-www-form-urlencoded" } }
+  //         );
+  //
+  //       // ✅ Exibir confirmação amigável
+  //       ToastAlerta(`✅ Presença registrada via QR Code para ${nome}`, Toast.Success);
+  //
+  //       await buscarPresencas();
+  //     } catch (error) {
+  //       if (error instanceof Error) {
+  //         ToastAlerta("❌ Erro ao registrar presença via QR Code", Toast.Error);
+  //       }
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   }
+  // };
 
 
   return (
@@ -201,28 +201,49 @@ export default function RegistroPresencaPage() {
 
       <Modal show={qrOpen} onClose={() => setQrOpen(false)}>
         <ModalHeader>Ler QR Code</ModalHeader>
-        {/*<ModalBody>*/}
-        {/*  /!*<QrReader*!/*/}
-        {/*  /!*  constraints={{facingMode: "environment"}}*!/*/}
-        {/*  /!*  onResult={handleScan}*!/*/}
-        {/*  /!*  style={{width: "100%"}}*!/*/}
-
-        {/*    <p className="text-red-500 mt-2">*/}
-        {/*      ⚠️ Erro ao acessar câmera: {error.message || "Verifique as permissões do navegador."}*/}
-        {/*    </p>*/}
-        {/*  )}*/}
-        {/*  <video ref={ref} style={{ width: "100%", borderRadius: "8px" }} />*/}
-
-        {/*</ModalBody>*/}
         <ModalBody>
-          {qrOpen && (
-            <Modal show={qrOpen} onClose={() => setQrOpen(false)}>
-              <ModalHeader>Ler QR Code</ModalHeader>
-              <ModalBody>
-                <QRCodeScanner onScan={handleScan}/>
-              </ModalBody>
-            </Modal>
-          )}
+          <QRCodeScanner
+            onScan={async (base64Text) => {
+              setQrOpen(false);
+              setIsLoading(true);
+
+              try {
+                // 🔹 Opcional: decodificar só para exibir nome no toast
+                const decoded = atob(base64Text);
+                const qrData = JSON.parse(decoded);
+                const { nome } = qrData;
+
+                // 🔹 Envia Base64 para o backend via query param
+                await registrarPresencaQRCode(
+                  `/presencas/presenca/scan?qrData=${encodeURIComponent(base64Text)}`,
+                  {}, // corpo vazio
+                  {
+                    headers: {
+                      Authorization: `Bearer ${usuario.token}`,
+                      "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                  }
+                );
+
+                ToastAlerta(
+                  `✅ Presença registrada via QR Code para ${nome}`,
+                  Toast.Success
+                );
+
+                await buscarPresencas();
+              } catch (error) {
+                console.error("❌ Erro ao processar QR Code:", error);
+                ToastAlerta(
+                  "Erro ao processar ou registrar presença via QR Code",
+                  Toast.Error
+                );
+              } finally {
+                setIsLoading(false);
+              }
+            }}
+          />
+
+
         </ModalBody>
 
       </Modal>

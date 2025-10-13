@@ -63,7 +63,8 @@ public class BasicSecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/usuarios/logar").permitAll()
-                        .requestMatchers("/usuarios/cadastrar").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/usuarios/cadastrar").hasAnyAuthority("ADMIN", "COORDENADOR")
+//                        .requestMatchers("/usuarios/cadastrar").permitAll()
                         .requestMatchers("/error/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
                         .requestMatchers(HttpMethod.GET, "/usuarios/all").hasAnyAuthority("ADMIN", "COORDENADOR")

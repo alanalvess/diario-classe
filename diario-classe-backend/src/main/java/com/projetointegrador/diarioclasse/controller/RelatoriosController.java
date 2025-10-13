@@ -20,8 +20,7 @@ public class RelatoriosController {
     @GetMapping
     public ResponseEntity<byte[]> gerarRelatorio(
             @RequestParam String tipo, // "pdf" ou "xlsx"
-            @RequestParam(required = false) Long turmaId,
-            @RequestParam(required = false) Long disciplinaId
+            @RequestParam(required = false) Long turmaId
     ) throws IOException {
         byte[] arquivo;
 

@@ -3,7 +3,7 @@ import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow}
 import {jsPDF} from "jspdf";
 import * as XLSX from "xlsx";
 import {AuthContext} from "../../../contexts/AuthContext.tsx";
-import {buscar} from "../../../services/Service.ts";
+import {baixarArquivo, buscar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import type {Filtro, Relatorio} from "../../../models";
 import {RotatingLines} from "react-loader-spinner";
@@ -42,36 +42,61 @@ export default function RelatoriosPage() {
     buscar(`/disciplinas/turma/${filtros.turmaId}`, setDisciplinas, {headers: {Authorization: `Bearer ${usuario.token}`}});
   }, [filtros.turmaId, isAuthenticated, isHydrated]);
 
-  // 🔹 Gerar relatório PDF ou Excel
+  // // 🔹 Gerar relatório PDF ou Excel
+  // async function gerarRelatorio(tipo: "pdf" | "xlsx") {
+  //   try {
+  //     const query = new URLSearchParams({
+  //       tipo,
+  //       ...(filtros.turmaId ? {turmaId: filtros.turmaId.toString()} : {}),
+  //       ...(filtros.disciplinaId ? {disciplinaId: filtros.disciplinaId.toString()} : {}),
+  //     });
+  //
+  //     const response = await fetch(`http://localhost:8080/relatorios?${query.toString()}`, {
+  //       headers: {Authorization: `Bearer ${usuario.token}`},
+  //     });
+  //
+  //     if (!response.ok) throw new Error("Erro ao gerar relatório");
+  //
+  //     const blob = await response.blob();
+  //     const url = window.URL.createObjectURL(blob);
+  //     const a = document.createElement("a");
+  //     a.href = url;
+  //     a.download = `relatorio.${tipo}`;
+  //     document.body.appendChild(a);
+  //     a.click();
+  //     a.remove();
+  //     window.URL.revokeObjectURL(url);
+  //
+  //     ToastAlerta("✅ Relatório gerado", Toast.Success);
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       ToastAlerta("Erro ao gerar relatório", Toast.Error);
+  //     }
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }
+
   async function gerarRelatorio(tipo: "pdf" | "xlsx") {
     try {
+      setIsLoading(true);
+
       const query = new URLSearchParams({
         tipo,
-        ...(filtros.turmaId ? {turmaId: filtros.turmaId.toString()} : {}),
-        ...(filtros.disciplinaId ? {disciplinaId: filtros.disciplinaId.toString()} : {}),
+        ...(filtros.turmaId ? { turmaId: filtros.turmaId.toString() } : {}),
+        ...(filtros.disciplinaId ? { disciplinaId: filtros.disciplinaId.toString() } : {}),
       });
 
-      const response = await fetch(`http://localhost:8080/relatorios?${query.toString()}`, {
-        headers: {Authorization: `Bearer ${usuario.token}`},
-      });
+      await baixarArquivo(
+        `/relatorios?${query.toString()}`,
+        `relatorio.${tipo}`,
+        { headers: { Authorization: `Bearer ${usuario.token}` } }
+      );
 
-      if (!response.ok) throw new Error("Erro ao gerar relatório");
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `relatorio.${tipo}`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-
-      ToastAlerta("✅ Relatório gerado", Toast.Success);
+      ToastAlerta("✅ Relatório gerado com sucesso!", Toast.Success);
     } catch (error) {
-      if (error instanceof Error) {
-        ToastAlerta("Erro ao gerar relatório", Toast.Error);
-      }
+      console.error(error);
+      ToastAlerta("Erro ao gerar relatório", Toast.Error);
     } finally {
       setIsLoading(false);
     }

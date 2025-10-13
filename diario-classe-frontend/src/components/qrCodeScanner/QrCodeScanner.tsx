@@ -1,37 +1,71 @@
 import {useZxing} from "react-zxing";
-import {useEffect} from "react";
+import { useEffect, useRef, useState } from "react";
 
-export default function QRCodeScanner({ onScan }: { onScan: (text: string) => void }) {
+interface QRCodeScannerProps {
+  onScan: (text: string) => void;
+}
 
-  useEffect(() => {
-    async function pedirPermissaoCamera() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        stream.getTracks().forEach(track => track.stop()); // libera imediatamente
-        console.log("✅ Permissão da câmera concedida!");
-      } catch (err) {
-        console.error("❌ Permissão da câmera negada:", err);
-      }
-    }
+export default function QRCodeScanner({ onScan }: QRCodeScannerProps) {
+  const [erro, setErro] = useState<string | null>(null);
 
-    pedirPermissaoCamera();
-  }, []);
-
-  const { ref } = useZxing({
+  // ref de vídeo usada pelo ZXing
+  const { ref: zxingRef } = useZxing({
     onDecodeResult(result) {
       const text = result.getText();
-      if (text) {
-        onScan(text); // ← aqui chamamos sua função handleScan
-      }
+      if (text) onScan(text);
     },
     onError(err) {
       console.error("Erro ao acessar câmera:", err);
-      alert("❌ Erro ao acessar câmera: " + err);
+      setErro(err.toString());
     },
     constraints: {
-      video: { facingMode: "environment", width: 1280, height: 720 },
+      video: {
+        facingMode: { ideal: "environment" }, // câmera traseira
+      },
     },
   });
 
-  return <video ref={ref} style={{ width: "100%", borderRadius: "8px" }} />;
+  // Ref separada para limpar câmera ao desmontar
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (videoRef.current?.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center justify-center gap-4">
+      <video
+        ref={(el) => {
+          // ✅ o ref do ZXing é um objeto, não uma função
+          zxingRef.current = el;
+          videoRef.current = el;
+        }}
+        style={{
+          width: "100%",
+          maxWidth: "400px",
+          borderRadius: "12px",
+          background: "#000",
+        }}
+        autoPlay
+        playsInline
+      />
+
+      {erro ? (
+        <p className="text-red-500 text-center text-sm">
+          ⚠️ Erro ao acessar câmera: {erro} <br />
+          Verifique se o navegador tem permissão para usar a câmera.
+        </p>
+      ) : (
+        <p className="text-gray-500 text-sm text-center">
+          Aponte a câmera para o QR Code do aluno
+        </p>
+      )}
+    </div>
+  );
 }
+
