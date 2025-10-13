@@ -1,6 +1,5 @@
 package com.projetointegrador.diarioclasse.scheduler;
 
-import com.projetointegrador.diarioclasse.dashboard.DashboardService;
 import com.projetointegrador.diarioclasse.entity.Aluno;
 import com.projetointegrador.diarioclasse.ml.AnaliseRiscoService;
 import com.projetointegrador.diarioclasse.ml.Predicao;
@@ -16,16 +15,13 @@ public class SchedulerService {
 
     private final AlunoRepository alunoRepository;
     private final AnaliseRiscoService analiseRiscoService;
-    private final DashboardService dashboardService;
     private final NotificationService notificationService;
 
     public SchedulerService(AlunoRepository alunoRepository,
                             AnaliseRiscoService analiseRiscoService,
-                            DashboardService dashboardService,
                             NotificationService notificationService) {
         this.alunoRepository = alunoRepository;
         this.analiseRiscoService = analiseRiscoService;
-        this.dashboardService = dashboardService;
         this.notificationService = notificationService;
     }
 
