@@ -1,16 +1,16 @@
-import {useContext, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 
 import {Bar, Pie} from "react-chartjs-2";
 import {ArcElement, BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip} from "chart.js";
-import {AuthContext} from "../../../contexts/AuthContext.tsx";
 import {buscar} from "../../../services/Service.ts";
 import {Card} from "flowbite-react";
 import type {Aluno, Disciplina, Observacao, Professor, Turma} from "../../../models";
+import {useAuth} from "../../../contexts/UseAuth.ts";
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 export default function DashboardCoordenacaoPage() {
-  const {usuario, isHydrated, isAuthenticated} = useContext(AuthContext);
+  const {usuario, isHydrated, isAuthenticated} = useAuth();
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [professores, setProfessores] = useState<Professor[]>([]);

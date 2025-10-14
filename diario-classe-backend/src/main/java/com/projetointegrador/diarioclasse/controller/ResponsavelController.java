@@ -2,6 +2,7 @@ package com.projetointegrador.diarioclasse.controller;
 
 import com.projetointegrador.diarioclasse.dto.request.ResponsavelRequest;
 import com.projetointegrador.diarioclasse.dto.request.patchrequest.ResponsavelPatchRequest;
+import com.projetointegrador.diarioclasse.dto.response.AlunoResponse;
 import com.projetointegrador.diarioclasse.dto.response.ResponsavelResponse;
 import com.projetointegrador.diarioclasse.service.ResponsavelService;
 import lombok.RequiredArgsConstructor;
@@ -48,5 +49,19 @@ public class ResponsavelController {
     public ResponseEntity<List<ResponsavelResponse>> listarTodos() {
         return ResponseEntity.ok(responsavelService.listarTodos());
     }
+
+    @GetMapping("/{id}/alunos")
+    public ResponseEntity<List<AlunoResponse>> listarAlunosPorResponsavel(@PathVariable Long id) {
+        return ResponseEntity.ok(responsavelService.listarAlunosPorResponsavel(id));
+    }
+
+    @PostMapping("/aluno/{alunoId}")
+    public ResponseEntity<ResponsavelResponse> criarParaAluno(
+            @PathVariable Long alunoId,
+            @RequestBody ResponsavelRequest request) {
+
+        return ResponseEntity.ok(responsavelService.criarParaAluno(alunoId, request));
+    }
+
 }
 

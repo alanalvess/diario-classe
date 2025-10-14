@@ -14,7 +14,7 @@ import DisciplinasPage from "./pages/coordenacao/disciplinas/DisciplinasPage.tsx
 import DashboardCoordenacaoPage from "./pages/coordenacao/dashboard/DashboardCoordenacao.tsx";
 import RelatoriosPage from "./pages/coordenacao/relatorios/RelatoriosPage.tsx";
 import Login from "./pages/login/Login.tsx";
-import Cadastro from "./pages/usuario/cadastro/Cadastro.tsx";
+// import Cadastro from "./pages/usuario/cadastro/Cadastro.tsx";
 import FormularioUsuario from "./components/usuarios/formularioUsuario/FormularioUsuario.tsx";
 import Perfil from "./pages/usuario/perfil/Perfil.tsx";
 import Usuarios from "./pages/usuarios/Usuarios.tsx";

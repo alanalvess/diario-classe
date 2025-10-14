@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.projetointegrador.diarioclasse.dto.request.AlunoRequest;
 import com.projetointegrador.diarioclasse.dto.request.patchrequest.AlunoPatchRequest;
 import com.projetointegrador.diarioclasse.dto.response.AlunoResponse;
+import com.projetointegrador.diarioclasse.dto.response.ResponsavelResponse;
 import com.projetointegrador.diarioclasse.service.AlunoService;
 import com.projetointegrador.diarioclasse.service.QRCodeGenerator;
 import lombok.RequiredArgsConstructor;
@@ -61,29 +62,6 @@ public class AlunoController {
         return ResponseEntity.ok(alunoService.listarPorTurma(turmaId));
     }
 
-//    @GetMapping("/{id}/qrcode")
-//    public ResponseEntity<byte[]> gerarQrCode(@PathVariable Long id) throws Exception {
-//        AlunoResponse aluno = alunoService.buscarPorId(id);
-//
-//        Map<String, Object> qrDataMap = Map.of(
-//                "alunoId", aluno.id(),
-//                "turmaId", aluno.turmaId(),
-//                "alunoNome", aluno.nome()
-//        );
-//
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        String json = objectMapper.writeValueAsString(qrDataMap);
-//
-//        String base64QrData = Base64.getEncoder()
-//                .encodeToString(json.getBytes(StandardCharsets.UTF_8));
-//
-//        ByteArrayOutputStream qrOut = QRCodeGenerator.generateQRCodeImage(base64QrData, 200, 200);
-//
-//        return ResponseEntity.ok()
-//                .contentType(MediaType.IMAGE_PNG)
-//                .body(qrOut.toByteArray());
-//    }
-
     @GetMapping("/{id}/qrcode")
     public ResponseEntity<byte[]> gerarQrCode(@PathVariable Long id) throws Exception {
         AlunoResponse aluno = alunoService.buscarPorId(id);
@@ -108,6 +86,11 @@ public class AlunoController {
                 .header("X-Aluno-Nome", aluno.nome())
                 .contentType(MediaType.IMAGE_PNG)
                 .body(qrOut.toByteArray());
+    }
+
+    @GetMapping("/{id}/responsaveis")
+    public ResponseEntity<List<ResponsavelResponse>> listarResponsaveisPorAluno(@PathVariable Long id) {
+        return ResponseEntity.ok(alunoService.listarResponsaveisPorAluno(id));
     }
 
 }

@@ -1,5 +1,6 @@
 package com.projetointegrador.diarioclasse.controller;
 
+import com.projetointegrador.diarioclasse.dto.AlterarSenhaDTO;
 import com.projetointegrador.diarioclasse.dto.request.UsuarioLoginRequest;
 import com.projetointegrador.diarioclasse.dto.request.UsuarioRequest;
 import com.projetointegrador.diarioclasse.dto.response.UsuarioResponse;
@@ -99,6 +100,23 @@ public class UsuarioController {
         UsuarioResponse resposta = service.atualizarAtributo(id, atributos, usuarioLogado);
         return ResponseEntity.ok(resposta);
     }
+
+    @PatchMapping("/{id}/senha")
+    public ResponseEntity<Void> alterarSenha(
+            @PathVariable Long id,
+            @RequestBody AlterarSenhaDTO dto,
+            Authentication authentication
+    ) {
+        Usuario usuarioLogado = service.buscarEntidadePorEmail(authentication.getName());
+        if (usuarioLogado == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado");
+        }
+
+        service.alterarSenha(id, usuarioLogado, dto.senhaAtual(), dto.novaSenha());
+
+        return ResponseEntity.noContent().build();
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {

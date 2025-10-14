@@ -1,6 +1,4 @@
-import {useContext, useEffect, useState} from 'react'
-
-import {AuthContext} from '../../contexts/AuthContext'
+import {useEffect, useState} from 'react'
 import {Toast, ToastAlerta} from '../../utils/ToastAlerta'
 import {buscar} from '../../services/Service'
 
@@ -24,12 +22,13 @@ import SearchBarUsuario from "../../components/usuarios/searchBarUsuario/SearchB
 import {HiChevronDown} from "react-icons/hi";
 import ListarUsuarios from "../../components/usuarios/listarUsuarios/ListarUsuarios.tsx";
 import type {Usuario} from "../../models"
+import {useAuth} from "../../contexts/UseAuth.ts";
 
 function Usuarios() {
 
     const navigate = useNavigate();
 
-    const {usuario, handleLogout, isHydrated, isAuthenticated} = useContext(AuthContext);
+    const {usuario, handleLogout, isHydrated, isAuthenticated} = useAuth();
 
     const [isLoading, setIsLoading] = useState(true);
 

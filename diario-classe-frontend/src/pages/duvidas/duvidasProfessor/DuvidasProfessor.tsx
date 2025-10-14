@@ -1,7 +1,5 @@
 import {Accordion, AccordionContent, AccordionPanel, AccordionTitle} from "flowbite-react";
 import {Roles} from "../../../enums/Roles.ts";
-
-import Relatorios from "../../../assets/images/duvidas/coordenador/relatorios.png";
 import PresencaManual from "../../../assets/images/duvidas/professor/presenca-manual.png";
 import MarcaPresenca from "../../../assets/images/duvidas/professor/marca-presenca.png";
 import PresencaQRCode from "../../../assets/images/duvidas/professor/presenca-qrcode.png";

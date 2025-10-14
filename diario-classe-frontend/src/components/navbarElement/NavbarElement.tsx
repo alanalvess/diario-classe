@@ -5,7 +5,7 @@ import Logo from '../../assets/images/dia.png'
 
 import {Badge, Button, DarkThemeToggle, Navbar, NavbarBrand} from 'flowbite-react'
 import DropdownPerfil from "./dropdownPerfil/DropdownPerfil.tsx";
-import {FaBell} from "react-icons/fa";
+import {FaBell, FaTimes} from "react-icons/fa";
 import SidebarMenu from "./sidebarMenu/SidebarMenu.tsx";
 import {GiHamburgerMenu} from "react-icons/gi";
 import DrawerMenu from "./drawerMenu/DrawerMenu.tsx";
@@ -60,12 +60,23 @@ function NavbarElement() {
 
           <DarkThemeToggle className="cursor-pointer hover:bg-gray-700 focus:outline-none focus:ring-0"/>
           {isAuthenticated && (
+            // <Button
+            //   className='md:hidden text-gray-500 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-0 cursor-pointer'
+            //   onClick={() => setIsOpen(true)}
+            // >
+            //   <GiHamburgerMenu size={30}/>
+            // </Button>
             <Button
               className='md:hidden text-gray-500 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-0 cursor-pointer'
-              onClick={() => setIsOpen(true)}
+              onClick={() => setIsOpen(!isOpen)} // alterna abrir/fechar
             >
-              <GiHamburgerMenu size={30}/>
+              {isOpen ? (
+                <FaTimes size={30} /> // Ícone de “X” quando o Drawer está aberto
+              ) : (
+                <GiHamburgerMenu size={30} /> // Ícone de hambúrguer quando fechado
+              )}
             </Button>
+
           )}
         </div>
       </Navbar>

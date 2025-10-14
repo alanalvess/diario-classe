@@ -4,7 +4,7 @@ import {Toast, ToastAlerta} from '../utils/ToastAlerta'
 import {login} from '../services/Service'
 import type {UsuarioLogin} from "../models";
 import {jwtDecode} from "jwt-decode";
-import { AuthContext } from "./AuthContext";
+import {AuthContext} from "./AuthContext";
 
 interface AuthProviderProps {
   children: ReactNode;

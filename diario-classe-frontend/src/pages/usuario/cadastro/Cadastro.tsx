@@ -2,46 +2,55 @@ import {type ChangeEvent, type FormEvent, useState} from "react";
 import {Button, Label, Modal, ModalBody, ModalHeader, TextInput} from "flowbite-react";
 
 import type {Usuario} from "../../../models";
-import {cadastrarUsuario} from "../../../services/Service.ts";
+import {cadastrar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {Roles} from "../../../enums/Roles.ts";
 import {RotatingLines} from "react-loader-spinner";
+import {useAuth} from "../../../contexts/UseAuth.ts";
 
 interface CadastroProps {
   open: boolean;
   onClose: () => void;
-  // onSaved: () => void;
+  onSaved: () => void;
 }
 
 function Cadastro({
                     open,
                     onClose,
-                    // onSaved,
-                  }: CadastroProps
-) {
-  // const navigate = useNavigate();
+                    onSaved,
+                  }: CadastroProps) {
+  const {usuario} = useAuth();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [confirmarSenha, setConfirmarSenha] = useState<string>("");
 
-  const [usuario, setUsuario] = useState<Usuario>({
-    id: 0,
-    nome: "",
-    email: "",
-    senha: "",
-    roles: [] as Roles[],
-  })
+  const [usuarioCadastro, setUsuarioCadastro] = useState<Usuario>(
+    {
+      id: 0,
+      nome: "",
+      email: "",
+      senha: "",
+      roles: [] as Roles[],
+    }
+  )
 
   async function cadastrarNovoUsuario(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (confirmarSenha === usuario.senha && usuario.senha.length >= 8) {
+    if (confirmarSenha === usuarioCadastro.senha && usuarioCadastro.senha.length >= 8) {
       setIsLoading(true);
 
       try {
-        await cadastrarUsuario(`/usuarios/cadastrar`, usuario, setUsuario);
+        await cadastrar(`/usuarios/cadastrar`, usuarioCadastro, setUsuarioCadastro, {
+          headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"},
+        });
+
         ToastAlerta("Usuário cadastrado com sucesso", Toast.Success);
+        onSaved();
+
+        // 🔹 Fecha o modal
+        onClose();
       } catch (error) {
         if (error instanceof Error) {
           ToastAlerta("Erro ao cadastrar usuário", Toast.Error);
@@ -52,7 +61,7 @@ function Cadastro({
 
     } else {
       ToastAlerta("Dados inconsistentes. Verifique as informações de cadastro.", Toast.Warning);
-      setUsuario({...usuario, senha: ""});
+      setUsuarioCadastro({...usuarioCadastro, senha: ""});
       setConfirmarSenha("");
     }
 
@@ -67,9 +76,9 @@ function Cadastro({
     const {name, value} = e.target;
 
     if (name === "roles") {
-      setUsuario({...usuario, roles: [value as Roles]});
+      setUsuarioCadastro({...usuarioCadastro, roles: [value as Roles]});
     } else {
-      setUsuario({...usuario, [name]: value});
+      setUsuarioCadastro({...usuarioCadastro, [name]: value});
     }
   }
 
@@ -78,10 +87,6 @@ function Cadastro({
       <Modal show={open} onClose={onClose} size="md" popup>
         <ModalHeader/>
         <ModalBody>
-
-
-
-        <div className='justify-center p-4'>
           <div
             className="py-5 flex justify-center shadow-xl shadow-cinza-300 dark:shadow-preto-600 bg-cinza-100 dark:bg-preto-300  rounded-2xl font-bold">
             <form className="flex w-[80%] flex-col gap-4" onSubmit={cadastrarNovoUsuario}>
@@ -101,7 +106,7 @@ function Cadastro({
                   autoComplete="nome"
                   placeholder="Nome"
                   required
-                  value={usuario.nome}
+                  value={usuarioCadastro.nome}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     atualizarEstado(e)
                   }
@@ -120,7 +125,7 @@ function Cadastro({
                   autoComplete="email"
                   placeholder="email@email.com"
                   required
-                  value={usuario.email}
+                  value={usuarioCadastro.email}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     atualizarEstado(e)
                   }
@@ -139,7 +144,7 @@ function Cadastro({
                   autoComplete="senha"
                   placeholder="senha"
                   required
-                  value={usuario.senha}
+                  value={usuarioCadastro.senha}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
                     atualizarEstado(e)
                   }
@@ -170,7 +175,7 @@ function Cadastro({
                 <select
                   id="roles"
                   name="roles"
-                  value={usuario.roles[0] || ""}
+                  value={usuarioCadastro.roles[0] || ""}
                   onChange={atualizarEstado}
                   className="border rounded p-2 w-full"
                   required
@@ -193,12 +198,12 @@ function Cadastro({
                     width="24"
                     visible={true}
                   /> :
-                <span>Cadastrar</span>
-                 }
+                  <span>Cadastrar</span>
+                }
               </Button>
             </form>
           </div>
-        </div>
+
         </ModalBody>
       </Modal>
     </>

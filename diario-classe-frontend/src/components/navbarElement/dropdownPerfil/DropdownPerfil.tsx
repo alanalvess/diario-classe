@@ -1,14 +1,12 @@
-import {useContext} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 import {Avatar, Dropdown, DropdownDivider, DropdownHeader, DropdownItem} from "flowbite-react";
-
-import {AuthContext} from '../../../contexts/AuthContext';
 import {Toast, ToastAlerta} from '../../../utils/ToastAlerta';
 import User from "../../../assets/images/user.png";
+import {useAuth} from "../../../contexts/UseAuth.ts";
 
 function DropdownPerfil() {
     const navigate = useNavigate();
-    const {usuario, handleLogout} = useContext(AuthContext);
+    const {usuario, handleLogout} = useAuth();
 
     const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
 

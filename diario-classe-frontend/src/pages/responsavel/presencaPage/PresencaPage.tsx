@@ -1,6 +1,6 @@
-import { useState } from "react";
-import {Card, Table, Select, Label, TableHead, TableHeadCell, TableBody, TableRow, TableCell} from "flowbite-react";
-import { FaCalendarCheck, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import {useState} from "react";
+import {Card, Label, Select, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
+import {FaCalendarCheck, FaCheckCircle, FaTimesCircle} from "react-icons/fa";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 
 export default function PresencaPage() {

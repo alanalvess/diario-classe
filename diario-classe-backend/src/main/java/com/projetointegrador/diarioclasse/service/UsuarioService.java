@@ -162,24 +162,37 @@ public class UsuarioService {
         return mapper.toResponseSemToken(salvo);
     }
 
+    public void alterarSenha(Long id, Usuario usuarioLogado, String senhaAtual, String novaSenha) {
+        Usuario usuario = repository.findById(id)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException("ID: " + id));
+
+        // ⚠️ Garante que só o próprio usuário (ou admin) possa alterar a senha
+        if (!usuario.getId().equals(usuarioLogado.getId())) {
+            throw new PermissaoNegadaException("Você não pode alterar a senha de outro usuário.");
+        }
+
+        if (!encoder.matches(senhaAtual, usuario.getSenha())) {
+            throw new PermissaoNegadaException("Senha atual incorreta");
+        }
+
+        usuario.setSenha(encoder.encode(novaSenha));
+        repository.save(usuario);
+    }
+
+
+
     public void deletar(Long id, String email) {
         Usuario usuarioAutenticado = repository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário autenticado não encontrado"));
 
         Usuario usuarioParaExcluir = repository.findById(id)
-                .orElseThrow(() -> new UsuarioNaoEncontradoException("ID: " + id));
+                .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado."));
 
         if (!usuarioParaExcluir.podeSerExcluido(usuarioAutenticado, adminProperties.getAdminEmail())) {
             throw new PermissaoNegadaException("Você não tem permissão para excluir este usuário.");
         }
 
-        Boolean isAdminPadrao = email.equals(adminProperties.getAdminEmail());
-        Boolean isProprioUsuario = usuarioAutenticado.getId().equals(usuarioParaExcluir.getId());
-
-        if (isAdminPadrao || isProprioUsuario) {
-            repository.delete(usuarioParaExcluir);
-        } else {
-            throw new PermissaoNegadaException("Você não tem permissão para excluir este usuário.");
-        }
+        repository.delete(usuarioParaExcluir);
     }
+
 }

@@ -1,13 +1,13 @@
-import {useContext, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
 import {buscar, cadastrar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
-import {AuthContext} from "../../../contexts/AuthContext.tsx";
 import type {Aluno, Avaliacao, Disciplina, Nota, Turma} from "../../../models";
 import {RotatingLines} from "react-loader-spinner";
+import {useAuth} from "../../../contexts/UseAuth.ts";
 
 export default function RegistroNotasPage() {
-  const {usuario, isHydrated, isAuthenticated} = useContext(AuthContext);
+  const {usuario, isHydrated, isAuthenticated} = useAuth();
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);

@@ -1,13 +1,13 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
-import {AuthContext} from "../../../contexts/AuthContext.tsx";
 import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import type {Disciplina, Professor, Turma} from "../../../models";
 import {RotatingLines} from "react-loader-spinner";
+import {useAuth} from "../../../contexts/UseAuth.ts";
 
 export default function TurmasPage() {
-  const {usuario, isHydrated, isAuthenticated} = useContext(AuthContext);
+  const {usuario, isHydrated, isAuthenticated} = useAuth();
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [professores, setProfessores] = useState<Professor[]>([]);

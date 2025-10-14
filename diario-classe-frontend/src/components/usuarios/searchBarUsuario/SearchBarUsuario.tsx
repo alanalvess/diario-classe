@@ -1,11 +1,11 @@
-import {useContext, useState} from "react";
-import {AuthContext} from "../../../contexts/AuthContext.tsx";
+import {useState} from "react";
 import {buscar} from "../../../services/Service.ts";
 import InputField from "../../form/InputField.tsx";
 import {Button} from "flowbite-react";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {FiSearch, FiX} from "react-icons/fi";
 import type {Usuario} from "../../../models"
+import {useAuth} from "../../../contexts/UseAuth.ts";
 
 interface SearchBarUsuarioProps {
     onSearch: (usuarios: Usuario[], tipoBusca: 'nome' | 'todos') => void;
@@ -14,7 +14,7 @@ interface SearchBarUsuarioProps {
 
 function SearchBarUsuario({onSearch, onClear}: SearchBarUsuarioProps) {
 
-    const {usuario, handleLogout} = useContext(AuthContext);
+    const {usuario, handleLogout} = useAuth();
 
     const [query, setQuery] = useState('');
 

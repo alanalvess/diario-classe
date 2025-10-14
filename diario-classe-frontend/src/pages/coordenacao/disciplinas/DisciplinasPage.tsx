@@ -1,13 +1,13 @@
-import {useContext, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
-import {AuthContext} from "../../../contexts/AuthContext.tsx";
 import type {Disciplina} from "../../../models";
 import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {RotatingLines} from "react-loader-spinner";
+import {useAuth} from "../../../contexts/UseAuth.ts";
 
 export default function DisciplinasPage() {
-  const {usuario, isHydrated, isAuthenticated} = useContext(AuthContext);
+  const {usuario, isHydrated, isAuthenticated} = useAuth();
 
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [nome, setNome] = useState("");

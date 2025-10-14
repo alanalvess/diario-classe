@@ -1,7 +1,8 @@
 import {Sidebar, SidebarItem, SidebarItemGroup, SidebarItems, TextInput} from "flowbite-react";
 import {
   FaBell,
-  FaBook, FaChalkboardTeacher,
+  FaBook,
+  FaChalkboardTeacher,
   FaChartBar,
   FaChartLine,
   FaClipboardList,

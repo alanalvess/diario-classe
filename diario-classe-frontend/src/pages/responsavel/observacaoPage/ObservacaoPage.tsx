@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import {Card, Table, Spinner, Badge, TableHead, TableHeadCell, TableBody, TableRow, TableCell} from "flowbite-react";
-import { FaStickyNote, FaUserTie, FaBookOpen } from "react-icons/fa";
+import {useEffect, useState} from "react";
+import {Badge, Card, Spinner, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
+import {FaBookOpen, FaStickyNote, FaUserTie} from "react-icons/fa";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import {buscar} from "../../../services/Service.ts";
 

@@ -1,15 +1,15 @@
-import {useContext, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
 import {jsPDF} from "jspdf";
 import * as XLSX from "xlsx";
-import {AuthContext} from "../../../contexts/AuthContext.tsx";
 import {baixarArquivo, buscar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import type {Filtro, Relatorio} from "../../../models";
 import {RotatingLines} from "react-loader-spinner";
+import {useAuth} from "../../../contexts/UseAuth.ts";
 
 export default function RelatoriosPage() {
-  const {usuario, isHydrated, isAuthenticated} = useContext(AuthContext);
+  const {usuario, isHydrated, isAuthenticated} = useAuth();
 
   const [filtros, setFiltros] = useState<Filtro>({
     anoLetivo: new Date().getFullYear().toString(),

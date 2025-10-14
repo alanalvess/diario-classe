@@ -1,12 +1,12 @@
-import { useContext, useEffect, useState } from "react";
-import { Button, Table, TableHead, TableHeadCell, TableRow, TableBody, TableCell } from "flowbite-react";
-import {AuthContext} from "../../../contexts/AuthContext.tsx";
+import {useEffect, useState} from "react";
+import {Button, Spinner, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
 import type {Avaliacao, Disciplina, Turma} from "../../../models";
 import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
+import {useAuth} from "../../../contexts/UseAuth.ts";
 
 export default function AvaliacoesPage() {
-  const { usuario, isHydrated, isAuthenticated } = useContext(AuthContext);
+  const { usuario, isHydrated, isAuthenticated, isLoading } = useAuth();
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
@@ -146,9 +146,27 @@ export default function AvaliacoesPage() {
             onChange={(e) => setPeso(Number(e.target.value))}
             min={1}
           />
-          <Button  onClick={salvarAvaliacao}>
-            Salvar Avaliação
+          <Button
+            onClick={salvarAvaliacao}
+            disabled={
+              !titulo.trim() || // título vazio
+              !data ||          // sem data
+              !peso || peso <= 0 || // peso inválido
+              !turmaSelecionada ||  // turma não escolhida
+              !disciplinaSelecionada // disciplina não escolhida
+            }
+            className={`${
+              !titulo.trim() || !data || !peso || !turmaSelecionada || !disciplinaSelecionada
+                ? "opacity-50 cursor-not-allowed"
+                : ""
+            }`}
+          >
+            {isLoading ?
+              <Spinner aria-label="Default status example" size='md'/> :
+              <span>Salvar Avaliação</span>
+            }
           </Button>
+
         </div>
       )}
 

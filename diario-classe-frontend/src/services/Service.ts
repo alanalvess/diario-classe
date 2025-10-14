@@ -4,12 +4,23 @@ const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL
 });
 
-export const cadastrarUsuario = async <T>(
+// export const cadastrarUsuario = async <T>(
+//   url: string,
+//   dados: object,
+//   setDados: (dados: T) => void,
+//   header: object
+// ) => {
+//     const resposta = await api.post(url, dados, header);
+//     setDados(resposta.data);
+// }
+
+export const cadastrar = async <T>(
   url: string,
   dados: object,
-  setDados: (dados: T) => void
+  setDados: (dados: T) => void,
+  header: object
 ) => {
-    const resposta = await api.post(url, dados);
+    const resposta = await api.post(url, dados, header);
     setDados(resposta.data);
 }
 
@@ -28,16 +39,6 @@ export const buscar = async <T>(
   header?: object
 ) => {
     const resposta = await api.get(url, header);
-    setDados(resposta.data);
-}
-
-export const cadastrar = async <T>(
-  url: string,
-  dados: object,
-  setDados: (dados: T) => void,
-  header: object
-) => {
-    const resposta = await api.post(url, dados, header);
     setDados(resposta.data);
 }
 

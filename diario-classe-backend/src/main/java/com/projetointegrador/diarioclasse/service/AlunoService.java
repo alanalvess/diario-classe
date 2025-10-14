@@ -3,6 +3,7 @@ package com.projetointegrador.diarioclasse.service;
 import com.projetointegrador.diarioclasse.dto.request.AlunoRequest;
 import com.projetointegrador.diarioclasse.dto.request.patchrequest.AlunoPatchRequest;
 import com.projetointegrador.diarioclasse.dto.response.AlunoResponse;
+import com.projetointegrador.diarioclasse.dto.response.ResponsavelResponse;
 import com.projetointegrador.diarioclasse.entity.Aluno;
 import com.projetointegrador.diarioclasse.entity.Turma;
 import com.projetointegrador.diarioclasse.repository.AlunoRepository;
@@ -94,6 +95,23 @@ public class AlunoService {
     public List<AlunoResponse> listarPorTurma(Long turmaId) {
         return alunoRepository.findByTurmaId(turmaId).stream()
                 .map(this::toResponse)
+                .toList();
+    }
+
+    public List<ResponsavelResponse> listarResponsaveisPorAluno(Long alunoId) {
+        Aluno aluno = alunoRepository.findById(alunoId)
+                .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
+
+        return aluno.getResponsaveis().stream()
+                .map(responsavel -> new ResponsavelResponse(
+                        responsavel.getId(),
+                        responsavel.getNome(),
+                        responsavel.getEmail(),
+                        responsavel.getTelefone(),
+                        responsavel.getAlunos() != null
+                                ? responsavel.getAlunos().stream().map(Aluno::getId).toList()
+                                : List.of()
+                ))
                 .toList();
     }
 

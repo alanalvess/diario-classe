@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {
   Button,
   Checkbox,
@@ -12,20 +12,18 @@ import {
   TableHeadCell,
   TableRow
 } from "flowbite-react";
-// import {QrReader} from "react-qr-reader";
 import {buscar, cadastrar, deletar, registrarPresencaQRCode} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
-import {AuthContext} from "../../../contexts/AuthContext.tsx";
 import type {Presenca, Turma} from "../../../models";
 import {RotatingLines} from "react-loader-spinner";
 import QRCodeScanner from "../../../components/qrCodeScanner/QrCodeScanner.tsx";
+import {useAuth} from "../../../contexts/UseAuth.ts";
 
 export default function RegistroPresencaPage() {
-  const {usuario, handleLogout, isHydrated, isAuthenticated} = useContext(AuthContext);
+  const {usuario, handleLogout, isHydrated, isAuthenticated} = useAuth();
 
   const [presencas, setPresencas] = useState<Presenca[]>([]);
   const [qrOpen, setQrOpen] = useState(false);
-  // const [scanResult, setScanResult] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const [turmas, setTurmas] = useState<Turma[]>([]); // lista de turmas do professor

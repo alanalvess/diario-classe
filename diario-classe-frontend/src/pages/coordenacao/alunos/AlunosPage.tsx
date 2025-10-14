@@ -1,7 +1,8 @@
-import {useContext, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {
   Button,
-  Modal, ModalBody,
+  Modal,
+  ModalBody,
   ModalHeader,
   Table,
   TableBody,
@@ -10,19 +11,24 @@ import {
   TableHeadCell,
   TableRow
 } from "flowbite-react";
-import {AuthContext} from "../../../contexts/AuthContext.tsx";
 import type {Aluno, Turma} from "../../../models";
 import {buscar, buscarQrCode, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
-import {RotatingLines} from "react-loader-spinner";
 import {jsPDF} from "jspdf";
+import {useAuth} from "../../../contexts/UseAuth.ts";
+import {RotatingLines} from "react-loader-spinner";
+import {BsQrCode} from "react-icons/bs";
+import {LuQrCode} from "react-icons/lu";
+import {IoMdPersonAdd} from "react-icons/io";
+import {FaTrashAlt} from "react-icons/fa";
+import ResponsaveisModal from "./responsaveisModal/ResponsaveisModal.tsx";
 
 export default function AlunosPage() {
-  const {usuario, isHydrated, isAuthenticated} = useContext(AuthContext);
+  const {usuario, isHydrated, isAuthenticated, isLoading} = useAuth();
 
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [turmas, setTurmas] = useState<Turma[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Formulário
   const [nome, setNome] = useState("");
@@ -33,6 +39,18 @@ export default function AlunosPage() {
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const [qrImage, setQrImage] = useState<string | null>(null);
   const [qrAlunoNome, setQrAlunoNome] = useState<string>("");
+
+  const [responsaveisModalOpen, setResponsaveisModalOpen] = useState(false);
+  const [alunoSelecionadoId, setAlunoSelecionadoId] = useState<number | null>(null);
+  const [alunoSelecionadoNome, setAlunoSelecionadoNome] = useState<string>("");
+
+
+  function adicionaResponsavel(alunoId: number, alunoNome: string) {
+    setAlunoSelecionadoId(alunoId);
+    setAlunoSelecionadoNome(alunoNome);
+    setResponsaveisModalOpen(true);
+  }
+
 
   // 🔹 Buscar alunos e turmas
   useEffect(() => {
@@ -71,7 +89,7 @@ export default function AlunosPage() {
         ToastAlerta("Erro ao criar aluno", Toast.Error);
       }
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }
 
@@ -86,7 +104,7 @@ export default function AlunosPage() {
         ToastAlerta("Erro ao excluir aluno", Toast.Error);
       }
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }
 
@@ -175,18 +193,18 @@ export default function AlunosPage() {
         </select>
 
         <Button  onClick={salvarAluno}>
-          {/*{isLoading ?*/}
-          {/*  <RotatingLines*/}
-          {/*    strokeColor="white"*/}
-          {/*    strokeWidth="5"*/}
-          {/*    animationDuration="0.75"*/}
-          {/*    width="24"*/}
-          {/*    visible={true}*/}
-          {/*  /> :*/}
+          {isLoading ?
+            <RotatingLines
+              strokeColor="white"
+              strokeWidth="5"
+              animationDuration="0.75"
+              width="24"
+              visible={true}
+            /> :
             <span>
               Adicionar Aluno
             </span>
-          {/* }*/}
+           }
         </Button>
       </div>
 
@@ -208,10 +226,34 @@ export default function AlunosPage() {
                 <TableCell>{new Date(aluno.dataNascimento).toLocaleDateString()}</TableCell>
                 <TableCell>{getTurmaNome(aluno.turmaId)}</TableCell>
                 <TableCell>
-                  <Button color="purple" size="xs" onClick={() => gerarQrCode(aluno)}>
-                    QR Code
+                  <div className='flex flex-row gap-4'>
+
+                  <Button
+                    color="failure"
+                    size="xs"
+                    onClick={() => gerarQrCode(aluno)}
+                    className='cursor-pointer'
+                  >
+                    <LuQrCode size={20}/>
                   </Button>
-                  <Button color="failure" size="xs" onClick={() => excluirAluno(aluno.id)}>Excluir</Button>
+                    <Button
+                      color="failure"
+                      size="xs"
+                      onClick={() => adicionaResponsavel(aluno.id, aluno.nome)}
+                      className='cursor-pointer'
+                    >
+                      <IoMdPersonAdd size={20}/>
+                    </Button>
+
+                  <Button
+                    color="failure"
+                    size="xs"
+                    onClick={() => excluirAluno(aluno.id)}
+                    className='cursor-pointer'
+                  >
+                    <FaTrashAlt size={20}/>
+                  </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -233,6 +275,17 @@ export default function AlunosPage() {
           )}
         </ModalBody>
       </Modal>
+
+      {alunoSelecionadoId !== null && (
+        <ResponsaveisModal
+          show={responsaveisModalOpen}
+          onClose={() => setResponsaveisModalOpen(false)}
+          alunoId={alunoSelecionadoId}
+          alunoNome={alunoSelecionadoNome}
+        />
+      )}
+
+
     </div>
   );
 }

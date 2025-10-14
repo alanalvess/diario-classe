@@ -1,5 +1,5 @@
 import {Card} from "flowbite-react";
-import {FaBook, FaChalkboardTeacher, FaChartBar, FaChartPie, FaCog, FaFileAlt, FaUser, FaUsers} from "react-icons/fa";
+import {FaBook, FaChalkboardTeacher, FaChartBar, FaChartPie, FaFileAlt, FaUsers} from "react-icons/fa";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import {Link} from "react-router-dom";
 import {useEffect, useState} from "react";

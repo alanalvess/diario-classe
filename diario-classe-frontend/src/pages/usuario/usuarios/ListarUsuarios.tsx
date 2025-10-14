@@ -11,13 +11,13 @@ import {
   TextInput
 } from "flowbite-react";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
-import {buscar, deletar} from "../../../services/Service.ts";
+import {buscar} from "../../../services/Service.ts";
 import type {Usuario} from "../../../models"
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import {FaEdit, FaPlus, FaSearch, FaTrash} from "react-icons/fa";
 import Cadastro from "../cadastro/Cadastro.tsx";
 import EditarUsuario from "../editarUsuario/EditarUsuario.tsx";
-import DeletarUsuario from "../../../components/usuarios/deletarUsuario/DeletarUsuario.tsx";
+import DeletarUsuario from "../deletarUsuario/DeletarUsuario.tsx";
 
 function ListarUsuarios() {
 
@@ -30,7 +30,6 @@ function ListarUsuarios() {
   const [usuarioSelecionado, setUsuarioSelecionado] = useState<Usuario | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // ✅ Buscar todos usuários
   async function listarUsuarios() {
     try {
       await buscar("/usuarios/all", setUsuarios, {
@@ -45,8 +44,6 @@ function ListarUsuarios() {
     }
   }
 
-
-  // 🔍 Buscar por nome
   async function buscarPorNome() {
     if (!busca.trim()) return listarUsuarios();
     try {
@@ -55,21 +52,6 @@ function ListarUsuarios() {
       });
     } catch {
       ToastAlerta("Usuário não encontrado", Toast.Warning);
-    }
-  }
-
-  // 🗑️ Deletar
-  async function excluirUsuario() {
-    if (!usuarioSelecionado) return;
-    try {
-      await deletar(`/usuarios/${usuarioSelecionado.id}`, {
-        headers: {Authorization: `Bearer ${usuario.token}`},
-      });
-      ToastAlerta("Usuário excluído com sucesso!", Toast.Success);
-      setModalExclusao(false);
-      listarUsuarios();
-    } catch {
-      ToastAlerta("Erro ao excluir usuário", Toast.Error);
     }
   }
 
@@ -170,14 +152,13 @@ function ListarUsuarios() {
             </Table>
           </div>
 
-          {/* 🪟 Modal de cadastro/edição */}
           <Cadastro
             open={modalCadastro}
             onClose={() => {
               setModalCadastro(false);
               setUsuarioSelecionado(null);
             }}
-            // onSaved={listarUsuarios}
+            onSaved={listarUsuarios}
           />
 
           <EditarUsuario
@@ -190,13 +171,18 @@ function ListarUsuarios() {
             onSaved={listarUsuarios}
           />
 
-           {/*🗑️ Modal de confirmação de exclusão*/}
-          {/*<DeletarUsuario*/}
-          {/*  isOpen={modalExclusao}*/}
-          {/*  onClose={() => setModalExclusao(false)}*/}
-          {/*  excluindo={usuarioSelecionado}*/}
-          {/*  aoDeletar={usuarioSelecionado.id}*/}
-          {/*/>*/}
+          {usuarioSelecionado && (
+            <DeletarUsuario
+              isOpen={modalExclusao}
+              onClose={() => {
+                setModalExclusao(false);
+                setUsuarioSelecionado(null);
+              }}
+              usuarioSelecionado={usuarioSelecionado}
+              aoDeletar={() => listarUsuarios()}
+            />
+          )}
+
         </div>
       </div>
     </>

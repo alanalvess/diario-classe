@@ -18,52 +18,62 @@ interface EditarUsuarioProps {
   usuarioSelecionado?: Usuario | null;
 }
 
-function EditarUsuario({open, onClose, onSaved, usuarioSelecionado}: EditarUsuarioProps) {
-  // const navigate = useNavigate();
+function EditarUsuario({
+                         open,
+                         onClose,
+                         onSaved,
+                         usuarioSelecionado
+                       }: EditarUsuarioProps) {
 
-  const [usuarioAtualizado, setUsuarioAtualizado] = useState<Usuario>({} as Usuario);
+  const [usuarioAtualizado, setUsuarioAtualizado] = useState<Usuario>(
+    {} as Usuario
+  );
   const [isLoading, setIsLoading] = useState(false);
   const {usuario, handleLogout} = useAuth();
 
-  // const {id} = useParams<{ id: string }>();
-
-  // async function buscarPorId() {
-  //   await buscar(`/usuarios/${usuarioAtualizado.id}`, (data: Usuario) => {
-  //     setUsuarioAtualizado({...data, senha: ''});
-  //   }, {
-  //     headers: {
-  //       Authorization: usuario.token,
-  //     },
-  //   })
-  // }
-
+  //
   async function editarUsuario(e: ChangeEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      await atualizarAtributo(`/usuarios/${usuarioSelecionado.id}`, usuarioAtualizado, setUsuarioAtualizado, {
-        headers: {
-          Authorization: `Bearer ${usuario.token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      // 🔹 Clona e filtra o objeto para enviar só o que tem valor
+      const dadosFiltrados = Object.fromEntries(
+        Object.entries(usuarioAtualizado).filter(([key, value]) => {
+          if (value === "" || value === null || value === undefined) return false;
+          if (key === "id" || key === "token") return false; // não envia campos não editáveis
+          return true;
+        })
+      );
 
+      if (Array.isArray(usuarioAtualizado.roles) && usuarioAtualizado.roles.length > 0) {
+        dadosFiltrados.roles = usuarioAtualizado.roles;
+      }
 
-      ToastAlerta('Usuário atualizado com sucesso', Toast.Success);
-      onSaved?.();     // ✅ Atualiza a lista
-      onClose?.();     // ✅ Fecha o modal
+      await atualizarAtributo(
+        `/usuarios/${usuarioSelecionado.id}`, dadosFiltrados, setUsuarioAtualizado, {
+          headers: {
+            Authorization: `Bearer ${usuario.token}`,
+            "Content-Type": "application/json",
+          }
+        }
+      );
+
+      ToastAlerta("Usuário atualizado com sucesso", Toast.Success);
+      onSaved?.();
+      onClose?.();
     } catch (error) {
       if (error.toString().includes("403")) {
-        ToastAlerta('O token expirou, favor logar novamente', Toast.Info);
+        ToastAlerta("O token expirou, favor logar novamente", Toast.Info);
         handleLogout();
       } else {
-        ToastAlerta('Erro ao atualizar o usuário', Toast.Warning);
+        ToastAlerta("Erro ao atualizar o usuário", Toast.Warning);
       }
     } finally {
       setIsLoading(false);
     }
   }
+
 
   function atualizarEstado(e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     setUsuarioAtualizado({
@@ -74,7 +84,7 @@ function EditarUsuario({open, onClose, onSaved, usuarioSelecionado}: EditarUsuar
 
   useEffect(() => {
     if (usuarioSelecionado) {
-      setUsuarioAtualizado({ ...usuarioSelecionado, senha: '' });
+      setUsuarioAtualizado({...usuarioSelecionado, senha: ''});
     }
   }, [usuarioSelecionado, open]);
 
@@ -107,18 +117,6 @@ function EditarUsuario({open, onClose, onSaved, usuarioSelecionado}: EditarUsuar
                   onChange={atualizarEstado}
                 />
 
-                {/*<SelectField*/}
-                {/*  label="Função"*/}
-                {/*  name="roles"*/}
-                {/*  value={usuarioAtualizado.roles?.[0] || ""}*/}
-                {/*  options={Role.map(r => ({ value: r.value, label: r.label }))} // mapeia para {value, label}*/}
-                {/*  onChange={(e: ChangeEvent<HTMLSelectElement>) =>*/}
-                {/*    setUsuarioAtualizado({*/}
-                {/*      ...usuarioAtualizado,*/}
-                {/*      roles: [e.target.value as Roles], // ✅ converte string para enum Roles*/}
-                {/*    })*/}
-                {/*  }*/}
-                {/*/>*/}
                 <SelectField
                   label="roles"
                   name="roles"
@@ -127,24 +125,13 @@ function EditarUsuario({open, onClose, onSaved, usuarioSelecionado}: EditarUsuar
                   onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                     setUsuarioAtualizado({
                       ...usuarioAtualizado,
-                      roles: [e.target.value as Roles],
+                      roles: [e.target.value as Roles], // mantém como array
                     })
                   }
                 />
 
 
-
-                {/*<InputField*/}
-                {/*  label="Senha"*/}
-                {/*  name="senha"*/}
-                {/*  type="password"*/}
-                {/*  required*/}
-                {/*  value={usuarioAtualizado.senha || ""}*/}
-                {/*  onChange={atualizarEstado}*/}
-                {/*/>*/}
-
-
-                <Button type="submit" className="bg-rosa-200">
+                <Button type="submit">
                   {isLoading ? <Spinner aria-label="Carregando"/> : <span>Salvar Alterações</span>}
                 </Button>
               </form>

@@ -49,10 +49,30 @@ public class Usuario {
         return roles.contains(Role.ADMIN) && this.email.equals(adminEmail);
     }
 
-    public Boolean podeSerExcluido(Usuario usuarioAutenticado, String adminEmail) {
-        if (isAdminPadrao(adminEmail)) return false;
-        return usuarioAutenticado.getId().equals(this.id) || usuarioAutenticado.getRoles().contains(Role.ADMIN);
+    public boolean podeSerExcluido(Usuario usuarioAutenticado, String adminEmail) {
+        if (this.getEmail().equals(adminEmail)) {
+            return false;
+        }
+
+        if (this.getId().equals(usuarioAutenticado.getId())) {
+            return true;
+        }
+
+        if (usuarioAutenticado.getEmail().equals(adminEmail)) {
+            return true;
+        }
+
+        boolean ehAdminOuCoordenador = usuarioAutenticado.getRoles().contains(Role.ADMIN)
+                || usuarioAutenticado.getRoles().contains(Role.COORDENADOR);
+
+        if (ehAdminOuCoordenador) {
+            return true;
+        }
+
+        // 🚫 Caso contrário, não tem permissão
+        return false;
     }
+
 
     public void atualizarCampo(UsuarioRequest request, PasswordEncoder passwordEncoder, Usuario usuarioLogado) {
         this.nome = request.nome();
@@ -73,19 +93,29 @@ public class Usuario {
             switch (campo) {
                 case "nome" -> this.nome = (String) valor;
                 case "email" -> this.email = (String) valor;
-                case "senha" -> this.senha = passwordEncoder.encode((String) valor);
-                case "roles" -> {
-                    List<Role> novasRoles = (List<Role>) valor;
-                    if (novasRoles != null && !novasRoles.isEmpty()) {
-                        validarAtualizacaoRoles(novasRoles, usuarioLogado);
-                        this.roles = novasRoles;
+                case "senha" -> {
+                    if (valor != null && !((String) valor).isBlank()) {
+                        this.senha = passwordEncoder.encode((String) valor);
                     }
                 }
+                case "roles" -> {
+                    if (valor instanceof List<?> lista) {
+                        List<Role> novasRoles = lista.stream()
+                                .map(String::valueOf)
+                                .map(Role::valueOf)
+                                .toList(); // ⚠ toList() cria lista imutável
+
+                        if (!novasRoles.isEmpty()) {
+                            validarAtualizacaoRoles(novasRoles, usuarioLogado);
+                            this.roles = new ArrayList<>(novasRoles); // ✅ lista mutável para JPA
+                        }
+                    }
+                }
+
                 default -> throw new IllegalArgumentException("Campo não suportado: " + campo);
             }
         });
     }
-
 
     private void validarAtualizacaoRoles(List<Role> novasRoles, Usuario usuarioLogado) {
         boolean temAdminAtual = this.roles.contains(Role.ADMIN);
