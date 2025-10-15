@@ -1,7 +1,10 @@
 package com.projetointegrador.diarioclasse.controller;
 
 import com.projetointegrador.diarioclasse.dto.request.DisciplinaRequest;
+import com.projetointegrador.diarioclasse.dto.request.TurmaRequest;
+import com.projetointegrador.diarioclasse.dto.request.patchrequest.TurmaPatchRequest;
 import com.projetointegrador.diarioclasse.dto.response.DisciplinaResponse;
+import com.projetointegrador.diarioclasse.dto.response.TurmaResponse;
 import com.projetointegrador.diarioclasse.service.DisciplinaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +43,16 @@ public class DisciplinaController {
     @GetMapping("/turma/{turmaId}")
     public ResponseEntity<List<DisciplinaResponse>> listarPorTurma(@PathVariable Long turmaId) {
         return ResponseEntity.ok(disciplinaService.listarPorTurma(turmaId));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<DisciplinaResponse> atualizar(@PathVariable Long id, @RequestBody DisciplinaRequest request) {
+        return ResponseEntity.ok(disciplinaService.atualizar(id, request));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<DisciplinaResponse> patch(@PathVariable Long id, @RequestBody DisciplinaRequest request) {
+        return ResponseEntity.ok(disciplinaService.patch(id, request));
     }
 
 }

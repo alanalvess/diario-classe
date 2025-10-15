@@ -103,6 +103,7 @@ public class NotaService {
                 nota.getDisciplina().getId(),
                 nota.getDisciplina().getNome(),
                 nota.getAvaliacao().getId(),
+                nota.getAvaliacao().getTitulo(),
                 nota.getDataLancamento()
         );
     }

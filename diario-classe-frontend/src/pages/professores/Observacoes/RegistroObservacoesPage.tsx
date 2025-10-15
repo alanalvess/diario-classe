@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
 import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
@@ -6,6 +6,8 @@ import type {Aluno, Disciplina, Observacao, Turma} from "../../../models";
 import {RotatingLines} from "react-loader-spinner";
 import {CategoriaObservacao} from "../../../enums/CategoriaObservacao.ts";
 import {useAuth} from "../../../contexts/UseAuth.ts";
+import EditarObservacao from "./editarObservacao/EditarObservacao.tsx";
+import {FaEdit, FaTrashAlt} from "react-icons/fa";
 
 export default function RegistroObservacoesPage() {
   const {usuario, isHydrated, isAuthenticated} = useAuth();
@@ -24,6 +26,20 @@ export default function RegistroObservacoesPage() {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const [modalEditarObservacao, setModalEditarObservacao] = useState(false);
+  const [observacaoSelecionada, setObservacaoSelecionada] = useState<Observacao | null>(null);
+
+  async function buscarObservacoes() {
+    try {
+      await buscar("/observacoes", setObservacoes, {
+        headers: {Authorization: `Bearer ${usuario.token}`},
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao carregar observações", Toast.Error);
+      }
+    }
+  }
   // 🔹 Buscar turmas do professor
   useEffect(() => {
     if (isHydrated && isAuthenticated) {
@@ -155,7 +171,7 @@ export default function RegistroObservacoesPage() {
         <textarea placeholder="Descrição" value={descricao} onChange={e => setDescricao(e.target.value)}
                   className="border rounded p-2"/>
 
-        <Button  onClick={salvarObservacao}>
+        <Button onClick={salvarObservacao}>
           {isLoading ?
             <RotatingLines
               strokeColor="white"
@@ -186,13 +202,41 @@ export default function RegistroObservacoesPage() {
                 <TableCell>{obs.categoria}</TableCell>
                 <TableCell>{obs.descricao}</TableCell>
                 <TableCell>
-                  <Button color="danger" size="xs" onClick={() => excluirObservacao(obs.id)}>Excluir</Button>
+                  <div className='flex flex-row gap-4'>
+                    <Button
+                      color="warning"
+                      size="xs"
+                      onClick={() => {
+                        // editaAluno(aluno.id);
+                        setObservacaoSelecionada(obs)
+                        setModalEditarObservacao(true);
+                      }}
+                      className='cursor-pointer'
+                    >
+                      <FaEdit size={20}/>
+                    </Button>
+
+                    <Button
+                      color="danger"
+                      size="xs"
+                      onClick={() => excluirObservacao(obs.id)}
+                    >
+                      <FaTrashAlt size={20}/>
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       )}
+
+      <EditarObservacao
+        open={modalEditarObservacao}
+        onClose={() => setModalEditarObservacao(false)}
+        onSaved={buscarObservacoes}
+        observacaoSelecionada={observacaoSelecionada}
+      />
     </div>
   );
 }

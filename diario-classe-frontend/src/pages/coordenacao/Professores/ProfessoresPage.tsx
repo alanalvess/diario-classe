@@ -1,10 +1,12 @@
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
 import type {Disciplina, Professor, Turma} from "../../../models";
 import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {RotatingLines} from "react-loader-spinner";
 import {useAuth} from "../../../contexts/UseAuth.ts";
+import {FaEdit, FaTrashAlt} from "react-icons/fa";
+import EditarProfessor from "./editarProfessor/EditarProfessor.tsx";
 
 export default function ProfessoresPage() {
   const {usuario, isHydrated, isAuthenticated} = useAuth();
@@ -20,10 +22,25 @@ export default function ProfessoresPage() {
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const [professorSelecionado, setProfessorSelecionado] = useState<Professor | null>(null);
+  const [modalEditarProfessor, setModalEditarProfessor] = useState(false);
+
+  async function buscarProfessores() {
+    try {
+      await buscar("/professores", setProfessores, {
+        headers: {Authorization: `Bearer ${usuario.token}`},
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao carregar professores", Toast.Error);
+      }
+    }
+  }
+
   // 🔹 Buscar dados iniciais
   useEffect(() => {
     if (!isHydrated || !isAuthenticated) return;
-    buscar("/professores", setProfessores, {headers: {Authorization: `Bearer ${usuario.token}`}});
+    buscarProfessores();
     buscar("/disciplinas", setDisciplinas, {headers: {Authorization: `Bearer ${usuario.token}`}});
     buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${usuario.token}`}});
   }, [isHydrated, isAuthenticated]);
@@ -166,13 +183,40 @@ export default function ProfessoresPage() {
                 <TableCell>{professor.disciplinaIds.map(id => getDisciplinaNome(id)).join(", ")}</TableCell>
                 <TableCell>{professor.turmaIds.map(id => getTurmaNome(id)).join(", ")}</TableCell>
                 <TableCell>
-                  <Button color="failure" size="xs" onClick={() => excluirProfessor(professor.id)}>Excluir</Button>
+                  <div className='flex flex-row gap-4'>
+                    <Button
+                      color="warning"
+                      size="xs"
+                      onClick={() => {
+                        setProfessorSelecionado(professor)
+                        setModalEditarProfessor(true);
+                      }}
+                      className='cursor-pointer'
+                    >
+                      <FaEdit size={20}/>
+                    </Button>
+
+                  <Button
+                    color="failure"
+                    size="xs"
+                    onClick={() => excluirProfessor(professor.id)}
+                  >
+                    <FaTrashAlt size={20}/>
+                  </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       )}
+
+      <EditarProfessor
+        open={modalEditarProfessor}
+        onClose={() => setModalEditarProfessor(false)}
+        onSaved={buscarProfessores}
+        professorSelecionado={professorSelecionado}
+      />
     </div>
   );
 }

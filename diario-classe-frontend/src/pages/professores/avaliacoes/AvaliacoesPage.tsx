@@ -1,12 +1,14 @@
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Button, Spinner, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
 import type {Avaliacao, Disciplina, Turma} from "../../../models";
 import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {useAuth} from "../../../contexts/UseAuth.ts";
+import EditarAvaliacao from "./editarAvaliacao/EditarAvaliacao.tsx";
+import {FaEdit, FaTrashAlt} from "react-icons/fa";
 
 export default function AvaliacoesPage() {
-  const { usuario, isHydrated, isAuthenticated, isLoading } = useAuth();
+  const {usuario, isHydrated, isAuthenticated, isLoading} = useAuth();
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
@@ -15,17 +17,62 @@ export default function AvaliacoesPage() {
   const [turmaSelecionada, setTurmaSelecionada] = useState<number | null>(null);
   const [disciplinaSelecionada, setDisciplinaSelecionada] = useState<number | null>(null);
 
+  const [modalEditarAvaliacao, setModalEditarAvaliacao] = useState(false);
+  const [avaliacaoSelecionada, setAvaliacaoSelecionada] = useState<Avaliacao | null>(null);
+
   // Formulário para nova avaliação
   const [titulo, setTitulo] = useState("");
   const [data, setData] = useState("");
   const [peso, setPeso] = useState(1);
 
+  // async function buscarAvaliacoes() {
+  //   try {
+  //     await buscar("/avaliacoes", setAvaliacoes, {
+  //       headers: {Authorization: `Bearer ${usuario.token}`},
+  //     });
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       ToastAlerta("Erro ao carregar avaliações", Toast.Error);
+  //     }
+  //   }
+  // }
+
+  async function buscarTurmas() {
+    try {
+      await buscar("/turmas", setTurmas, {
+        headers: {Authorization: `Bearer ${usuario.token}`},
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao carregar turmas", Toast.Error);
+      }
+    }
+  }
+
+  async function recarregarAvaliacoes() {
+    if (!disciplinaSelecionada) return;
+    try {
+      await buscar(`/avaliacoes/disciplina/${disciplinaSelecionada}`, setAvaliacoes, {
+        headers: { Authorization: `Bearer ${usuario.token}` },
+      });
+    } catch {
+      ToastAlerta("Erro ao carregar avaliações", Toast.Error);
+    }
+  }
+
+  useEffect(() => {
+    if (disciplinaSelecionada && isAuthenticated) {
+      recarregarAvaliacoes();
+    }
+  }, [disciplinaSelecionada, isAuthenticated]);
+
+
   // 🔹 Buscar turmas
   useEffect(() => {
     if (isHydrated && isAuthenticated) {
-      buscar("/turmas", setTurmas, {
-        headers: { Authorization: `Bearer ${usuario.token}` },
-      });
+
+      // buscarAvaliacoes();
+      buscarTurmas();
     }
   }, [isAuthenticated, isHydrated]);
 
@@ -33,7 +80,7 @@ export default function AvaliacoesPage() {
   useEffect(() => {
     if (turmaSelecionada && isAuthenticated) {
       buscar(`/disciplinas/turma/${turmaSelecionada}`, setDisciplinas, {
-        headers: { Authorization: `Bearer ${usuario.token}` },
+        headers: {Authorization: `Bearer ${usuario.token}`},
       });
     }
   }, [turmaSelecionada, isAuthenticated]);
@@ -42,7 +89,7 @@ export default function AvaliacoesPage() {
   useEffect(() => {
     if (disciplinaSelecionada && isAuthenticated) {
       buscar(`/avaliacoes/disciplina/${disciplinaSelecionada}`, setAvaliacoes, {
-        headers: { Authorization: `Bearer ${usuario.token}` },
+        headers: {Authorization: `Bearer ${usuario.token}`},
       });
     }
   }, [disciplinaSelecionada, isAuthenticated]);
@@ -63,15 +110,16 @@ export default function AvaliacoesPage() {
     };
 
     try {
-      await cadastrar("/avaliacoes", body, () => {}, {
-        headers: { Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json" },
+      await cadastrar("/avaliacoes", body, () => {
+      }, {
+        headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"},
       });
       ToastAlerta("✅ Avaliação cadastrada", Toast.Success);
       setTitulo("");
       setData("");
       setPeso(1);
       buscar(`/avaliacoes/disciplina/${disciplinaSelecionada}`, setAvaliacoes, {
-        headers: { Authorization: `Bearer ${usuario.token}` },
+        headers: {Authorization: `Bearer ${usuario.token}`},
       });
     } catch {
       ToastAlerta("Erro ao salvar avaliação", Toast.Error);
@@ -81,7 +129,7 @@ export default function AvaliacoesPage() {
   async function excluirAvaliacao(id: number) {
     try {
       await deletar(`/avaliacoes/${id}`, {
-        headers: { Authorization: `Bearer ${usuario.token}` },
+        headers: {Authorization: `Bearer ${usuario.token}`},
       });
       ToastAlerta("🗑️ Avaliação excluída", Toast.Success);
       setAvaliacoes((prev) => prev.filter((a) => a.id !== id));
@@ -188,15 +236,40 @@ export default function AvaliacoesPage() {
                 <TableCell>{a.peso}</TableCell>
                 <TableCell>{a.media?.toFixed(2)}</TableCell>
                 <TableCell>
-                  <Button size="xs" color="failure" onClick={() => excluirAvaliacao(a.id)}>
-                    Excluir
-                  </Button>
+                  <div className='flex flex-row gap-4'>
+                    <Button
+                      color="warning"
+                      size="xs"
+                      onClick={() => {
+                        setAvaliacaoSelecionada(a)
+                        setModalEditarAvaliacao(true);
+                      }}
+                      className='cursor-pointer'
+                    >
+                      <FaEdit size={20}/>
+                    </Button>
+
+                    <Button
+                      size="xs"
+                      color="failure"
+                      onClick={() => excluirAvaliacao(a.id)}
+                    >
+                      <FaTrashAlt size={20}/>
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       )}
+
+      <EditarAvaliacao
+        open={modalEditarAvaliacao}
+        onClose={() => setModalEditarAvaliacao(false)}
+        onSaved={recarregarAvaliacoes}
+        avaliacaoSelecionada={avaliacaoSelecionada}
+      />
     </div>
   );
 }

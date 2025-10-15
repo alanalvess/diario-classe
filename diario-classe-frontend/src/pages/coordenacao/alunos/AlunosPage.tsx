@@ -17,11 +17,11 @@ import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {jsPDF} from "jspdf";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import {RotatingLines} from "react-loader-spinner";
-import {BsQrCode} from "react-icons/bs";
 import {LuQrCode} from "react-icons/lu";
 import {IoMdPersonAdd} from "react-icons/io";
-import {FaTrashAlt} from "react-icons/fa";
+import {FaEdit, FaTrashAlt} from "react-icons/fa";
 import ResponsaveisModal from "./responsaveisModal/ResponsaveisModal.tsx";
+import EditarAluno from "./editarAluno/EditarAluno.tsx";
 
 export default function AlunosPage() {
   const {usuario, isHydrated, isAuthenticated, isLoading} = useAuth();
@@ -40,23 +40,52 @@ export default function AlunosPage() {
   const [qrImage, setQrImage] = useState<string | null>(null);
   const [qrAlunoNome, setQrAlunoNome] = useState<string>("");
 
-  const [responsaveisModalOpen, setResponsaveisModalOpen] = useState(false);
+  const [modalResponsavel, setModalResponsavel] = useState(false);
+  const [modalEditarAluno, setModalEditarAluno] = useState(false);
   const [alunoSelecionadoId, setAlunoSelecionadoId] = useState<number | null>(null);
   const [alunoSelecionadoNome, setAlunoSelecionadoNome] = useState<string>("");
 
+  const [alunoSelecionado, setAlunoSelecionado] = useState<Aluno | null>(null);
 
   function adicionaResponsavel(alunoId: number, alunoNome: string) {
     setAlunoSelecionadoId(alunoId);
     setAlunoSelecionadoNome(alunoNome);
-    setResponsaveisModalOpen(true);
+    setModalResponsavel(true);
   }
 
+  async function buscarAlunos() {
+    try {
+      await buscar("/alunos", setAlunos, {
+        headers: {Authorization: `Bearer ${usuario.token}`},
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao carregar alunos", Toast.Error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function buscarTurmas() {
+    try {
+      await buscar("/turmas", setTurmas, {
+        headers: {Authorization: `Bearer ${usuario.token}`},
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao carregar turmas", Toast.Error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
 
   // 🔹 Buscar alunos e turmas
   useEffect(() => {
     if (!isHydrated || !isAuthenticated) return;
-    buscar("/alunos", setAlunos, {headers: {Authorization: `Bearer ${usuario.token}`}});
-    buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+    buscarAlunos();
+    buscarTurmas();
   }, [isHydrated, isAuthenticated]);
 
   // 🔹 Criar aluno
@@ -108,29 +137,10 @@ export default function AlunosPage() {
     }
   }
 
-  // // 🔹 Gerar QR Code (abre modal)
-  // async function gerarQrCode(aluno: Aluno) {
-  //   try {
-  //     const response = await fetch(`http://localhost:8080/alunos/${aluno.id}/qrcode`, {
-  //       headers: {Authorization: `Bearer ${usuario.token}`},
-  //     });
-  //     if (!response.ok) throw new Error("Erro ao gerar QR Code");
-  //
-  //     const blob = await response.blob();
-  //     const url = URL.createObjectURL(blob);
-  //     setQrImage(url);
-  //     setQrAlunoNome(aluno.nome);
-  //     setQrModalOpen(true);
-  //   } catch (error) {
-  //     console.error(error);
-  //     ToastAlerta("Erro ao gerar QR Code", Toast.Error);
-  //   }
-  // }
-
   async function gerarQrCode(aluno: Aluno) {
     try {
       await buscarQrCode(`/alunos/${aluno.id}/qrcode`, setQrImage, {
-        headers: { Authorization: `Bearer ${usuario.token}` },
+        headers: {Authorization: `Bearer ${usuario.token}`},
       });
 
       setQrAlunoNome(aluno.nome);
@@ -140,7 +150,6 @@ export default function AlunosPage() {
       ToastAlerta("Erro ao gerar QR Code", Toast.Error);
     }
   }
-
 
   // 🔹 Imprimir / Exportar QR em PDF
   function imprimirQrCode() {
@@ -192,7 +201,7 @@ export default function AlunosPage() {
           {turmas.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
         </select>
 
-        <Button  onClick={salvarAluno}>
+        <Button onClick={salvarAluno}>
           {isLoading ?
             <RotatingLines
               strokeColor="white"
@@ -204,7 +213,7 @@ export default function AlunosPage() {
             <span>
               Adicionar Aluno
             </span>
-           }
+          }
         </Button>
       </div>
 
@@ -228,14 +237,14 @@ export default function AlunosPage() {
                 <TableCell>
                   <div className='flex flex-row gap-4'>
 
-                  <Button
-                    color="failure"
-                    size="xs"
-                    onClick={() => gerarQrCode(aluno)}
-                    className='cursor-pointer'
-                  >
-                    <LuQrCode size={20}/>
-                  </Button>
+                    <Button
+                      color="failure"
+                      size="xs"
+                      onClick={() => gerarQrCode(aluno)}
+                      className='cursor-pointer'
+                    >
+                      <LuQrCode size={20}/>
+                    </Button>
                     <Button
                       color="failure"
                       size="xs"
@@ -245,14 +254,28 @@ export default function AlunosPage() {
                       <IoMdPersonAdd size={20}/>
                     </Button>
 
-                  <Button
-                    color="failure"
-                    size="xs"
-                    onClick={() => excluirAluno(aluno.id)}
-                    className='cursor-pointer'
-                  >
-                    <FaTrashAlt size={20}/>
-                  </Button>
+                    <Button
+                      color="warning"
+                      size="xs"
+                      onClick={() => {
+                        // editaAluno(aluno.id);
+                        setAlunoSelecionado(aluno)
+                        setModalEditarAluno(true);
+                      }}
+                      className='cursor-pointer'
+                    >
+                      <FaEdit size={20}/>
+                    </Button>
+
+
+                    <Button
+                      color="failure"
+                      size="xs"
+                      onClick={() => excluirAluno(aluno.id)}
+                      className='cursor-pointer'
+                    >
+                      <FaTrashAlt size={20}/>
+                    </Button>
                   </div>
                 </TableCell>
               </TableRow>
@@ -267,8 +290,8 @@ export default function AlunosPage() {
         <ModalBody className="flex flex-col items-center gap-4">
           {qrImage ? (
             <>
-              <img src={qrImage} alt="QR Code" className="w-48 h-48" />
-              <Button  onClick={imprimirQrCode}>📄 Imprimir / Baixar PDF</Button>
+              <img src={qrImage} alt="QR Code" className="w-48 h-48"/>
+              <Button onClick={imprimirQrCode}>📄 Imprimir / Baixar PDF</Button>
             </>
           ) : (
             <p>Carregando QR Code...</p>
@@ -278,14 +301,19 @@ export default function AlunosPage() {
 
       {alunoSelecionadoId !== null && (
         <ResponsaveisModal
-          show={responsaveisModalOpen}
-          onClose={() => setResponsaveisModalOpen(false)}
+          show={modalResponsavel}
+          onClose={() => setModalResponsavel(false)}
           alunoId={alunoSelecionadoId}
           alunoNome={alunoSelecionadoNome}
         />
       )}
 
-
+      <EditarAluno
+        open={modalEditarAluno}
+        onClose={() => setModalEditarAluno(false)}
+        onSaved={buscarAlunos}
+        alunoSelecionado={alunoSelecionado}
+      />
     </div>
   );
 }

@@ -10,7 +10,6 @@ public record ObservacaoRequest(
         String descricao,
         String categoria,
         Long alunoId,
-//        Long professorId,
         Long turmaId,
         Long disciplinaId
 ) {

@@ -1,7 +1,10 @@
 package com.projetointegrador.diarioclasse.controller;
 
 import com.projetointegrador.diarioclasse.dto.request.AvaliacaoRequest;
+import com.projetointegrador.diarioclasse.dto.request.ObservacaoRequest;
+import com.projetointegrador.diarioclasse.dto.request.patchrequest.ObservacaoPatchRequest;
 import com.projetointegrador.diarioclasse.dto.response.AvaliacaoResponse;
+import com.projetointegrador.diarioclasse.dto.response.ObservacaoResponse;
 import com.projetointegrador.diarioclasse.service.AvaliacaoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +44,16 @@ public class AvaliacaoController {
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         avaliacaoService.deletar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AvaliacaoResponse> atualizar(@PathVariable Long id, @RequestBody AvaliacaoRequest request) {
+        return ResponseEntity.ok(avaliacaoService.atualizar(id, request));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<AvaliacaoResponse> patch(@PathVariable Long id, @RequestBody AvaliacaoRequest request) {
+        return ResponseEntity.ok(avaliacaoService.patch(id, request));
     }
 }
 

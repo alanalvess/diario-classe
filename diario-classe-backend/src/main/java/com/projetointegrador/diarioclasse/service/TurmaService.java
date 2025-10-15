@@ -75,18 +75,31 @@ public class TurmaService {
     }
 
     public TurmaResponse patch(Long id, TurmaPatchRequest request) {
-        var turma = turmaRepository.findById(id)
+        Turma turma = turmaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Turma não encontrada"));
 
         if (request.nome() != null) turma.setNome(request.nome());
         if (request.anoLetivo() != null) turma.setAnoLetivo(request.anoLetivo());
-
+        if (request.professorIds() != null) {
+            List<Professor> professores = request.professorIds().stream()
+                    .map(pid -> professorRepository.findById(pid)
+                            .orElseThrow(() -> new RuntimeException("Professor não encontrado: " + pid)))
+                    .collect(Collectors.toList());
+            turma.setProfessores(professores);
+        }
+        if (request.disciplinaIds() != null) {
+            List<Disciplina> disciplinas = request.disciplinaIds().stream()
+                    .map(did -> disciplinaRepository.findById(did)
+                            .orElseThrow(() -> new RuntimeException("Disciplina não encontrada: " + did)))
+                    .collect(Collectors.toList());
+            turma.setDisciplinas(disciplinas);
+        }
         turmaRepository.save(turma);
         return toResponse(turma);
     }
 
     public void deletar(Long id) {
-        var turma = turmaRepository.findById(id)
+        Turma turma = turmaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Turma não encontrada"));
         turmaRepository.delete(turma);
     }

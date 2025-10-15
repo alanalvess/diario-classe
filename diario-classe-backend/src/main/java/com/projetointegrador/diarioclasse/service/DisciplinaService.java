@@ -1,8 +1,12 @@
 package com.projetointegrador.diarioclasse.service;
 
 import com.projetointegrador.diarioclasse.dto.request.DisciplinaRequest;
+import com.projetointegrador.diarioclasse.dto.request.TurmaRequest;
+import com.projetointegrador.diarioclasse.dto.request.patchrequest.TurmaPatchRequest;
 import com.projetointegrador.diarioclasse.dto.response.DisciplinaResponse;
+import com.projetointegrador.diarioclasse.dto.response.TurmaResponse;
 import com.projetointegrador.diarioclasse.entity.Disciplina;
+import com.projetointegrador.diarioclasse.entity.Professor;
 import com.projetointegrador.diarioclasse.entity.Turma;
 import com.projetointegrador.diarioclasse.repository.DisciplinaRepository;
 import com.projetointegrador.diarioclasse.repository.TurmaRepository;
@@ -11,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -59,6 +64,27 @@ public class DisciplinaService {
                 .toList();
     }
 
+    public DisciplinaResponse atualizar(Long id, DisciplinaRequest request) {
+        Disciplina disciplina = disciplinaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Disciplina não encontrada"));
+
+        disciplina.setNome(request.nome());
+        disciplina.setCodigo(request.codigo());
+
+        disciplinaRepository.save(disciplina);
+        return toResponse(disciplina);
+    }
+
+    public DisciplinaResponse patch(Long id, DisciplinaRequest request) {
+        Disciplina disciplina = disciplinaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Disciplina não encontrada"));
+
+        if (request.nome() != null) disciplina.setNome(request.nome());
+        if (request.codigo() != null) disciplina.setCodigo(request.codigo());
+
+        disciplinaRepository.save(disciplina);
+        return toResponse(disciplina);
+    }
 
     private DisciplinaResponse toResponse(Disciplina disciplina) {
         return new DisciplinaResponse(

@@ -35,10 +35,9 @@ export default function HomeProfessor() {
 
   async function carregarTurmas() {
     try {
-      const response = await buscar("/turmas", setTurmas, {
+      await buscar("/turmas", setTurmas, {
         headers: {Authorization: `Bearer ${usuario.token}`}
       });
-      console.log("Turmas carregadas:", response);
     } catch (error) {
       console.error("Erro ao buscar turmas:", error);
     }

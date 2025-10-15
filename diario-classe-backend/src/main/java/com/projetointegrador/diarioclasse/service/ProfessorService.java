@@ -42,11 +42,16 @@ public class ProfessorService {
                 .map(id -> disciplinaRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Disciplina não encontrada: " + id)))
                 .collect(Collectors.toList());
+        List<Turma> turma = request.turmaIds().stream()
+                .map(id -> turmaRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Turma não encontrada: " + id)))
+                .collect(Collectors.toList());
 
         Professor professor = Professor.builder()
                 .nome(request.nome())
                 .email(request.email())
                 .disciplinas(disciplinas)
+                .turmas(turma)
                 .build();
 
         professorRepository.save(professor);
@@ -58,31 +63,53 @@ public class ProfessorService {
                 .orElseThrow(() -> new RuntimeException("Professor não encontrado"));
 
         List<Disciplina> disciplinas = request.disciplinaIds().stream()
-                .map(did -> disciplinaRepository.findById(did)
-                        .orElseThrow(() -> new RuntimeException("Disciplina não encontrada: " + did)))
+                .map(disciplinaId -> disciplinaRepository.findById(disciplinaId)
+                        .orElseThrow(() -> new RuntimeException("Disciplina não encontrada: " + disciplinaId)))
+                .collect(Collectors.toList());
+
+        List<Turma> turmas = request.turmaIds().stream()
+                .map(turmaId -> turmaRepository.findById(turmaId)
+                        .orElseThrow(() -> new RuntimeException("Disciplina não encontrada: " + turmaId)))
                 .collect(Collectors.toList());
 
         professor.setNome(request.nome());
         professor.setEmail(request.email());
         professor.setDisciplinas(disciplinas);
+        professor.setTurmas(turmas);
 
         professorRepository.save(professor);
         return toResponse(professor);
     }
 
     public ProfessorResponse patch(Long id, ProfessorPatchRequest request) {
-        var professor = professorRepository.findById(id)
+        Professor professor = professorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Professor não encontrado"));
 
         if (request.nome() != null) professor.setNome(request.nome());
         if (request.email() != null) professor.setEmail(request.email());
+        if (request.disciplinaIds() != null) {
+            List<Disciplina> disciplinas = request.disciplinaIds().stream()
+                    .map(disciplinaId -> disciplinaRepository.findById(disciplinaId)
+                            .orElseThrow(() -> new RuntimeException("Disciplina não encontrada: " + disciplinaId)))
+                    .collect(Collectors.toList());
+            professor.setDisciplinas(disciplinas);
+        }
+        if (request.turmaIds() != null) {
+            List<Turma> turmas = request.turmaIds().stream()
+                    .map(turmaId -> turmaRepository.findById(turmaId)
+                            .orElseThrow(() -> new RuntimeException("Turma não encontrada: " + turmaId)))
+                    .collect(Collectors.toList());
+            professor.setTurmas(turmas);
+        }
+
+
 
         professorRepository.save(professor);
         return toResponse(professor);
     }
 
     public void deletar(Long id) {
-        var professor = professorRepository.findById(id)
+        Professor professor = professorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Professor não encontrado"));
         professorRepository.delete(professor);
     }

@@ -1,10 +1,11 @@
 package com.projetointegrador.diarioclasse.service;
 
 import com.projetointegrador.diarioclasse.dto.request.AvaliacaoRequest;
+import com.projetointegrador.diarioclasse.dto.request.ObservacaoRequest;
+import com.projetointegrador.diarioclasse.dto.request.patchrequest.ObservacaoPatchRequest;
 import com.projetointegrador.diarioclasse.dto.response.AvaliacaoResponse;
-import com.projetointegrador.diarioclasse.entity.Avaliacao;
-import com.projetointegrador.diarioclasse.entity.Disciplina;
-import com.projetointegrador.diarioclasse.entity.Turma;
+import com.projetointegrador.diarioclasse.dto.response.ObservacaoResponse;
+import com.projetointegrador.diarioclasse.entity.*;
 import com.projetointegrador.diarioclasse.repository.AvaliacaoRepository;
 import com.projetointegrador.diarioclasse.repository.DisciplinaRepository;
 import com.projetointegrador.diarioclasse.repository.TurmaRepository;
@@ -56,6 +57,47 @@ public class AvaliacaoService {
         return avaliacaoRepository.findByDisciplinaId(disciplinaId).stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    public AvaliacaoResponse atualizar(Long id, AvaliacaoRequest request) {
+        Avaliacao avaliacao = avaliacaoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Avaliação não encontrada"));
+
+        Turma turma = turmaRepository.findById(request.turmaId())
+                .orElseThrow(() -> new RuntimeException("Turma não encontrada"));
+        Disciplina disciplina = disciplinaRepository.findById(request.disciplinaId())
+                .orElseThrow(() -> new RuntimeException("Disciplina não encontrada"));
+
+        avaliacao.setTitulo(request.titulo());
+        avaliacao.setData(request.data());
+        avaliacao.setPeso(request.peso());
+        avaliacao.setTurma(turma);
+        avaliacao.setDisciplina(disciplina);
+
+        avaliacaoRepository.save(avaliacao);
+        return toResponse(avaliacao);
+    }
+
+    public AvaliacaoResponse patch(Long id, AvaliacaoRequest request) {
+        Avaliacao avaliacao = avaliacaoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Observação não encontrada"));
+
+        if (request.titulo() != null) avaliacao.setTitulo(request.titulo());
+        if (request.data() != null) avaliacao.setData(request.data());
+        if (request.peso() != null) avaliacao.setPeso(request.peso());
+        if (request.turmaId() != null) {
+            Turma turma = turmaRepository.findById(request.turmaId())
+                    .orElseThrow(() -> new RuntimeException("Turma não encontrada"));
+            avaliacao.setTurma(turma);
+        }
+        if (request.disciplinaId() != null) {
+            Disciplina disciplina = disciplinaRepository.findById(request.disciplinaId())
+                    .orElseThrow(() -> new RuntimeException("Disciplina não encontrada"));
+            avaliacao.setDisciplina(disciplina);
+        }
+
+        avaliacaoRepository.save(avaliacao);
+        return toResponse(avaliacao);
     }
 
     public void deletar(Long id) {

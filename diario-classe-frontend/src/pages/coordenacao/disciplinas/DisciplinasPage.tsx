@@ -1,10 +1,15 @@
 import {useEffect, useState} from "react";
 import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
-import type {Disciplina} from "../../../models";
+import type {Aluno, Disciplina} from "../../../models";
 import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {RotatingLines} from "react-loader-spinner";
 import {useAuth} from "../../../contexts/UseAuth.ts";
+import {LuQrCode} from "react-icons/lu";
+import {IoMdPersonAdd} from "react-icons/io";
+import {FaEdit, FaTrashAlt} from "react-icons/fa";
+import EditarAluno from "../alunos/editarAluno/EditarAluno.tsx";
+import EditarDisciplina from "./editarDisciplina/EditarDisciplina.tsx";
 
 export default function DisciplinasPage() {
   const {usuario, isHydrated, isAuthenticated} = useAuth();
@@ -14,10 +19,24 @@ export default function DisciplinasPage() {
   const [codigo, setCodigo] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const [disciplinaSelecionada, setDisciplinaSelecionada] = useState<Disciplina | null>(null);
+  const [modalEditarDisciplina, setModalEditarDisciplina] = useState(false);
+
+  async function buscarDisciplinas() {
+    try {
+      await buscar("/disciplinas", setDisciplinas, {
+        headers: {Authorization: `Bearer ${usuario.token}`},
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao carregar disciplinas", Toast.Error);
+      }
+    }
+  }
   // 🔹 Buscar disciplinas
   useEffect(() => {
     if (!isHydrated || !isAuthenticated) return;
-    buscar("/disciplinas", setDisciplinas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+    buscarDisciplinas();
   }, [isHydrated, isAuthenticated]);
 
   // 🔹 Criar disciplina
@@ -106,20 +125,50 @@ export default function DisciplinasPage() {
             <TableHeadCell>Ações</TableHeadCell>
           </TableHead>
           <TableBody>
-            {disciplinas.map((d, i) => (
+            {disciplinas.map((disciplina, i) => (
               <TableRow key={i}>
-                <TableCell>{d.nome}</TableCell>
-                <TableCell>{d.codigo}</TableCell>
-                <TableCell>{d.mediaTurma?.toFixed(1) ?? "—"}</TableCell>
-                <TableCell>{d.frequenciaMedia?.toFixed(1) ?? "—"}%</TableCell>
+                <TableCell>{disciplina.nome}</TableCell>
+                <TableCell>{disciplina.codigo}</TableCell>
+                <TableCell>{disciplina.mediaTurma?.toFixed(1) ?? "—"}</TableCell>
+                <TableCell>{disciplina.frequenciaMedia?.toFixed(1) ?? "—"}%</TableCell>
                 <TableCell>
-                  <Button color="failure" size="xs" onClick={() => excluirDisciplina(d.id)}>Excluir</Button>
+                  <div className='flex flex-row gap-4'>
+
+
+
+                    <Button
+                      color="warning"
+                      size="xs"
+                      onClick={() => {
+                        setDisciplinaSelecionada(disciplina)
+                        setModalEditarDisciplina(true);
+                      }}
+                      className='cursor-pointer'
+                    >
+                      <FaEdit size={20}/>
+                    </Button>
+
+                  <Button
+                    color="failure"
+                    size="xs"
+                    onClick={() => excluirDisciplina(disciplina.id)}
+                  >
+                      <FaTrashAlt size={20}/>
+                  </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       )}
+
+      <EditarDisciplina
+        open={modalEditarDisciplina}
+        onClose={() => setModalEditarDisciplina(false)}
+        onSaved={buscarDisciplinas}
+        disciplinaSelecionada={disciplinaSelecionada}
+      />
     </div>
   );
 }

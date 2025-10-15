@@ -5,6 +5,8 @@ import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import type {Disciplina, Professor, Turma} from "../../../models";
 import {RotatingLines} from "react-loader-spinner";
 import {useAuth} from "../../../contexts/UseAuth.ts";
+import {FaEdit, FaTrashAlt} from "react-icons/fa";
+import EditarTurma from "./editarTurma/EditarTurma.tsx";
 
 export default function TurmasPage() {
   const {usuario, isHydrated, isAuthenticated} = useAuth();
@@ -18,12 +20,28 @@ export default function TurmasPage() {
   const [professorIdsSelecionados, setProfessorIdsSelecionados] = useState<number[]>([]);
   const [disciplinaIdsSelecionadas, setDisciplinaIdsSelecionadas] = useState<number[]>([]);
 
+  const [turmaSelecionada, setTurmaSelecionada] = useState<Turma | null>(null);
+  const [modalEditarTurma, setModalEditarTurma] = useState(false);
+
+
   const [isLoading, setIsLoading] = useState(false);
+
+  async function buscarTurmas() {
+    try {
+      await buscar("/turmas", setTurmas, {
+        headers: {Authorization: `Bearer ${usuario.token}`},
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao carregar alunos", Toast.Error);
+      }
+    }
+  }
 
   // 🔹 Buscar turmas
   useEffect(() => {
     if (!isHydrated || !isAuthenticated) return;
-    buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+    buscarTurmas();
     buscar("/professores", setProfessores, {headers: {Authorization: `Bearer ${usuario.token}`}});
     buscar("/disciplinas", setDisciplinas, {headers: {Authorization: `Bearer ${usuario.token}`}});
   }, [isHydrated, isAuthenticated]);
@@ -138,7 +156,7 @@ export default function TurmasPage() {
             /> :
             <span>Adicionar Turma</span>
           }
-          </Button>
+        </Button>
       </div>
 
       {/* Tabela de turmas */}
@@ -169,13 +187,40 @@ export default function TurmasPage() {
                 </TableCell>
 
                 <TableCell>
-                  <Button color="danger" size="xs" onClick={() => excluirTurma(turma.id)}>Excluir</Button>
+                  <div className='flex flex-row gap-4'>
+                    <Button
+                      color="warning"
+                      size="xs"
+                      onClick={() => {
+                        setTurmaSelecionada(turma)
+                        setModalEditarTurma(true);
+                      }}
+                      className='cursor-pointer'
+                    >
+                      <FaEdit size={20}/>
+                    </Button>
+
+                    <Button
+                      color="danger"
+                      size="xs"
+                      onClick={() => excluirTurma(turma.id)}
+                    >
+                      <FaTrashAlt size={20}/>
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       )}
+
+      <EditarTurma
+        open={modalEditarTurma}
+        onClose={() => setModalEditarTurma(false)}
+        onSaved={buscarTurmas}
+        turmaSelecionada={turmaSelecionada}
+      />
     </div>
   );
 }

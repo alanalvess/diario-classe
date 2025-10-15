@@ -5,6 +5,7 @@ import java.util.List;
 public record ProfessorRequest(
         String nome,
         String email,
-        List<Long> disciplinaIds
+        List<Long> disciplinaIds,
+        List<Long> turmaIds
 ) {
 }
