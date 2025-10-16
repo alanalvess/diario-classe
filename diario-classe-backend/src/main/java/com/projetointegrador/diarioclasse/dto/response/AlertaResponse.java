@@ -19,8 +19,8 @@ public record AlertaResponse(
     public static AlertaResponse fromEntity(Alerta alerta) {
         return new AlertaResponse(
                 alerta.getId(),
-                alerta.isRiscoEvasao(),
                 alerta.isRiscoReprovacao(),
+                alerta.isRiscoEvasao(),
                 alerta.getScoreRisco(),
                 alerta.getDataGeracao(),
                 alerta.getStatus(),

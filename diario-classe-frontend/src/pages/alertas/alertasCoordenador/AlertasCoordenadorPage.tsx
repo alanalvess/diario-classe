@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import {Badge, Card, Spinner, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
 import type {Alerta} from "../../../models/Alerta.ts";
 import {useAuth} from "../../../contexts/UseAuth.ts";
-import type {Aluno, Responsavel} from "../../../models";
+import type {Aluno} from "../../../models";
 import {buscar} from "../../../services/Service.ts";
 import SelectField from "../../../components/form/SelectField.tsx";
 
@@ -12,12 +12,10 @@ export default function AlertasCoordenadorPage() {
 
   const {usuario, isAuthenticated} = useAuth();
 
-  // const [responsavel, setResponsavel] = useState<Responsavel>();
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [alunoSelecionado, setAlunoSelecionado] = useState<string>("");
 
   async function buscarAlunos() {
-    // if (!alunoSelecionado) return;
     setIsLoading(true);
     try {
       await buscar('/alunos', setAlunos, {
@@ -33,7 +31,6 @@ export default function AlertasCoordenadorPage() {
   async function buscarAlertas() {
     setIsLoading(true);
     try {
-      // se há aluno selecionado → busca só dele
       if (alunoSelecionado) {
         await buscar(`/alertas/aluno/${alunoSelecionado}`, setAlertas, {
           headers: {
@@ -42,7 +39,6 @@ export default function AlertasCoordenadorPage() {
           },
         });
       } else {
-        // senão → busca todos
         await buscar(`/alertas`, setAlertas, {
           headers: {
             Authorization: `Bearer ${usuario.token}`,
@@ -56,7 +52,6 @@ export default function AlertasCoordenadorPage() {
       setIsLoading(false);
     }
   }
-
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -89,7 +84,7 @@ export default function AlertasCoordenadorPage() {
           value={alunoSelecionado}
           onChange={(e) => setAlunoSelecionado(e.target.value)}
           options={alunos.map((a) => ({
-            value: a.id.toString(), // garante que o valor é string
+            value: a.id,
             label: a.nome,
           }))}
           // className="w-80"
