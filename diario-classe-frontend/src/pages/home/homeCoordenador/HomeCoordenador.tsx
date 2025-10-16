@@ -1,5 +1,5 @@
 import {Card} from "flowbite-react";
-import {FaBook, FaChalkboardTeacher, FaChartBar, FaChartPie, FaFileAlt, FaUsers} from "react-icons/fa";
+import {FaBook, FaChalkboardTeacher, FaChartBar, FaChartPie, FaFileAlt, FaGraduationCap, FaUsers} from "react-icons/fa";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import {Link} from "react-router-dom";
 import {useEffect, useState} from "react";
@@ -30,7 +30,7 @@ export default function HomeCoordenador() {
     <>
       <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
         {/* Saudação */}
-        <Card className="p-6 bg-gray-100 dark:bg-gray-800 mt-20 text-center shadow-md">
+        <Card className="p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
             Olá, Coordenador(a) {usuario?.nome?.split(' ')[0]} 👋
           </h1>
@@ -41,6 +41,14 @@ export default function HomeCoordenador() {
 
         {/* Ações principais */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
+          <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
+            <Link to="/alunos">
+              <FaGraduationCap className="text-4xl text-blue-600 mb-3 mx-auto"/>
+              <h2 className="text-lg font-semibold">Alunos</h2>
+              <p className="text-sm text-gray-500">Gerencie todos os alunos matriculados.</p>
+            </Link>
+          </Card>
+
           <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
             <Link to="/professores">
               <FaChalkboardTeacher className="text-4xl text-blue-600 mb-3 mx-auto"/>
@@ -65,13 +73,6 @@ export default function HomeCoordenador() {
             </Link>
           </Card>
 
-          <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
-            <Link to="/relatorios">
-              <FaChartBar className="text-4xl text-yellow-600 mb-3 mx-auto"/>
-              <h2 className="text-lg font-semibold">Relatórios</h2>
-              <p className="text-sm text-gray-500">Gere relatórios detalhados de desempenho.</p>
-            </Link>
-          </Card>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
@@ -104,11 +105,20 @@ export default function HomeCoordenador() {
             </Link>
           </Card>
 
+          {/*<Card className="hover:shadow-lg transition-all cursor-pointer text-center">*/}
+          {/*  <Link to="/alertas">*/}
+          {/*    <FaFileAlt className="text-4xl text-orange-500 mb-3 mx-auto"/>*/}
+          {/*    <h2 className="text-lg font-semibold">Comunicados</h2>*/}
+          {/*    <p className="text-sm text-gray-500">Envie avisos e mensagens para professores.</p>*/}
+          {/*  </Link>*/}
+          {/*</Card>*/}
+
+
           <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
-            <Link to="/alertas">
-              <FaFileAlt className="text-4xl text-orange-500 mb-3 mx-auto"/>
-              <h2 className="text-lg font-semibold">Comunicados</h2>
-              <p className="text-sm text-gray-500">Envie avisos e mensagens para professores.</p>
+            <Link to="/relatorios">
+              <FaChartBar className="text-4xl text-yellow-600 mb-3 mx-auto"/>
+              <h2 className="text-lg font-semibold">Relatórios</h2>
+              <p className="text-sm text-gray-500">Gere relatórios detalhados de desempenho.</p>
             </Link>
           </Card>
         </div>

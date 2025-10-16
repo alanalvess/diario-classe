@@ -1,6 +1,6 @@
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import {Button, Card} from "flowbite-react";
-import {FaChartBar, FaClipboardCheck, FaEnvelopeOpenText, FaUserGraduate} from "react-icons/fa";
+import {FaChartBar, FaClipboardCheck, FaEnvelopeOpenText, FaMedal, FaUserGraduate} from "react-icons/fa";
 
 export default function HomeResponsavel() {
 
@@ -10,7 +10,7 @@ export default function HomeResponsavel() {
     <>
       <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
         {/* Saudação */}
-        <Card className="p-6 bg-gray-100 dark:bg-gray-800 mt-20 text-center shadow-md">
+        <Card className="p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
             Olá, {usuario?.nome?.split(' ')[0]} 👋
           </h1>
@@ -28,7 +28,7 @@ export default function HomeResponsavel() {
           </Card>
 
           <Card className="hover:shadow-lg transition-all cursor-pointer text-center" href="/boletim">
-            <FaChartBar className="text-4xl text-green-600 mb-3 mx-auto"/>
+            <FaMedal className="text-4xl text-green-600 mb-3 mx-auto"/>
             <h2 className="text-lg font-semibold">Notas e Avaliações</h2>
             <p className="text-sm text-gray-500">Acompanhe as notas e progresso das disciplinas.</p>
           </Card>

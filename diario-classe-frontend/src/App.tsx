@@ -30,6 +30,7 @@ import {ToastContainer} from "react-toastify";
 import NotasPage from "./pages/responsavel/notasPage/NotasPage.tsx";
 import PresencaPage from "./pages/responsavel/presencaPage/PresencaPage.tsx";
 import ObservacoesPage from "./pages/responsavel/observacaoPage/ObservacaoPage.tsx";
+import DashboardResponsavelPage from "./pages/responsavel/dashboardResponsavel/DashboardResponsavel.tsx";
 
 function App() {
 
@@ -63,9 +64,10 @@ function App() {
                 <Route path='/dashboardCoordenacao' element={<DashboardCoordenacaoPage/>}/>
                 <Route path='/relatorios' element={<RelatoriosPage/>}/>
 
-                <Route path='/notasAluno' element={<NotasPage/>}/>
+                <Route path='/boletim' element={<NotasPage/>}/>
                 <Route path='/presencaAluno' element={<PresencaPage/>}/>
                 <Route path='/observacoesAluno' element={<ObservacoesPage/>}/>
+                <Route path='/dashboardResponsavel' element={<DashboardResponsavelPage/>}/>
 
 
                 <Route path='/login' element={<Login/>}/>

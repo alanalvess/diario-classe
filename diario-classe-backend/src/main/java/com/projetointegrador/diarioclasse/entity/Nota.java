@@ -37,4 +37,5 @@ public class Nota {
     public Boolean estaAprovado(Double mediaMinima) {
         if (valor == null) return false;
         return valor >= mediaMinima;
-    }}
+    }
+}

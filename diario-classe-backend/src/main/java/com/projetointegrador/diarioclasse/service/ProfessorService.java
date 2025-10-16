@@ -3,9 +3,12 @@ package com.projetointegrador.diarioclasse.service;
 import com.projetointegrador.diarioclasse.dto.request.ProfessorRequest;
 import com.projetointegrador.diarioclasse.dto.request.patchrequest.ProfessorPatchRequest;
 import com.projetointegrador.diarioclasse.dto.response.ProfessorResponse;
+import com.projetointegrador.diarioclasse.dto.response.ResponsavelResponse;
 import com.projetointegrador.diarioclasse.entity.Disciplina;
 import com.projetointegrador.diarioclasse.entity.Professor;
+import com.projetointegrador.diarioclasse.entity.Responsavel;
 import com.projetointegrador.diarioclasse.entity.Turma;
+import com.projetointegrador.diarioclasse.exeption.UsuarioNaoEncontradoException;
 import com.projetointegrador.diarioclasse.repository.DisciplinaRepository;
 import com.projetointegrador.diarioclasse.repository.ProfessorRepository;
 import com.projetointegrador.diarioclasse.repository.TurmaRepository;
@@ -34,6 +37,13 @@ public class ProfessorService {
     public ProfessorResponse buscarPorId(Long id) {
         Professor professor = professorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Professor com id " + id + " não encontrado"));
+        return toResponse(professor);
+    }
+
+    public ProfessorResponse buscarPorEmail(String email) {
+        Professor professor = professorRepository.findByEmail(email)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(email));
+
         return toResponse(professor);
     }
 

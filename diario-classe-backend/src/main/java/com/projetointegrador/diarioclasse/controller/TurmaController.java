@@ -51,5 +51,11 @@ public class TurmaController {
     public ResponseEntity<List<TurmaResponse>> listarTodos() {
         return ResponseEntity.ok(turmaService.listarTodos());
     }
+
+    @GetMapping("/professor/{id}")
+    public ResponseEntity<List<TurmaResponse>> getTurmasPorProfessor(@PathVariable Long id) {
+        List<TurmaResponse> turmas = turmaService.buscarPorProfessorId(id);
+        return ResponseEntity.ok(turmas);
+    }
 }
 

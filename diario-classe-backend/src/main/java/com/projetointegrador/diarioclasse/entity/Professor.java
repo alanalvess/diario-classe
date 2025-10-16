@@ -32,7 +32,8 @@ public class Professor {
     @ManyToMany(mappedBy = "professores")
     private List<Turma> turmas = new ArrayList<>();
 
-
+    @OneToMany(mappedBy = "professor")
+    private List<Observacao> observacoes = new ArrayList<>();
 
     public Nota registrarNota(Aluno aluno, Avaliacao avaliacao, Double valor) {
         return Nota.builder()

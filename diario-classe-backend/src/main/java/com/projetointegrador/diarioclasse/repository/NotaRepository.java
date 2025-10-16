@@ -1,5 +1,6 @@
 package com.projetointegrador.diarioclasse.repository;
 
+import com.projetointegrador.diarioclasse.entity.Aluno;
 import com.projetointegrador.diarioclasse.entity.Nota;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -15,4 +16,6 @@ public interface NotaRepository extends JpaRepository<Nota, Long> {
     List<Nota> findByAlunoIdAndDisciplinaId(Long alunoId, Long disciplinaId);
 
     Optional<Nota> findByAlunoIdAndDisciplinaIdAndAvaliacaoId(Long alunoId, Long disciplinaId, Long avaliacaoId);
+
+    List<Nota> findByAluno(Aluno aluno);
 }

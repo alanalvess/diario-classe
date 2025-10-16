@@ -63,5 +63,11 @@ public class ResponsavelController {
         return ResponseEntity.ok(responsavelService.criarParaAluno(alunoId, request));
     }
 
+    @GetMapping("/email/{email}")
+    public ResponseEntity<ResponsavelResponse> buscarPorEmail(@PathVariable String email) {
+        ResponsavelResponse response = responsavelService.buscarPorEmail(email);
+        return ResponseEntity.ok(response);
+    }
+
 }
 

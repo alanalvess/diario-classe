@@ -3,6 +3,7 @@ package com.projetointegrador.diarioclasse.controller;
 import com.projetointegrador.diarioclasse.dto.request.ProfessorRequest;
 import com.projetointegrador.diarioclasse.dto.request.patchrequest.ProfessorPatchRequest;
 import com.projetointegrador.diarioclasse.dto.response.ProfessorResponse;
+import com.projetointegrador.diarioclasse.dto.response.ResponsavelResponse;
 import com.projetointegrador.diarioclasse.service.ProfessorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -48,5 +49,12 @@ public class ProfessorController {
     public ResponseEntity<List<ProfessorResponse>> listarTodos() {
         return ResponseEntity.ok(professorService.listarTodos());
     }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<ProfessorResponse> buscarPorEmail(@PathVariable String email) {
+        ProfessorResponse response = professorService.buscarPorEmail(email);
+        return ResponseEntity.ok(response);
+    }
+
 }
 

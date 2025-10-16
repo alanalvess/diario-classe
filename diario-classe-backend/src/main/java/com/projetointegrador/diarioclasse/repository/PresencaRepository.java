@@ -1,5 +1,6 @@
 package com.projetointegrador.diarioclasse.repository;
 
+import com.projetointegrador.diarioclasse.entity.Aluno;
 import com.projetointegrador.diarioclasse.entity.Presenca;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -17,4 +18,6 @@ public interface PresencaRepository extends JpaRepository<Presenca, Long> {
     List<Presenca> findByTurmaIdAndData(Long turmaId, LocalDate data);
 
     Optional<Presenca> findByAlunoIdAndTurmaIdAndData(Long alunoId, Long turmaId, LocalDate data);
+
+    List<Presenca> findByAluno(Aluno aluno);
 }

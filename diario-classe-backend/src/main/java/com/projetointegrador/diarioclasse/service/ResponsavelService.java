@@ -4,11 +4,15 @@ import com.projetointegrador.diarioclasse.dto.request.ResponsavelRequest;
 import com.projetointegrador.diarioclasse.dto.request.patchrequest.ResponsavelPatchRequest;
 import com.projetointegrador.diarioclasse.dto.response.AlunoResponse;
 import com.projetointegrador.diarioclasse.dto.response.ResponsavelResponse;
+import com.projetointegrador.diarioclasse.dto.response.UsuarioResponse;
 import com.projetointegrador.diarioclasse.entity.Aluno;
 import com.projetointegrador.diarioclasse.entity.Responsavel;
+import com.projetointegrador.diarioclasse.entity.Usuario;
+import com.projetointegrador.diarioclasse.exeption.PermissaoNegadaException;
 import com.projetointegrador.diarioclasse.repository.AlunoRepository;
 import com.projetointegrador.diarioclasse.repository.ResponsavelRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -113,6 +117,13 @@ public class ResponsavelService {
         return responsavelRepository.findById(id)
                 .map(this::toResponse)
                 .orElseThrow(() -> new RuntimeException("Responsável não encontrado"));
+    }
+
+    public ResponsavelResponse buscarPorEmail(String email) {
+        Responsavel responsavel = responsavelRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o email informado."));
+
+        return toResponse(responsavel);
     }
 
     public List<ResponsavelResponse> listarTodos() {

@@ -3,14 +3,8 @@ package com.projetointegrador.diarioclasse.service;
 import com.projetointegrador.diarioclasse.dto.request.ObservacaoRequest;
 import com.projetointegrador.diarioclasse.dto.request.patchrequest.ObservacaoPatchRequest;
 import com.projetointegrador.diarioclasse.dto.response.ObservacaoResponse;
-import com.projetointegrador.diarioclasse.entity.Aluno;
-import com.projetointegrador.diarioclasse.entity.Disciplina;
-import com.projetointegrador.diarioclasse.entity.Observacao;
-import com.projetointegrador.diarioclasse.entity.Turma;
-import com.projetointegrador.diarioclasse.repository.AlunoRepository;
-import com.projetointegrador.diarioclasse.repository.DisciplinaRepository;
-import com.projetointegrador.diarioclasse.repository.ObservacaoRepository;
-import com.projetointegrador.diarioclasse.repository.TurmaRepository;
+import com.projetointegrador.diarioclasse.entity.*;
+import com.projetointegrador.diarioclasse.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +18,7 @@ public class ObservacaoService {
     private final AlunoRepository alunoRepository;
     private final DisciplinaRepository disciplinaRepository;
     private final TurmaRepository turmaRepository;
+    private final ProfessorRepository professorRepository;
 
     public ObservacaoResponse criar(ObservacaoRequest request) {
         Aluno aluno = alunoRepository.findById(request.alunoId())
@@ -32,6 +27,8 @@ public class ObservacaoService {
                 .orElseThrow(() -> new RuntimeException("Turma não encontrada"));
         Disciplina disciplina = disciplinaRepository.findById(request.disciplinaId())
                 .orElseThrow(() -> new RuntimeException("Disciplina não encontrada"));
+        Professor professor = professorRepository.findById(request.professorId())
+                .orElseThrow(() -> new RuntimeException("Professor não encontrado"));
 
         Observacao observacao = Observacao.builder()
                 .data(request.data())
@@ -40,6 +37,7 @@ public class ObservacaoService {
                 .aluno(aluno)
                 .turma(turma)
                 .disciplina(disciplina)
+                .professor(professor)
                 .build();
 
         observacaoRepository.save(observacao);
@@ -57,6 +55,9 @@ public class ObservacaoService {
                 .orElseThrow(() -> new RuntimeException("Turma não encontrada"));
         Disciplina disciplina = disciplinaRepository.findById(request.disciplinaId())
                 .orElseThrow(() -> new RuntimeException("Disciplina não encontrada"));
+        Professor professor = professorRepository.findById(request.professorId())
+                .orElseThrow(() -> new RuntimeException("Professor não encontrado"));
+
 
         observacao.setData(request.data());
         observacao.setDescricao(request.descricao());
@@ -64,6 +65,7 @@ public class ObservacaoService {
         observacao.setAluno(aluno);
         observacao.setTurma(turma);
         observacao.setDisciplina(disciplina);
+        observacao.setProfessor(professor);
 
         observacaoRepository.save(observacao);
         return toResponse(observacao);
@@ -90,6 +92,11 @@ public class ObservacaoService {
             Disciplina disciplina = disciplinaRepository.findById(request.disciplinaId())
                     .orElseThrow(() -> new RuntimeException("Disciplina não encontrada"));
             observacao.setDisciplina(disciplina);
+        }
+        if (request.professorId() != null) {
+            Professor professor = professorRepository.findById(request.professorId())
+                    .orElseThrow(() -> new RuntimeException("Professor não encontrado"));
+            observacao.setProfessor(professor);
         }
 
         observacaoRepository.save(observacao);
@@ -126,10 +133,14 @@ public class ObservacaoService {
                 obs.getData(),
                 obs.getDescricao(),
                 obs.getCategoria(),
-//                obs.getProfessor() != null ? obs.getProfessor().getId() : null,
+                obs.getProfessor() != null ? obs.getProfessor().getId() : null,
+                obs.getProfessor() != null ? obs.getProfessor().getNome() : null,
                 obs.getAluno() != null ? obs.getAluno().getId() : null,
+                obs.getAluno() != null ? obs.getAluno().getNome() : null,
                 obs.getTurma() != null ? obs.getTurma().getId() : null,
-                obs.getDisciplina() != null ? obs.getDisciplina().getId() : null
+                obs.getTurma() != null ? obs.getTurma().getNome() : null,
+                obs.getDisciplina() != null ? obs.getDisciplina().getId() : null,
+                obs.getDisciplina() != null ? obs.getDisciplina().getNome() : null
         );
     }
 }

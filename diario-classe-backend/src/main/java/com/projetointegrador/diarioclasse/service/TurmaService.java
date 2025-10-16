@@ -2,6 +2,7 @@ package com.projetointegrador.diarioclasse.service;
 
 import com.projetointegrador.diarioclasse.dto.request.TurmaRequest;
 import com.projetointegrador.diarioclasse.dto.request.patchrequest.TurmaPatchRequest;
+import com.projetointegrador.diarioclasse.dto.response.AvaliacaoResponse;
 import com.projetointegrador.diarioclasse.dto.response.TurmaResponse;
 import com.projetointegrador.diarioclasse.entity.Aluno;
 import com.projetointegrador.diarioclasse.entity.Disciplina;
@@ -108,6 +109,12 @@ public class TurmaService {
         return turmaRepository.findById(id)
                 .map(this::toResponse)
                 .orElseThrow(() -> new RuntimeException("Turma não encontrada"));
+    }
+
+    public List<TurmaResponse> buscarPorProfessorId(Long professorId) {
+        return turmaRepository.findByProfessorId(professorId).stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     public List<TurmaResponse> listarTodos() {

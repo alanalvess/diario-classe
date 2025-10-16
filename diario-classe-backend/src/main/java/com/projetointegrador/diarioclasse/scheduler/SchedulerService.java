@@ -26,9 +26,9 @@ public class SchedulerService {
     }
 
     // Roda todo dia às 7:00 AM
-    @Scheduled(cron = "0 0 7 * * *")
-    public void processarDiario() {
-        List<Aluno> alunos = alunoRepository.findAll();
+//    @Scheduled(cron = "0 0 7 * * *")
+//    public void processarDiario() {
+//        List<Aluno> alunos = alunoRepository.findAll();
 
         // 1️⃣ Atualizar dashboard
 //        double mediaTurma = dashboardService.calcularMediaTurma(alunos);
@@ -40,6 +40,19 @@ public class SchedulerService {
 
         // 3️⃣ Enviar alertas
 //        notificationService.enviarAlertas(predicoes);
+//    }
+
+    @Scheduled(cron = "0 0 8 * * *")
+    public void processarDiario() {
+        List<Aluno> alunos = alunoRepository.findAllWithResponsaveis();
+
+        if (alunos.isEmpty()) return;
+
+        List<Predicao> predicoes = analiseRiscoService.analisarTurma(alunos);
+
+        notificationService.enviarAlertas(predicoes);
+
+        System.out.println("✅ Análise de risco concluída e e-mails enviados.");
     }
 }
 

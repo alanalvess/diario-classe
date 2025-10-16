@@ -8,6 +8,7 @@ public record ObservacaoPatchRequest(
         String categoria,
         Long alunoId,
         Long turmaId,
-        Long disciplinaId
+        Long disciplinaId,
+        Long professorId
 ) {
 }

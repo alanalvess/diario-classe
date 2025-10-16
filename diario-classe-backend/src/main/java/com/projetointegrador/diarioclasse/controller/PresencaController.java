@@ -50,24 +50,6 @@ public class PresencaController {
         return ResponseEntity.noContent().build();
     }
 
-//    @PostMapping("/presenca/scan")
-//    public ResponseEntity<String> registrarPresencaQR(@RequestParam Long alunoId,
-//                                                      @RequestParam Long turmaId) {
-//        // Monta o request para o service
-//        PresencaRequest request = new PresencaRequest(
-//                LocalDate.now(),   // data da leitura
-//                true,              // aluno presente
-//                alunoId,
-//                turmaId,
-//                "QR_CODE"          // método de chamada
-//        );
-//
-//        // Chama o service existente
-//        presencaService.registrar(request);
-//
-//        return ResponseEntity.ok("✅ Presença registrada via QR Code!");
-//    }
-
     @PostMapping("/presenca/scan")
     public ResponseEntity<String> registrarPresencaQR(@RequestParam String qrData) {
         try {

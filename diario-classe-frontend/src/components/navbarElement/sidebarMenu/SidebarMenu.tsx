@@ -4,10 +4,10 @@ import {
   FaBook,
   FaChalkboardTeacher,
   FaChartBar,
-  FaChartLine,
+  FaChartLine, FaClipboardCheck,
   FaClipboardList,
   FaFileAlt,
-  FaGraduationCap,
+  FaGraduationCap, FaMedal, FaRegClipboard, FaTachometerAlt,
   FaUsers
 } from "react-icons/fa";
 import {Roles} from "../../../enums/Roles.ts";
@@ -35,13 +35,13 @@ export default function SidebarMenu() {
               {usuario.roles.includes(Roles.PROFESSOR) && (
                 <>
                   <Link to="/dashboardProfessor">
-                    <SidebarItem icon={FaGraduationCap}>Dashboard</SidebarItem>
+                    <SidebarItem icon={FaChartBar}>Dashboard</SidebarItem>
                   </Link>
                   <Link to="/presenca">
-                    <SidebarItem icon={FaClipboardList}>Presença / QR</SidebarItem>
+                    <SidebarItem icon={FaClipboardCheck}>Presença / QR</SidebarItem>
                   </Link>
                   <Link to="/notas">
-                    <SidebarItem icon={FaChartLine}>Notas</SidebarItem>
+                    <SidebarItem icon={FaClipboardList }>Notas</SidebarItem>
                   </Link>
                   <Link to="/observacoes">
                     <SidebarItem icon={FaNoteSticky}>Observações</SidebarItem>
@@ -64,17 +64,17 @@ export default function SidebarMenu() {
                   <Link to="/turmas">
                     <SidebarItem icon={FaUsers}>Turmas</SidebarItem>
                   </Link>
-                  <Link to="disciplinas">
+                  <Link to="/disciplinas">
                     <SidebarItem icon={FaBook}>Disciplinas</SidebarItem>
                   </Link>
-                  <Link to="dashboardCoordenacao">
+                  <Link to="/dashboardCoordenacao">
                     <SidebarItem icon={FaChartBar}>Dashboard</SidebarItem>
                   </Link>
-                  <Link to="relatorios">
+                  <Link to="/relatorios">
                     <SidebarItem icon={FaChartBar}>Relatórios</SidebarItem>
                   </Link>
-                  <Link to="alertas">
-                    <SidebarItem href="/alertas" icon={FaBell}>Alertas</SidebarItem>
+                  <Link to="/alertas">
+                    <SidebarItem icon={FaBell}>Alertas</SidebarItem>
                   </Link>
                 </>
               )}
@@ -82,11 +82,21 @@ export default function SidebarMenu() {
               {/* RESPONSÁVEL */}
               {usuario.roles.includes(Roles.RESPONSAVEL) && (
                 <>
-                  <SidebarItem href="/dashboard" icon={FaGraduationCap}>Dashboard</SidebarItem>
-                  <SidebarItem href="/notasAluno" icon={FaClipboardList}>Notas</SidebarItem>
-                  <SidebarItem href="/presencaAluno" icon={FaClipboardList}>Presença</SidebarItem>
-                  <SidebarItem href="/observacoesAluno" icon={FaClipboardList}>Observações</SidebarItem>
-                  <SidebarItem href="/alertas" icon={FaBell}>Alertas</SidebarItem>
+                  <Link to='/dashboardResponsavel'>
+                    <SidebarItem icon={FaChartBar}>Dashboard</SidebarItem>
+                  </Link>
+                  <Link to="/boletim">
+                    <SidebarItem icon={FaMedal}>Notas</SidebarItem>
+                  </Link>
+                  <Link to='/presencaAluno'>
+                    <SidebarItem icon={FaClipboardCheck}>Presença</SidebarItem>
+                  </Link>
+                  <Link to='/observacoesAluno'>
+                    <SidebarItem icon={FaNoteSticky}>Observações</SidebarItem>
+                  </Link>
+                  <Link to='/alertas'>
+                    <SidebarItem icon={FaBell}>Alertas</SidebarItem>
+                  </Link>
                 </>
               )}
             </SidebarItemGroup>

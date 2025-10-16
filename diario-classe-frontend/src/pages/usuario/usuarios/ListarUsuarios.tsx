@@ -14,7 +14,7 @@ import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {buscar} from "../../../services/Service.ts";
 import type {Usuario} from "../../../models"
 import {useAuth} from "../../../contexts/UseAuth.ts";
-import {FaEdit, FaPlus, FaSearch, FaTrash} from "react-icons/fa";
+import {FaEdit, FaPlus, FaSearch, FaTrash, FaTrashAlt} from "react-icons/fa";
 import Cadastro from "../cadastro/Cadastro.tsx";
 import EditarUsuario from "../editarUsuario/EditarUsuario.tsx";
 import DeletarUsuario from "../deletarUsuario/DeletarUsuario.tsx";
@@ -124,26 +124,30 @@ function ListarUsuarios() {
                         ))}
                       </TableCell>
                       <TableCell className="flex gap-2">
-                        <Button
-                          color="info"
-                          size="xs"
-                          onClick={() => {
-                            setUsuarioSelecionado(u);
-                            setModalEdicao(true);
-                          }}
-                        >
-                          <FaEdit/>
-                        </Button>
-                        <Button
-                          color="failure"
-                          size="xs"
-                          onClick={() => {
-                            setUsuarioSelecionado(u);
-                            setModalExclusao(true);
-                          }}
-                        >
-                          <FaTrash/>
-                        </Button>
+                        <div className='flex flex-row gap-4'>
+
+
+                          <Button
+                            color="info"
+                            size="xs"
+                            onClick={() => {
+                              setUsuarioSelecionado(u);
+                              setModalEdicao(true);
+                            }}
+                          >
+                            <FaEdit size={20}/>
+                          </Button>
+                          <Button
+                            color="failure"
+                            size="xs"
+                            onClick={() => {
+                              setUsuarioSelecionado(u);
+                              setModalExclusao(true);
+                            }}
+                          >
+                            <FaTrashAlt size={20}/>
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))

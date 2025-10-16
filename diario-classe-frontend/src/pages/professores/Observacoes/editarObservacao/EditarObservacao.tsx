@@ -3,7 +3,7 @@ import {Button, Modal, ModalBody, ModalHeader, Spinner} from "flowbite-react";
 
 import {atualizarAtributo, buscar} from "../../../../services/Service";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta";
-import type {Aluno, Disciplina, Observacao, Turma} from "../../../../models"
+import type {Aluno, Disciplina, Observacao, Professor, Turma} from "../../../../models"
 
 import InputField from "../../../../components/form/InputField.tsx";
 import {useAuth} from "../../../../contexts/UseAuth.ts";
@@ -34,6 +34,28 @@ function EditarObservacao({
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [alunos, setAlunos] = useState<Aluno[]>([]);
+
+  const [professor, setProfessor] = useState<Professor>();
+
+  async function buscarProfessorPorEmail() {
+    try {
+      await buscar(`/professores/email/${usuario.email}`, setProfessor, {
+        headers: {
+          Authorization: `Bearer ${usuario.token}`,
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (err) {
+      console.log(err);
+      // ToastAlerta("Você não tem turmas", Toast.Error)
+    }
+  }
+
+  useEffect(() => {
+    if (usuario?.email) {
+      buscarProfessorPorEmail();
+    }
+  }, [usuario?.email]);
 
   async function editarObservacao(e: ChangeEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -116,6 +138,7 @@ function EditarObservacao({
       buscarTurmas();
       buscarDisciplinas();
       buscarAlunos();
+      buscarProfessorPorEmail()
     }
   }, [open]);
 
@@ -212,7 +235,7 @@ function EditarObservacao({
                   onChange={atualizarEstado}
                 />
 
-                <Button type="submit">
+                <Button type="submit" disabled={!professor}>
                   {isLoading ? <Spinner aria-label="Carregando"/> : <span>Salvar Alterações</span>}
                 </Button>
               </form>

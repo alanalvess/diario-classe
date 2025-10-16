@@ -2,12 +2,13 @@ import React, {useEffect, useState} from "react";
 import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
 import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
-import type {Aluno, Disciplina, Observacao, Turma} from "../../../models";
+import type {Aluno, Disciplina, Observacao, Professor, Turma} from "../../../models";
 import {RotatingLines} from "react-loader-spinner";
 import {CategoriaObservacao} from "../../../enums/CategoriaObservacao.ts";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import EditarObservacao from "./editarObservacao/EditarObservacao.tsx";
 import {FaEdit, FaTrashAlt} from "react-icons/fa";
+import {CategoriasAgrupadas} from "../../../utils/CategoriasAgrupadas.ts";
 
 export default function RegistroObservacoesPage() {
   const {usuario, isHydrated, isAuthenticated} = useAuth();
@@ -28,6 +29,28 @@ export default function RegistroObservacoesPage() {
 
   const [modalEditarObservacao, setModalEditarObservacao] = useState(false);
   const [observacaoSelecionada, setObservacaoSelecionada] = useState<Observacao | null>(null);
+  const [professor, setProfessor] = useState<Professor>();
+
+  async function buscarProfessorPorEmail() {
+    try {
+      await buscar(`/professores/email/${usuario.email}`, setProfessor, {
+        headers: {
+          Authorization: `Bearer ${usuario.token}`,
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (err) {
+      console.log(err);
+      ToastAlerta("Não há turmas cadastradas para este professor", Toast.Error)
+    }
+  }
+
+  useEffect(() => {
+    if (usuario?.email) {
+      buscarProfessorPorEmail();
+    }
+  }, [usuario?.email]);
+
 
   async function buscarObservacoes() {
     try {
@@ -43,7 +66,7 @@ export default function RegistroObservacoesPage() {
   // 🔹 Buscar turmas do professor
   useEffect(() => {
     if (isHydrated && isAuthenticated) {
-      buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+      buscar(`/turmas`, setTurmas, {headers: {Authorization: `Bearer ${usuario.token}`}});
     }
   }, [isHydrated, isAuthenticated]);
 
@@ -76,13 +99,35 @@ export default function RegistroObservacoesPage() {
   }, [turmaSelecionada, disciplinaSelecionada, alunoSelecionado, isAuthenticated]);
 
   // 🔹 Salvar nova observação
+  // async function salvarObservacao() {
+  //   if (!alunoSelecionado || !turmaSelecionada || !disciplinaSelecionada) return;
+  //
+  //   const body = {
+  //     alunoId: alunoSelecionado,
+  //     turmaId: turmaSelecionada,
+  //     disciplinaId: disciplinaSelecionada,
+  //     professorId: professor.id,
+  //     descricao,
+  //     categoria,
+  //     data,
+  //   };
+
   async function salvarObservacao() {
-    if (!alunoSelecionado || !turmaSelecionada || !disciplinaSelecionada) return;
+    if (!alunoSelecionado || !turmaSelecionada || !disciplinaSelecionada) {
+      ToastAlerta("Preencha todos os campos obrigatórios", Toast.Warning);
+      return;
+    }
+
+    if (!professor?.id) {
+      ToastAlerta("Professor ainda não carregado", Toast.Warning);
+      return;
+    }
 
     const body = {
       alunoId: alunoSelecionado,
       turmaId: turmaSelecionada,
       disciplinaId: disciplinaSelecionada,
+      professorId: professor.id, // ✅ garante que existe
       descricao,
       categoria,
       data,
@@ -161,17 +206,26 @@ export default function RegistroObservacoesPage() {
           className="border rounded p-2 w-full bg-white dark:bg-gray-800 dark:text-gray-200"
         >
           <option value="">Selecione uma categoria</option>
-          {Object.values(CategoriaObservacao).map((valor) => (
-            <option key={valor} value={valor}>
-              {valor.charAt(0) + valor.slice(1).toLowerCase()}
-            </option>
+
+          {Object.entries(CategoriasAgrupadas).map(([grupo, categorias]) => (
+            <optgroup key={grupo} label={grupo}>
+              {categorias.map((valor) => (
+                <option key={valor} value={valor}>
+                  {valor.charAt(0) + valor.slice(1).toLowerCase().replaceAll("_", " ")}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
+
 
         <textarea placeholder="Descrição" value={descricao} onChange={e => setDescricao(e.target.value)}
                   className="border rounded p-2"/>
 
-        <Button onClick={salvarObservacao}>
+        <Button
+          onClick={salvarObservacao}
+          disabled={!professor || isLoading}
+        >
           {isLoading ?
             <RotatingLines
               strokeColor="white"

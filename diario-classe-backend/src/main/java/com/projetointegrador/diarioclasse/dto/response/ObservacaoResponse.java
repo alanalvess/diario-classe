@@ -10,9 +10,13 @@ public record ObservacaoResponse(
         LocalDate data,
         String descricao,
         String categoria,
-//        Long professorId,
+        Long professorId,
+        String professorNome,
         Long alunoId,
+        String alunoNome,
         Long turmaId,
-        Long disciplinaId
+        String turmaNome,
+        Long disciplinaId,
+        String disciplinaNome
 ) {
 }

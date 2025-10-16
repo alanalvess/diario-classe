@@ -23,9 +23,9 @@ public class Observacao {
     private String descricao;
     private String categoria;
 
-//    @ManyToOne
-//    @JoinColumn(name = "professor_id", nullable = false)
-//    private Professor professor;
+    @ManyToOne
+    @JoinColumn(name = "professor_id", nullable = false)
+    private Professor professor;
 
     @ManyToOne
     @JoinColumn(name = "aluno_id", nullable = false)

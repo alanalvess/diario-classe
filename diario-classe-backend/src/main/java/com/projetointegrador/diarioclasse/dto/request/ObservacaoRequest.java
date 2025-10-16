@@ -11,6 +11,7 @@ public record ObservacaoRequest(
         String categoria,
         Long alunoId,
         Long turmaId,
-        Long disciplinaId
+        Long disciplinaId,
+        long professorId
 ) {
 }
