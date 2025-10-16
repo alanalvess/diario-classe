@@ -42,41 +42,6 @@ export default function RelatoriosPage() {
     buscar(`/disciplinas/turma/${filtros.turmaId}`, setDisciplinas, {headers: {Authorization: `Bearer ${usuario.token}`}});
   }, [filtros.turmaId, isAuthenticated, isHydrated]);
 
-  // // 🔹 Gerar relatório PDF ou Excel
-  // async function gerarRelatorio(tipo: "pdf" | "xlsx") {
-  //   try {
-  //     const query = new URLSearchParams({
-  //       tipo,
-  //       ...(filtros.turmaId ? {turmaId: filtros.turmaId.toString()} : {}),
-  //       ...(filtros.disciplinaId ? {disciplinaId: filtros.disciplinaId.toString()} : {}),
-  //     });
-  //
-  //     const response = await fetch(`http://localhost:8080/relatorios?${query.toString()}`, {
-  //       headers: {Authorization: `Bearer ${usuario.token}`},
-  //     });
-  //
-  //     if (!response.ok) throw new Error("Erro ao gerar relatório");
-  //
-  //     const blob = await response.blob();
-  //     const url = window.URL.createObjectURL(blob);
-  //     const a = document.createElement("a");
-  //     a.href = url;
-  //     a.download = `relatorio.${tipo}`;
-  //     document.body.appendChild(a);
-  //     a.click();
-  //     a.remove();
-  //     window.URL.revokeObjectURL(url);
-  //
-  //     ToastAlerta("✅ Relatório gerado", Toast.Success);
-  //   } catch (error) {
-  //     if (error instanceof Error) {
-  //       ToastAlerta("Erro ao gerar relatório", Toast.Error);
-  //     }
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // }
-
   async function gerarRelatorio(tipo: "pdf" | "xlsx") {
     try {
       setIsLoading(true);

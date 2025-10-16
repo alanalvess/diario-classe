@@ -4,14 +4,10 @@ import {CiCalculator2} from "react-icons/ci";
 import {Calculadora} from "../calculadora/Calculadora.tsx";
 import {useState} from "react";
 import {Link} from "react-router-dom";
-import {useAuth} from "../../contexts/UseAuth.ts";
-import {Roles} from "../../enums/Roles.ts";
 
 function FooterElement() {
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
-
-  const {usuario} = useAuth();
 
   return (
     <Footer container className='rounded-none bg-gray-300 w-full overflow-x-auto'>
@@ -20,10 +16,6 @@ function FooterElement() {
           <FooterLinkGroup className="flex flex-col sm:flex-row gap-4 sm:gap-10">
             <Link to='/duvidas'>Dúvidas e Tutoriais</Link>
             <Link to='/sobre'>Sobre o Dia A+</Link>
-            {usuario?.roles?.includes(Roles.COORDENADOR) ?
-              <Link to='/cadastro'>Cadastrar Usuário</Link> : null
-            }
-
           </FooterLinkGroup>
 
           <div

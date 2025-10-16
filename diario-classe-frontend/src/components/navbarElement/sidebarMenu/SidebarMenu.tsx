@@ -73,7 +73,7 @@ export default function SidebarMenu() {
                   <Link to="/relatorios">
                     <SidebarItem icon={FaChartBar}>Relatórios</SidebarItem>
                   </Link>
-                  <Link to="/alertas">
+                  <Link to="/alertasCoordenacao">
                     <SidebarItem icon={FaBell}>Alertas</SidebarItem>
                   </Link>
                 </>

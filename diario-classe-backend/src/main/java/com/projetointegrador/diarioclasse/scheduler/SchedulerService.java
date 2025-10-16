@@ -42,7 +42,7 @@ public class SchedulerService {
 //        notificationService.enviarAlertas(predicoes);
 //    }
 
-    @Scheduled(cron = "0 0 8 * * *")
+    @Scheduled(cron = "0 17 9 * * *")
     public void processarDiario() {
         List<Aluno> alunos = alunoRepository.findAllWithResponsaveis();
 

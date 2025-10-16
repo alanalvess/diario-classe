@@ -69,7 +69,7 @@ export default function NotasPage() {
 
     async function carregarAlunos() {
       try {
-        await buscar(`http://localhost:8080/responsaveis/${responsavel.id}/alunos`, setAlunos, {
+        await buscar(`/responsaveis/${responsavel.id}/alunos`, setAlunos, {
           headers: {
             Authorization: `Bearer ${usuario.token}`,
             "Content-Type": "application/json",
@@ -89,7 +89,7 @@ export default function NotasPage() {
     async function carregarNotas() {
       setIsLoading(true);
       try {
-        await buscar(`http://localhost:8080/notas/aluno/${alunoSelecionado}`, setNotas, {
+        await buscar(`/notas/aluno/${alunoSelecionado}`, setNotas, {
           headers: {
             Authorization: `Bearer ${usuario.token}`,
             "Content-Type": "application/json",

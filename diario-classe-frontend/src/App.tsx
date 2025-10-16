@@ -31,6 +31,8 @@ import NotasPage from "./pages/responsavel/notasPage/NotasPage.tsx";
 import PresencaPage from "./pages/responsavel/presencaPage/PresencaPage.tsx";
 import ObservacoesPage from "./pages/responsavel/observacaoPage/ObservacaoPage.tsx";
 import DashboardResponsavelPage from "./pages/responsavel/dashboardResponsavel/DashboardResponsavel.tsx";
+import AlertasPage from "./pages/alertas/AlertasPage.tsx";
+import AlertasCoordenadorPage from "./pages/alertas/alertasCoordenador/AlertasCoordenadorPage.tsx";
 
 function App() {
 
@@ -68,6 +70,9 @@ function App() {
                 <Route path='/presencaAluno' element={<PresencaPage/>}/>
                 <Route path='/observacoesAluno' element={<ObservacoesPage/>}/>
                 <Route path='/dashboardResponsavel' element={<DashboardResponsavelPage/>}/>
+
+                <Route path='/alertas' element={<AlertasPage/>}/>
+                <Route path='/alertasCoordenacao' element={<AlertasCoordenadorPage/>}/>
 
 
                 <Route path='/login' element={<Login/>}/>
