@@ -125,7 +125,7 @@ export default function AlertasPage() {
             <TableBody>
               {alertas.map((a) => (
                 <TableRow key={a.id}>
-                  <TableCell>{a.aluno?.nome}</TableCell>
+                  <TableCell>{a.alunoNome}</TableCell>
                   <TableCell>
                     <Badge color={a.riscoReprovacao ? "failure" : "success"}>
                       {a.riscoReprovacao ? "Sim" : "Não"}
