@@ -3,7 +3,7 @@ export interface Nota {
   alunoId: number;
   alunoNome: string;
   disciplinaId: number;
-  disciplinaNome: string;
+  disciplinaNome?: string;
   valor: number;
   observacao?: string;
   avaliacaoId?: number;
