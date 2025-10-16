@@ -83,7 +83,7 @@ export default function AlertasPage() {
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
       <Card className="p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-            📢 Alertas Acadêmicos
+          📢 Alertas Acadêmicos
         </h2>
         <p className="text-gray-600 dark:text-gray-400 mt-2">
           Veja os registros feitos pelos professores ao longo do período letivo.
@@ -144,7 +144,17 @@ export default function AlertasPage() {
                   </TableCell>
                   <TableCell>{new Date(a.dataGeracao).toLocaleDateString("pt-BR")}</TableCell>
                   <TableCell>
-                    <Badge color={a.status === "ATIVO" ? "warning" : "success"}>{a.status}</Badge>
+                    <Badge
+                      color={
+                        a.status === "ATIVO"
+                          ? "warning"
+                          : a.status === "REVISADO"
+                            ? "info"
+                            : "success"
+                      }
+                    >
+                      {a.status}
+                    </Badge>
                   </TableCell>
                 </TableRow>
               ))}

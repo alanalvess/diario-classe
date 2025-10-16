@@ -3,8 +3,9 @@ import {Badge, Card, Spinner, Table, TableBody, TableCell, TableHead, TableHeadC
 import type {Alerta} from "../../../models/Alerta.ts";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import type {Aluno} from "../../../models";
-import {buscar} from "../../../services/Service.ts";
+import {atualizarAtributo, buscar} from "../../../services/Service.ts";
 import SelectField from "../../../components/form/SelectField.tsx";
+import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 
 export default function AlertasCoordenadorPage() {
   const [alertas, setAlertas] = useState<Alerta[]>([]);
@@ -53,6 +54,29 @@ export default function AlertasCoordenadorPage() {
     }
   }
 
+  async function atualizarStatus(id: number, novoStatus: string) {
+    try {
+      await atualizarAtributo(
+        `/alertas/${id}/status?status=${novoStatus}`,
+        {}, // não precisa enviar body
+        (alertaAtualizado: Alerta) =>
+          setAlertas(
+            prev => prev.map(a => (a.id === id ? alertaAtualizado : a))
+          ), {
+          headers: {
+            Authorization: `Bearer ${usuario.token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      ToastAlerta(`✅ Alerta atualizado para ${novoStatus}`, Toast.Success);
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
+      ToastAlerta("Erro ao atualizar status do alerta", Toast.Error);
+    }
+  }
+
   useEffect(() => {
     if (!isAuthenticated) return;
     buscarAlertas();
@@ -70,7 +94,7 @@ export default function AlertasCoordenadorPage() {
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
       <Card className="p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-            📢 Alertas Acadêmicos
+          📢 Alertas Acadêmicos
         </h2>
         <p className="text-gray-600 dark:text-gray-400 mt-2">
           Veja os alertas de risco acadêmico emitidos ao longo do período letivo.
@@ -109,33 +133,61 @@ export default function AlertasCoordenadorPage() {
               <TableHeadCell>Data</TableHeadCell>
               <TableHeadCell>Status</TableHeadCell>
             </TableHead>
+
             <TableBody>
               {alertas.map((a) => (
                 <TableRow key={a.id}>
                   <TableCell>{a.alunoNome}</TableCell>
+
                   <TableCell>
                     <Badge color={a.riscoReprovacao ? "failure" : "success"}>
                       {a.riscoReprovacao ? "Sim" : "Não"}
                     </Badge>
                   </TableCell>
+
                   <TableCell>
                     <Badge color={a.riscoEvasao ? "failure" : "success"}>
                       {a.riscoEvasao ? "Sim" : "Não"}
                     </Badge>
                   </TableCell>
+
                   <TableCell>
                     <span className={corDoScore(a.scoreRisco ?? 0)}>
                       {a.scoreRisco != null ? a.scoreRisco.toFixed(2) : "-"}
                     </span>
-
                   </TableCell>
+
                   <TableCell>{new Date(a.dataGeracao).toLocaleDateString("pt-BR")}</TableCell>
-                  <TableCell>
-                    <Badge color={a.status === "ATIVO" ? "warning" : "success"}>{a.status}</Badge>
+
+                  <TableCell className="flex items-center gap-3">
+                    {/* Dropdown para mudar status */}
+                    <select
+                      className="border border-gray-300 text-sm rounded-md px-2 py-1 bg-white cursor-pointer"
+                      value={a.status}
+                      onChange={(e) => atualizarStatus(a.id, e.target.value)}
+                    >
+                      <option value="ATIVO">Ativo</option>
+                      <option value="REVISADO">Revisado</option>
+                      <option value="RESOLVIDO">Resolvido</option>
+                    </select>
+                    {/* Badge colorida por status */}
+                    <Badge
+                      color={
+                        a.status === "ATIVO"
+                          ? "warning"
+                          : a.status === "REVISADO"
+                            ? "info"
+                            : "success"
+                      }
+                    >
+                      {a.status}
+                    </Badge>
+
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
+
           </Table>
         )}
       </Card>

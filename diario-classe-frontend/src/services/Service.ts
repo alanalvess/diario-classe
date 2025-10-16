@@ -1,5 +1,4 @@
 import axios from 'axios'
-import type {Alerta} from "../models/Alerta.ts";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL
