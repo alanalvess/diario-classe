@@ -46,6 +46,9 @@ export default function SidebarMenu() {
                   <Link to="/observacoes">
                     <SidebarItem icon={FaNoteSticky}>Observações</SidebarItem>
                   </Link>
+                  <Link to="/relatoriosProfessor">
+                    <SidebarItem icon={FaChartBar}>Relatórios</SidebarItem>
+                  </Link>
                   <Link to="/avaliacoes">
                     <SidebarItem icon={FaFileAlt}>Avaliações</SidebarItem>
                   </Link>

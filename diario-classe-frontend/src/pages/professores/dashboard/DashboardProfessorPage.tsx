@@ -168,7 +168,7 @@ export default function DashboardProfessorPage() {
       </div>
 
       {/* Gráficos */}
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <Card>
           <h2 className="font-bold mb-2">Evolução de Notas ao Longo do Tempo</h2>
           <Line data={evolucaoData}/>
@@ -176,7 +176,7 @@ export default function DashboardProfessorPage() {
 
       </div>
 
-      <div className="p-6 pt-28 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="pt-28 grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <h2 className="font-bold mb-2">Observações por Categoria</h2>
           <Pie data={observacoesData}/>

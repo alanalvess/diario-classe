@@ -15,6 +15,10 @@ public interface AlertaRepository extends JpaRepository<Alerta, Long> {
     List<Alerta> findByStatus(StatusAlerta status);
 
     Collection<Alerta> findByAluno(Aluno aluno);
+
+    List<Alerta> findByAlunoIdAndStatus(Long id, StatusAlerta statusAlerta);
+
+    List<Alerta> findByAlunoTurmaId(Long turmaId);
 }
 
 

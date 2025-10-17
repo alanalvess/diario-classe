@@ -12,7 +12,7 @@ import ProfessoresPage from "./pages/coordenacao/Professores/ProfessoresPage.tsx
 import AlunosPage from "./pages/coordenacao/alunos/AlunosPage.tsx";
 import DisciplinasPage from "./pages/coordenacao/disciplinas/DisciplinasPage.tsx";
 import DashboardCoordenacaoPage from "./pages/coordenacao/dashboard/DashboardCoordenacao.tsx";
-import RelatoriosPage from "./pages/coordenacao/relatorios/RelatoriosPage.tsx";
+import RelatoriosCoordenacao from "./pages/coordenacao/relatorios/RelatoriosCoordenacao.tsx";
 import Login from "./pages/login/Login.tsx";
 // import Cadastro from "./pages/usuario/cadastro/Cadastro.tsx";
 import FormularioUsuario from "./components/usuarios/formularioUsuario/FormularioUsuario.tsx";
@@ -33,6 +33,7 @@ import ObservacoesPage from "./pages/responsavel/observacaoPage/ObservacaoPage.t
 import DashboardResponsavelPage from "./pages/responsavel/dashboardResponsavel/DashboardResponsavel.tsx";
 import AlertasPage from "./pages/alertas/AlertasPage.tsx";
 import AlertasCoordenadorPage from "./pages/alertas/alertasCoordenador/AlertasCoordenadorPage.tsx";
+import RelatoriosProfessor from "./pages/professores/relatorios/RelatoriosProfessor.tsx";
 
 function App() {
 
@@ -58,13 +59,14 @@ function App() {
                 <Route path='/avaliacoes' element={<AvaliacoesPage/>}/>
                 <Route path='/observacoes' element={<RegistroObservacoesPage/>}/>
                 <Route path='/dashboardProfessor' element={<DashboardProfessorPage/>}/>
+                <Route path='/relatoriosProfessor' element={<RelatoriosProfessor/>}/>
 
                 <Route path='/turmas' element={<TurmasPage/>}/>
                 <Route path='/professores' element={<ProfessoresPage/>}/>
                 <Route path='/alunos' element={<AlunosPage/>}/>
                 <Route path='/disciplinas' element={<DisciplinasPage/>}/>
                 <Route path='/dashboardCoordenacao' element={<DashboardCoordenacaoPage/>}/>
-                <Route path='/relatorios' element={<RelatoriosPage/>}/>
+                <Route path='/relatorios' element={<RelatoriosCoordenacao/>}/>
 
                 <Route path='/boletim' element={<NotasPage/>}/>
                 <Route path='/presencaAluno' element={<PresencaPage/>}/>
