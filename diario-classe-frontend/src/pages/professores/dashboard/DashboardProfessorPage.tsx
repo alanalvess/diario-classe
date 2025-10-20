@@ -1,6 +1,10 @@
-import {Card} from "flowbite-react";
+import {useAuth} from "../../../contexts/UseAuth.ts";
+import {useEffect, useState} from "react";
+import type {Aluno, Nota, Observacao, Presenca, Professor, Turma} from "../../../models";
+import {buscar} from "../../../services/Service.ts";
+import {Card, Select} from "flowbite-react";
+import {Bar, Line} from "react-chartjs-2";
 
-import {Bar, Line, Pie} from "react-chartjs-2";
 import {
   ArcElement,
   BarElement,
@@ -11,187 +15,440 @@ import {
   LineElement,
   PointElement,
   Title,
-  Tooltip,
+  Tooltip
 } from "chart.js";
-import {useAuth} from "../../../contexts/UseAuth.ts";
-import {useEffect, useState} from "react";
-import type {Observacao} from "../../../models";
-import {buscar} from "../../../services/Service.ts";
 
 ChartJS.register(
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  Legend,
+  LinearScale,
+  LineElement,
   Title,
   Tooltip,
-  Legend,
-  ArcElement,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
   PointElement
 );
 
+type EvolucaoBimestral = {
+  bimestre: number;
+  mediasPorDisciplina: Record<string, number>;
+};
+
 export default function DashboardProfessorPage() {
-
-  const {usuario, isAuthenticated} = useAuth();
-
+  const {usuario} = useAuth();
+  const [turmas, setTurmas] = useState<Turma[]>([]);
+  const [turmaSelecionada, setTurmaSelecionada] = useState<number | null>(null);
+  const [alunos, setAlunos] = useState<Aluno[]>([]);
+  const [notas, setNotas] = useState<Nota[]>([]);
+  const [presencas, setPresencas] = useState<Presenca[]>([]);
+  const [professor, setProfessor] = useState<Professor>();
   const [observacoes, setObservacoes] = useState<Observacao[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [evolucaoNotas, setEvolucaoNotas] = useState<EvolucaoBimestral[]>([]);
 
-  const categoriaMap: Record<string, string> = {
-    FALTA: "Falta",
-    INDISCIPLINA: "Indisciplina",
-    ATIVIDADE: "Atividade Pós-Classe",
-  };
+  const [mediaGeral, setMediaGeral] = useState<number>(0);
 
-  const totalObservacoes = observacoes.length;
 
-  const categoriasContagem = observacoes.reduce((acc: Record<string, number>, observacao) => {
-    const key = observacao.categoria || "Sem Categoria";
-    const friendlyKey = categoriaMap[key] || key; // converte para nome amigável
-    acc[friendlyKey] = (acc[friendlyKey] || 0) + 1;
-    return acc;
-  }, {});
+  const cores = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#A78BFA"];
 
-  const categoriasLabels = Object.keys(categoriasContagem);
-  const categoriasValores = Object.values(categoriasContagem);
 
-  async function carregarObservacoes() {
+  async function buscarProfessorPorEmail() {
     try {
-      await buscar("/observacoes", setObservacoes, {
-        headers: {Authorization: `Bearer ${usuario.token}`}
-      });
-    } catch (error) {
-      console.error("Erro ao buscar observações:", error);
-    } finally {
-      setIsLoading(false);
+      await buscar(`/professores/email/${usuario.email}`, setProfessor,
+        {headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}}
+      );
+    } catch (err) {
+      console.log(err);
     }
   }
 
-  useEffect(() => {
-    if (isAuthenticated && usuario?.token) {
-      carregarObservacoes();
+  async function buscarTurmasPorProfessor() {
+    try {
+      await buscar(`/turmas/professor/${professor.id}`, setTurmas,
+        {headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}}
+      )
+      ;
+    } catch (error) {
+      console.error("Erro ao carregar turmas do professor", error);
     }
-  }, [isAuthenticated]);
+  }
+
+  async function buscarAlunosPorTurma() {
+    try {
+      await buscar(`/alunos/turma/${turmaSelecionada}`, setAlunos,
+        {headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}}
+      );
+    } catch (error) {
+      console.error("Erro ao carregar turmas do professor", error);
+    }
+  }
+
+  async function buscarObservacoesPorTurma() {
+    try {
+      await buscar(`/observacoes/turma/${turmaSelecionada}`, setObservacoes,
+        {headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}}
+      );
+    } catch (error) {
+      console.error("Erro ao carregar turmas do professor", error);
+    }
+  }
+
+  async function buscarPresencasPorTurma() {
+    try {
+      await buscar(`/presencas/turma/${turmaSelecionada}`, setPresencas,
+        {headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}}
+      );
+    } catch (error) {
+      console.error("Erro ao carregar turmas do professor", error);
+    }
+  }
+
+  async function buscarMediasPorTurma() {
+    try {
+      await buscar(`/notas/turma/${turmaSelecionada}/media-por-disciplina`, setNotas,
+        {headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}}
+      );
+    } catch (error) {
+      console.error("Erro ao carregar turmas do professor", error);
+    }
+  }
+
+  async function buscarEvolucaoNotas() {
+    if (!turmaSelecionada) return;
+
+    try {
+      await buscar(
+        `/avaliacoes/turma/${turmaSelecionada}/evolucao-bimestral`,
+        setEvolucaoNotas,
+        {
+          headers: {
+            Authorization: `Bearer ${usuario.token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Erro ao carregar evolução de notas:", error);
+      setEvolucaoNotas([]); // evita que fique indefinido
+    }
+  }
+
+
+  useEffect(() => {
+    if (usuario?.email) {
+      buscarProfessorPorEmail();
+    }
+  }, [usuario?.email]);
+
+  useEffect(() => {
+    if (professor?.id) {
+      buscarTurmasPorProfessor();
+    }
+  }, [professor]);
+
+  useEffect(() => {
+    if (!turmaSelecionada) return;
+    setIsLoading(true);
+    Promise.all(
+      [
+        buscarAlunosPorTurma(),
+        buscarObservacoesPorTurma(),
+        buscarPresencasPorTurma(),
+        buscarMediasPorTurma(),
+        buscarEvolucaoNotas()
+          .then(() => calcularMediaGeral()),
+      ]
+    )
+      .catch((error) => console.error("Erro ao carregar dados da turma:", error))
+      .finally(() => setIsLoading(false));
+  }, [turmaSelecionada]);
+
+  const totalObservacoes = observacoes.length;
+  const totalAlunos = alunos.length;
+
+  // const medias = notas.map(n => n.valor).filter(v => v != null);
+  // const mediaGeral = medias.length > 0
+  //   ? (medias.reduce((a, b) => a + b, 0) / medias.length).toFixed(1)
+  //   : 0.0;
+
+  const feriados: string[] = ["2025-01-01"];
+
+  function gerarDiasLetivosDoMes(ano: number, mes: number) {
+    const dias: string[] = [];
+    const hoje = new Date();
+    const ultimoDia = new Date(ano, mes, 0).getDate();
+    for (let dia = 1; dia <= ultimoDia; dia++) {
+      const data = new Date(ano, mes - 1, dia);
+      const dataStr = `${ano}-${String(mes).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+      const diaSemana = data.getDay();
+      const fimDeSemana = diaSemana === 0 || diaSemana === 6;
+      const ehFeriado = feriados.includes(dataStr);
+
+      if (!fimDeSemana && !ehFeriado && data <= hoje) {
+        dias.push(dataStr);
+      }
+    }
+    return dias;
+  }
+
+  function calcularFrequenciaPorAluno(presencasList: Presenca[]) {
+    const agora = new Date();
+    const diasLetivos = gerarDiasLetivosDoMes(agora.getFullYear(), agora.getMonth() + 1);
+    const totalDiasLetivos = diasLetivos.length;
+    const mapa = new Map<number, number>();
+
+    for (const p of presencasList) {
+      const alunoId = p.alunoId ?? p.alunoId;
+      if (!alunoId || !p.data) continue;
+      if (diasLetivos.includes(p.data) && p.presente === true) {
+        mapa.set(alunoId, (mapa.get(alunoId) ?? 0) + 1);
+      }
+    }
+    const resultado = new Map<number, number>();
+    for (const [alunoId, presencas] of mapa.entries()) {
+      const freq = totalDiasLetivos > 0 ? (presencas / totalDiasLetivos) * 100 : 0;
+      resultado.set(alunoId, Number(freq.toFixed(1)));
+    }
+    return resultado;
+  }
+
+  function gerarSemanasDoMes(mesAno: string): { inicio: string, fim: string }[] {
+    const [ano, mes] = mesAno.split("-").map(Number);
+    const semanas: { inicio: string, fim: string }[] = [];
+
+    const primeiroDiaMes = new Date(ano, mes - 1, 1);
+    const ultimoDiaMes = new Date(ano, mes, 0);
+
+    // Garante que a primeira semana comece no domingo anterior
+    const inicioSemana = new Date(primeiroDiaMes);
+    inicioSemana.setDate(inicioSemana.getDate() - inicioSemana.getDay());
+
+    while (inicioSemana <= ultimoDiaMes) {
+      const fimSemana = new Date(inicioSemana);
+      fimSemana.setDate(fimSemana.getDate() + 6);
+
+      const inicioStr = inicioSemana.toLocaleDateString("en-CA");
+      const fimStr = fimSemana.toLocaleDateString("en-CA");
+
+      semanas.push({inicio: inicioStr, fim: fimStr});
+      inicioSemana.setDate(inicioSemana.getDate() + 7);
+    }
+
+    return semanas;
+  }
+
+
+  const mesAno = new Date().toISOString().slice(0, 7);
+  // const mesAno = "2025-07";
+
+  const semanas = gerarSemanasDoMes(mesAno);
+  const dadosSemana = contarPresencasEFaltasPorSemana(presencas, semanas, feriados, alunos);
+
+  function contarPresencasEFaltasPorSemana(
+    presencas: Presenca[],
+    semanas: { inicio: string, fim: string }[],
+    feriados: string[],
+    alunos: Aluno[]
+  ) {
+    const mesAtual = new Date().getMonth() + 1;
+    // const mesAtual = Number(mesAno.split("-")[1]);
+
+    return semanas.map(semana => {
+      const inicio = new Date(semana.inicio);
+      const fim = new Date(semana.fim);
+
+      const diasUteis: string[] = [];
+
+      for (let d = new Date(inicio); d <= fim; d.setDate(d.getDate() + 1)) {
+        const diaSemana = d.getDay();
+        const dataStr = d.toLocaleDateString("en-CA");
+        const isFimDeSemana = diaSemana === 0 || diaSemana === 6;
+        const isFeriado = feriados.includes(dataStr);
+        const mesDoDia = d.getMonth() + 1;
+
+        // ✅ filtra apenas dias úteis dentro do mês atual
+        if (!isFimDeSemana && !isFeriado && mesDoDia === mesAtual) {
+          diasUteis.push(dataStr);
+        }
+      }
+
+      let presencasCount = 0;
+      let faltasCount = 0;
+
+      for (const dia of diasUteis) {
+        for (const aluno of alunos) {
+          const presente = presencas.some(
+            p => p.data === dia && p.alunoId === aluno.id && p.presente
+          );
+          if (presente) presencasCount++;
+          else faltasCount++;
+        }
+      }
+
+      return {presencas: presencasCount, faltas: faltasCount};
+    });
+  }
+
+  function calcularMediaGeral() {
+    if (!evolucaoNotas || evolucaoNotas.length === 0) {
+      setMediaGeral(0);
+      return;
+    }
+
+    let somaNotas = 0;
+    let totalNotas = 0;
+
+    // percorre cada bimestre
+    evolucaoNotas.forEach((bimestre) => {
+      const notas = Object.values(bimestre.mediasPorDisciplina ?? {});
+      notas.forEach((nota) => {
+        somaNotas += nota;
+        totalNotas++;
+      });
+    });
+
+    const media = totalNotas > 0 ? somaNotas / totalNotas : 0;
+    setMediaGeral(Number(media.toFixed(1)));
+  }
+
 
   const presencasData = {
-    labels: ["Jan", "Fev", "Mar", "Abr", "Mai"],
-    datasets: [
-      {
-        label: "Presenças",
-        data: [28, 26, 29, 30, 27],
-        borderColor: "#22c55e",
-        backgroundColor: "rgba(34,197,94,0.2)",
-      },
-      {
-        label: "Faltas",
-        data: [2, 4, 1, 0, 3],
-        borderColor: "#ef4444",
-        backgroundColor: "rgba(239,68,68,0.2)",
-      },
-    ],
-  };
-
-  const observacoesData = {
-    labels: categoriasLabels,
-    datasets: [
-      {
-        label: "Observações",
-        data: categoriasValores,
-        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#A78BFA"],
-      },
-    ],
+    labels: ["Semana1", "Semana2", "Semana3", "Semana4", "Semana5"],
+    datasets: [{
+      label: "Presenças",
+      data: dadosSemana.map(d => d.presencas),
+      borderColor: "#22c55e",
+      backgroundColor: "rgba(34, 197, 94, 0.2)",
+    }, {
+      label: "Faltas",
+      data: dadosSemana.map(d => d.faltas),
+      borderColor: "#ef4444",
+      backgroundColor: "rgba(239, 68, 68, 0.2)",
+    }]
   };
 
   const notasData = {
-    labels: ["Matemática", "Português", "História", "Ciências"],
-    datasets: [
-      {
-        label: "Média de Notas",
-        data: [7.8, 8.5, 6.9, 7.2],
-        backgroundColor: "#36A2EB",
-      },
-    ],
+    labels: notas.map(n => n.disciplinaNome),
+    datasets: [{
+      label: "Média por Disciplina",
+      data: notas.map(n => n.mediaTurma),
+      backgroundColor: "#36A2EB",
+      borderRadius: 6,
+    }]
   };
 
-  const freqData = {
-    labels: ["João", "Maria", "Pedro", "Ana", "Lucas"],
-    datasets: [
-      {
-        label: "Frequência (%)",
-        data: [95, 87, 92, 78, 88],
-        backgroundColor: "#FFCE56",
-      },
-    ],
+  const frequenciasPorAluno = calcularFrequenciaPorAluno(presencas);
+  const frequenciaData = {
+    labels: alunos.map(a => a.nome),
+    datasets: [{
+      label: "Frequência(%)",
+      data: alunos.map(a => frequenciasPorAluno.get(a.id) ?? 0),
+      backgroundColor: "#FFCE56",
+      borderRadius: 6,
+    }]
   };
+
+  const todasDisciplinas = Array.from(
+    new Set(
+      evolucaoNotas.flatMap(e =>
+        Object.keys(e.mediasPorDisciplina ?? {}) // garante que não seja undefined
+      )
+    )
+  );
 
   const evolucaoData = {
-    labels: ["Semana 1", "Semana 2", "Semana 3", "Semana 4", "Semana 5"],
-    datasets: [
-      {
-        label: "Média da Turma",
-        data: [7.2, 7.5, 7.8, 8.0, 7.9],
-        borderColor: "#FF6384",
-        backgroundColor: "#FF6384",
-        tension: 0.4,
-      },
-    ],
+    labels: evolucaoNotas.map(e => `Bimestre ${e.bimestre}`),
+    datasets: todasDisciplinas.map((disciplina, index) => ({
+      label: disciplina,
+      data: evolucaoNotas.map(e =>
+        e.mediasPorDisciplina && e.mediasPorDisciplina[disciplina] != null
+          ? Number(e.mediasPorDisciplina[disciplina])
+          : 0
+      ),
+      borderColor: cores[index % cores.length],
+      backgroundColor: "transparent",
+      tension: 0.4,
+    })),
   };
+
 
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10 space-y-6">
+      <Card className="p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100"> 📊 Dashboard do Professor </h2>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
+          Gere e baixe relatórios acadêmicos detalhados para análise e acompanhamento.
+        </p>
+      </Card>
 
-      <h1 className="text-2xl font-bold">📊 Dashboard do Professor</h1>
-
-      {/* Cards de resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="flex items-center gap-4 mb-4">
+        <Select
+          id="turma"
+          value={turmaSelecionada}
+          onChange={(e) => setTurmaSelecionada(Number(e.target.value))}
+          className="rounded-md my-4 w-full"
+        >
+          <option value="">
+            Selecione...
+          </option>
+          {turmas.map((t: Turma) => (<option key={t.id} value={t.id}> {t.nome} </option>))}
+        </Select>
+      </div>
+      <div className="grid grid-cols-1  md:grid-cols-3  gap-4">
         <Card>
           <h2 className="text-lg font-semibold">Alunos</h2>
-          <p className="text-3xl font-bold text-blue-600">32</p>
+          <p className="text-3xl font-bold text-blue-600">
+            {isLoading ? "..." : totalAlunos}
+          </p>
           <p className="text-sm text-gray-500">Total na turma</p>
         </Card>
-
         <Card>
           <h2 className="text-lg font-semibold">Média Geral</h2>
-          <p className="text-3xl font-bold text-green-600">7.6</p>
-          <p className="text-sm text-gray-500">Todas disciplinas</p>
+          <p className="text-3xl font-bold text-green-600">
+            {isLoading ? "..." : mediaGeral}
+          </p>
+          <p className="text-sm text-gray-500">Média de notas</p>
         </Card>
-
         <Card>
           <h2 className="text-lg font-semibold">Observações</h2>
           <p className="text-3xl font-bold text-red-600">
             {isLoading ? "..." : totalObservacoes}
-
           </p>
-          <p className="text-sm text-gray-500">Registradas</p>
+          <p className="text-sm text-gray-500">Registradas na turma</p>
         </Card>
       </div>
 
       {/* Gráficos */}
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <h2 className="font-bold mb-2">Evolução de Notas ao Longo do Tempo</h2>
-          <Line data={evolucaoData}/>
+          {evolucaoNotas.length > 0 ? (
+            <Line
+              data={evolucaoData}
+              options={{
+                responsive: true,
+                plugins: {legend: {position: "top"}},
+                scales: {y: {beginAtZero: true, max: 10}},
+              }}
+            />
+          ) : (
+            <p className="text-gray-500">Sem evolução de notas disponível.</p>
+          )}
+
+
         </Card>
-
-      </div>
-
-      <div className="pt-28 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <h2 className="font-bold mb-2">Observações por Categoria</h2>
-          <Pie data={observacoesData}/>
-        </Card>
-
         <Card>
           <h2 className="font-bold mb-2">Média de Notas por Disciplina</h2>
-          <Bar data={notasData} options={{indexAxis: "x"}}/>
+          <Bar
+            data={notasData}
+            options={{indexAxis: "x"}}/>
         </Card>
-
         <Card>
           <h2 className="font-bold mb-2">Frequência de Presença por Aluno</h2>
-          <Bar data={freqData} options={{indexAxis: "y"}}/>
+          <Bar data={frequenciaData} options={{indexAxis: "y"}}/>
         </Card>
-
         <Card>
           <h2 className="text-lg font-semibold mb-2">📅 Presenças e Faltas</h2>
           <Line data={presencasData}/>

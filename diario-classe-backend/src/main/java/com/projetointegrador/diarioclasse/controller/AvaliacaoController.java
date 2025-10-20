@@ -4,12 +4,14 @@ import com.projetointegrador.diarioclasse.dto.request.AvaliacaoRequest;
 import com.projetointegrador.diarioclasse.dto.request.ObservacaoRequest;
 import com.projetointegrador.diarioclasse.dto.request.patchrequest.ObservacaoPatchRequest;
 import com.projetointegrador.diarioclasse.dto.response.AvaliacaoResponse;
+import com.projetointegrador.diarioclasse.dto.response.EvolucaoBimestralResponse;
 import com.projetointegrador.diarioclasse.dto.response.ObservacaoResponse;
 import com.projetointegrador.diarioclasse.service.AvaliacaoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -54,6 +56,15 @@ public class AvaliacaoController {
     @PatchMapping("/{id}")
     public ResponseEntity<AvaliacaoResponse> patch(@PathVariable Long id, @RequestBody AvaliacaoRequest request) {
         return ResponseEntity.ok(avaliacaoService.patch(id, request));
+    }
+
+    @GetMapping("/turma/{turmaId}/evolucao-bimestral")
+    public ResponseEntity<List<EvolucaoBimestralResponse>> evolucaoBimestralTurma(@PathVariable Long turmaId) {
+        List<EvolucaoBimestralResponse> evolucao = avaliacaoService.getEvolucaoBimestralPorTurma(turmaId);
+        if (evolucao.isEmpty()) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+        return ResponseEntity.ok(evolucao);
     }
 }
 

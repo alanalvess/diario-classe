@@ -34,7 +34,6 @@ function FooterElement() {
         <div className="flex justify-center w-full">
           <Link to="/">
             <FooterCopyright
-              // href='/'
               by='Dia A+™'
               year={2025}
             />

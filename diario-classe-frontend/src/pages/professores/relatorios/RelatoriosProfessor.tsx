@@ -163,10 +163,10 @@ export default function RelatoriosProfessor() {
           Lista alunos com risco de reprovação ou evasão, baseado em alertas ativos.
         </p>
         <div className="flex gap-2">
-          <Button color="red" onClick={() => handleDownload("indicadores", "pdf")}>
+          <Button color="red" onClick={() => handleDownload("indicadores", "pdf")} disabled={!turmaSelecionada}>
             <FaFilePdf className="mr-2" /> PDF
           </Button>
-          <Button color="green" onClick={() => handleDownload("indicadores", "xlsx")}>
+          <Button color="green" onClick={() => handleDownload("indicadores", "xlsx")} disabled={!turmaSelecionada}>
             <FaFileExcel className="mr-2" /> Excel
           </Button>
         </div>

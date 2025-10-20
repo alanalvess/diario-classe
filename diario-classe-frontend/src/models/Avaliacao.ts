@@ -3,6 +3,7 @@ export interface Avaliacao {
   titulo: string;
   data: string;
   peso: number;
+  bimestre: number;
   turmaId: number;
   disciplinaId: number;
   media: number;

@@ -53,5 +53,10 @@ public class ObservacaoController {
     public ResponseEntity<List<ObservacaoResponse>> listarPorAluno(@PathVariable Long alunoId) {
         return ResponseEntity.ok(observacaoService.listarPorAluno(alunoId));
     }
+
+    @GetMapping("/turma/{turmaId}")
+    public ResponseEntity<List<ObservacaoResponse>> listarPorTurma(@PathVariable Long turmaId) {
+        return ResponseEntity.ok(observacaoService.listarPorTurma(turmaId));
+    }
 }
 

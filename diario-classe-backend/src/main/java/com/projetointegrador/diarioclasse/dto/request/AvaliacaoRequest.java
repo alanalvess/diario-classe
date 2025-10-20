@@ -11,6 +11,7 @@ public record AvaliacaoRequest(
         String titulo,
         LocalDate data,
         Double peso,
+        Integer bimestre,
         Long turmaId,
         Long disciplinaId
 ) {

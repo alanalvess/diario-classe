@@ -38,4 +38,5 @@ public class Presenca {
     // métodos utilitários
     public Boolean isPresente() {
         return Boolean.TRUE.equals(presente);
-    }}
+    }
+}

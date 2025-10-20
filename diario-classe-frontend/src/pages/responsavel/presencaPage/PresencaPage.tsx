@@ -194,15 +194,6 @@ export default function PresencaPage() {
 
             onChange={(e) => setPeriodo(e.target.value)}
           />
-          {/*<label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">*/}
-          {/*  Período*/}
-          {/*</label>*/}
-          {/*<input*/}
-          {/*  type="month"*/}
-          {/*  value={periodo}*/}
-          {/*  onChange={(e) => setPeriodo(e.target.value)}*/}
-          {/*  className="w-full border p-2 rounded"*/}
-          {/*/>*/}
         </div>
       </div>
 

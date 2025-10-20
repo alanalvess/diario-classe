@@ -6,7 +6,11 @@ export interface Observacao {
   categoria: CategoriaObservacao;
   descricao: string;
   alunoId: number;
+  alunoNome?: string;
   professorId: number;
+  professorNome?: string;
   turmaId: number;
+  turmaNome?: string;
   disciplinaId: number;
+  disciplinaNome?: string;
 }

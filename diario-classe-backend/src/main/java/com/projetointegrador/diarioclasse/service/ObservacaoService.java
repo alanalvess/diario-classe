@@ -2,6 +2,7 @@ package com.projetointegrador.diarioclasse.service;
 
 import com.projetointegrador.diarioclasse.dto.request.ObservacaoRequest;
 import com.projetointegrador.diarioclasse.dto.request.patchrequest.ObservacaoPatchRequest;
+import com.projetointegrador.diarioclasse.dto.response.DisciplinaResponse;
 import com.projetointegrador.diarioclasse.dto.response.ObservacaoResponse;
 import com.projetointegrador.diarioclasse.entity.*;
 import com.projetointegrador.diarioclasse.repository.*;
@@ -127,6 +128,28 @@ public class ObservacaoService {
                 .toList();
     }
 
+    public List<ObservacaoResponse> listarPorTurma(Long turmaId) {
+        Turma turma = turmaRepository.findById(turmaId)
+                .orElseThrow(() -> new RuntimeException("Turma não encontrada"));
+
+        return turma.getObservacoes().stream()
+                .map(o -> new ObservacaoResponse(
+                        o.getId(),
+                        o.getData(),
+                        o.getDescricao(),
+                        o.getCategoria(),
+                        o.getProfessor().getId(),
+                        o.getProfessor().getNome(),
+                        o.getAluno().getId(),
+                        o.getAluno().getNome(),
+                        o.getTurma().getId(),
+                        o.getTurma().getNome(),
+                        o.getDisciplina().getId(),
+                        o.getDisciplina().getNome()
+                ))
+                .toList();
+    }
+
     private ObservacaoResponse toResponse(Observacao obs) {
         return new ObservacaoResponse(
                 obs.getId(),
@@ -143,4 +166,5 @@ public class ObservacaoService {
                 obs.getDisciplina() != null ? obs.getDisciplina().getNome() : null
         );
     }
+
 }

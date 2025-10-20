@@ -9,4 +9,5 @@ export interface Nota {
   avaliacaoId?: number;
   avaliacaoTitulo?: string;
   dataLancamento?: string;
+  mediaTurma?: string;
 }

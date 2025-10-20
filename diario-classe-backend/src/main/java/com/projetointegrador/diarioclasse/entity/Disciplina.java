@@ -40,7 +40,12 @@ public class Disciplina {
 
     public Double calcularMediaDisciplina(Turma turma) {
         if (avaliacoes == null || avaliacoes.isEmpty()) return 0.0;
-        return avaliacoes.stream().filter(a -> a.getTurma().equals(turma)).flatMap(a -> a.getNotas().stream()).mapToDouble(Nota::getValor).average().orElse(0.0);
+        return avaliacoes.stream()
+                .filter(a -> a.getTurma().equals(turma))
+                .flatMap(a -> a.getNotas().stream())
+                .mapToDouble(Nota::getValor)
+                .average()
+                .orElse(0.0);
     }
 
     public List<Aluno> listarAlunos(Turma turma) {

@@ -1,12 +1,15 @@
 package com.projetointegrador.diarioclasse.controller;
 
 import com.projetointegrador.diarioclasse.dto.request.NotaRequest;
+import com.projetointegrador.diarioclasse.dto.response.EvolucaoBimestralResponse;
+import com.projetointegrador.diarioclasse.dto.response.MediaDisciplinaResponse;
 import com.projetointegrador.diarioclasse.dto.response.NotaResponse;
+import com.projetointegrador.diarioclasse.service.AvaliacaoService;
 import com.projetointegrador.diarioclasse.service.NotaService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -15,9 +18,11 @@ import java.util.List;
 public class NotaController {
 
     private final NotaService notaService;
+    private final AvaliacaoService avaliacaoService;
 
-    public NotaController(NotaService notaService) {
+    public NotaController(NotaService notaService, AvaliacaoService avaliacaoService) {
         this.notaService = notaService;
+        this.avaliacaoService = avaliacaoService;
     }
 
     @PostMapping
@@ -43,6 +48,16 @@ public class NotaController {
     @GetMapping("/avaliacao/{avaliacaoId}")
     public ResponseEntity<List<NotaResponse>> listarPorAvaliacao(@PathVariable Long avaliacaoId) {
         return ResponseEntity.ok(notaService.listarPorAvaliacao(avaliacaoId));
+    }
+
+    @GetMapping("/turma/{turmaId}/media-por-disciplina")
+    public ResponseEntity<List<MediaDisciplinaResponse>> mediaPorDisciplina(@PathVariable Long turmaId) {
+        return ResponseEntity.ok(notaService.calcularMediaPorDisciplina(turmaId));
+    }
+
+    @GetMapping("/aluno/{alunoId}/evolucao-bimestral")
+    public ResponseEntity<List<EvolucaoBimestralResponse>> evolucaoBimestralAluno(@PathVariable Long alunoId) {
+        return ResponseEntity.ok(notaService.listarEvolucaoBimestral(alunoId));
     }
 
     @DeleteMapping("/{id}")

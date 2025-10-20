@@ -160,7 +160,6 @@ function EditarAvaliacao({
                   onChange={atualizarEstado}
                 />
 
-
                 <InputField
                   label="Data de aplicação"
                   name="data"
@@ -180,6 +179,24 @@ function EditarAvaliacao({
                   required
                   value={avaliacaoAtualizada.peso || ""}
                   onChange={atualizarEstado}
+                />
+
+                <SelectField
+                  label="Bimestre"
+                  name="bimestre"
+                  value={avaliacaoAtualizada.bimestre || ""}
+                  options={[
+                    { label: "1º Bimestre", value: 1 },
+                    { label: "2º Bimestre", value: 2 },
+                    { label: "3º Bimestre", value: 3 },
+                    { label: "4º Bimestre", value: 4 },
+                  ]}
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                    setAvaliacaoAtualizada({
+                      ...avaliacaoAtualizada,
+                      bimestre: Number(e.target.value),
+                    })
+                  }
                 />
 
                 <Button type="submit">

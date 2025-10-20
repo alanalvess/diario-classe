@@ -6,6 +6,7 @@ import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import EditarAvaliacao from "./editarAvaliacao/EditarAvaliacao.tsx";
 import {FaEdit, FaTrashAlt} from "react-icons/fa";
+import SelectField from "../../../components/form/SelectField.tsx";
 
 export default function AvaliacoesPage() {
   const {usuario, isHydrated, isAuthenticated, isLoading} = useAuth();
@@ -20,22 +21,11 @@ export default function AvaliacoesPage() {
   const [modalEditarAvaliacao, setModalEditarAvaliacao] = useState(false);
   const [avaliacaoSelecionada, setAvaliacaoSelecionada] = useState<Avaliacao | null>(null);
 
-  // Formulário para nova avaliação
   const [titulo, setTitulo] = useState("");
   const [data, setData] = useState("");
   const [peso, setPeso] = useState(1);
+  const [bimestre, setBimestre] = useState(1);
 
-  // async function buscarAvaliacoes() {
-  //   try {
-  //     await buscar("/avaliacoes", setAvaliacoes, {
-  //       headers: {Authorization: `Bearer ${usuario.token}`},
-  //     });
-  //   } catch (error) {
-  //     if (error instanceof Error) {
-  //       ToastAlerta("Erro ao carregar avaliações", Toast.Error);
-  //     }
-  //   }
-  // }
 
   async function buscarTurmas() {
     try {
@@ -70,8 +60,6 @@ export default function AvaliacoesPage() {
   // 🔹 Buscar turmas
   useEffect(() => {
     if (isHydrated && isAuthenticated) {
-
-      // buscarAvaliacoes();
       buscarTurmas();
     }
   }, [isAuthenticated, isHydrated]);
@@ -105,6 +93,7 @@ export default function AvaliacoesPage() {
       titulo,
       data,
       peso,
+      bimestre,
       turmaId: turmaSelecionada,
       disciplinaId: disciplinaSelecionada,
     };
@@ -118,6 +107,7 @@ export default function AvaliacoesPage() {
       setTitulo("");
       setData("");
       setPeso(1);
+      setBimestre(1)
       buscar(`/avaliacoes/disciplina/${disciplinaSelecionada}`, setAvaliacoes, {
         headers: {Authorization: `Bearer ${usuario.token}`},
       });
@@ -194,17 +184,33 @@ export default function AvaliacoesPage() {
             onChange={(e) => setPeso(Number(e.target.value))}
             min={1}
           />
+
+          <SelectField
+            label="Bimestre"
+            name="bimestre"
+            value={bimestre}
+            options={[
+              { label: "1º Bimestre", value: 1 },
+              { label: "2º Bimestre", value: 2 },
+              { label: "3º Bimestre", value: 3 },
+              { label: "4º Bimestre", value: 4 },
+            ]}
+            onChange={(e) => setBimestre(Number(e.target.value))}
+          />
+
+
           <Button
             onClick={salvarAvaliacao}
             disabled={
               !titulo.trim() || // título vazio
               !data ||          // sem data
               !peso || peso <= 0 || // peso inválido
+              !bimestre || // bimestre não escolhido
               !turmaSelecionada ||  // turma não escolhida
               !disciplinaSelecionada // disciplina não escolhida
             }
             className={`${
-              !titulo.trim() || !data || !peso || !turmaSelecionada || !disciplinaSelecionada
+              !titulo.trim() || !data || !peso || !bimestre || !turmaSelecionada || !disciplinaSelecionada
                 ? "opacity-50 cursor-not-allowed"
                 : ""
             }`}
@@ -225,6 +231,7 @@ export default function AvaliacoesPage() {
             <TableHeadCell>Título</TableHeadCell>
             <TableHeadCell>Data</TableHeadCell>
             <TableHeadCell>Peso</TableHeadCell>
+            <TableHeadCell>Bimestre</TableHeadCell>
             <TableHeadCell>Média</TableHeadCell>
             <TableHeadCell>Ações</TableHeadCell>
           </TableHead>
@@ -234,6 +241,7 @@ export default function AvaliacoesPage() {
                 <TableCell>{a.titulo}</TableCell>
                 <TableCell>{a.data}</TableCell>
                 <TableCell>{a.peso}</TableCell>
+                <TableCell>{a.bimestre}</TableCell>
                 <TableCell>{a.media?.toFixed(2)}</TableCell>
                 <TableCell>
                   <div className='flex flex-row gap-4'>

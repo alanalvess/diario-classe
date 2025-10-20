@@ -25,6 +25,8 @@ public class Avaliacao {
     private LocalDate data;
     private Double peso;
 
+    private Integer bimestre;
+
     @ManyToOne
     @JoinColumn(name = "turma_id", nullable = false)
     private Turma turma;

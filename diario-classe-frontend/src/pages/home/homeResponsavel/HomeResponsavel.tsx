@@ -1,6 +1,8 @@
 import {useAuth} from "../../../contexts/UseAuth.ts";
-import {Button, Card} from "flowbite-react";
-import {FaChartBar, FaClipboardCheck, FaEnvelopeOpenText, FaMedal, FaUserGraduate} from "react-icons/fa";
+import {Card} from "flowbite-react";
+import {FaBell, FaChartBar, FaClipboardCheck, FaMedal} from "react-icons/fa";
+import {Link} from "react-router-dom";
+import {FaNoteSticky} from "react-icons/fa6";
 
 export default function HomeResponsavel() {
 
@@ -20,57 +22,54 @@ export default function HomeResponsavel() {
         </Card>
 
         {/* Ações principais */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
-          <Card className="hover:shadow-lg transition-all cursor-pointer text-center" href="/meus-filhos">
-            <FaUserGraduate className="text-4xl text-blue-600 mb-3 mx-auto"/>
-            <h2 className="text-lg font-semibold">Meus Filhos</h2>
-            <p className="text-sm text-gray-500">Visualize informações e desempenho escolar.</p>
-          </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mt-10">
 
-          <Card className="hover:shadow-lg transition-all cursor-pointer text-center" href="/boletim">
-            <FaMedal className="text-4xl text-green-600 mb-3 mx-auto"/>
-            <h2 className="text-lg font-semibold">Notas e Avaliações</h2>
-            <p className="text-sm text-gray-500">Acompanhe as notas e progresso das disciplinas.</p>
+          <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
+            <Link to='/boletim'>
+              <FaMedal className="text-4xl text-green-600 mb-3 mx-auto"/>
+              <h2 className="text-lg font-semibold">Notas e Avaliações</h2>
+              <p className="text-sm text-gray-500">Acompanhe as notas e progresso das disciplinas.</p>
+            </Link>
           </Card>
-
-          <Card className="hover:shadow-lg transition-all cursor-pointer text-center" href="/frequencia">
-            <FaClipboardCheck className="text-4xl text-green-600 mb-3 mx-auto"/>
-            <h2 className="text-lg font-semibold">Presenças</h2>
-            <p className="text-sm text-gray-500">Confira as presenças e faltas registradas.</p>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-all cursor-pointer text-center" href="/comunicados">
-            <FaEnvelopeOpenText className="text-4xl text-yellow-600 mb-3 mx-auto"/>
-            <h2 className="text-lg font-semibold">Comunicados</h2>
-            <p className="text-sm text-gray-500">Receba mensagens e avisos da escola.</p>
+          <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
+            <Link to='/presencaAluno'>
+              <FaClipboardCheck className="text-4xl text-green-600 mb-3 mx-auto"/>
+              <h2 className="text-lg font-semibold">Presenças</h2>
+              <p className="text-sm text-gray-500">Confira as presenças e faltas registradas.</p>
+            </Link>
           </Card>
         </div>
 
-        {/* Estatísticas / Resumo */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
-          <Card className="text-center py-6 dark:bg-gray-800">
-            <h3 className="text-gray-500 dark:text-gray-400">Filhos cadastrados</h3>
-            <p className="text-3xl font-bold text-gray-800 dark:text-gray-100">2</p>
-          </Card>
-          <Card className="text-center py-6 dark:bg-gray-800">
-            <h3 className="text-gray-500 dark:text-gray-400">Frequência média</h3>
-            <p className="text-3xl font-bold text-green-500">96%</p>
-          </Card>
-          <Card className="text-center py-6 dark:bg-gray-800">
-            <h3 className="text-gray-500 dark:text-gray-400">Notas acima da média</h3>
-            <p className="text-3xl font-bold text-blue-500">87%</p>
+        <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-6 mt-10">
+
+          <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
+            <Link to='/alertas'>
+              <FaBell className="text-4xl text-red-600 mb-3 mx-auto"/>
+              <h2 className="text-lg font-semibold">Alertas</h2>
+              <p className="text-sm text-gray-500">Acompanhe os alerta de risco de evasão e reprovação emitidos para o aluno e enviados as seus responsáveis.</p>
+            </Link>
           </Card>
         </div>
 
-        {/* Dica ou CTA final */}
-        <div className="text-center mt-10">
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Mantenha-se conectado ao desempenho dos seus filhos.
-          </p>
-          <Button href="/contato">
-            Fale com a escola
-          </Button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
+          <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
+            <Link to="/dashboardResponsavel">
+              <FaChartBar className="text-4xl text-purple-600 mb-3 mx-auto"/>
+              <h2 className="text-lg font-semibold">Desempenho Escolar</h2>
+              <p className="text-sm text-gray-500">Analise indicadores de notas e presença.</p>
+            </Link>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
+            <Link to='/observacoesAluno'>
+              <FaNoteSticky className="text-4xl text-purple-600 mb-3 mx-auto"/>
+              <h2 className="text-lg font-semibold">Observações</h2>
+              <p className="text-sm text-gray-500">Acompanhe anotações dos professores sobre a vida acadêmica do
+                aluno.</p>
+            </Link>
+          </Card>
         </div>
+
       </div>
     </>
   )

@@ -113,6 +113,5 @@ public class PresencaController {
         return ResponseEntity.noContent().build();
     }
 
-
 }
 

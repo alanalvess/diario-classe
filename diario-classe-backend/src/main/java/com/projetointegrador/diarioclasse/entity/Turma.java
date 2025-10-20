@@ -48,6 +48,9 @@ public class Turma {
     @OneToMany(mappedBy = "turma")
     private List<Avaliacao> avaliacoes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "turma")
+    private List<Observacao> observacoes = new ArrayList<>();
+
     public List<Aluno> listarAlunos() {
         return alunos != null ? alunos : Collections.emptyList();
     }

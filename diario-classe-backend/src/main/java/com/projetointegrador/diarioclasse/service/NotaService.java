@@ -1,6 +1,8 @@
 package com.projetointegrador.diarioclasse.service;
 
 import com.projetointegrador.diarioclasse.dto.request.NotaRequest;
+import com.projetointegrador.diarioclasse.dto.response.EvolucaoBimestralResponse;
+import com.projetointegrador.diarioclasse.dto.response.MediaDisciplinaResponse;
 import com.projetointegrador.diarioclasse.dto.response.NotaResponse;
 import com.projetointegrador.diarioclasse.entity.Aluno;
 import com.projetointegrador.diarioclasse.entity.Avaliacao;
@@ -15,8 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,10 +53,10 @@ public class NotaService {
 
             nota = Nota.builder()
                     .valor(request.valor())
-                    .aluno(aluno)
-                    .disciplina(disciplinaRepository.findById(request.disciplinaId()).orElseThrow())
-                    .avaliacao(avaliacaoRepository.findById(request.avaliacaoId()).orElseThrow())
                     .dataLancamento(request.dataLancamento() != null ? request.dataLancamento() : LocalDate.now())
+                    .aluno(aluno)
+                    .disciplina(disciplina)
+                    .avaliacao(avaliacao)
                     .build();
         }
 
@@ -87,6 +89,47 @@ public class NotaService {
                 .toList();
     }
 
+    public List<MediaDisciplinaResponse> calcularMediaPorDisciplina(Long turmaId) {
+        List<Disciplina> disciplinas = disciplinaRepository.findByTurmasId(turmaId);
+
+        List<MediaDisciplinaResponse> medias = new ArrayList<>();
+
+        for (Disciplina d : disciplinas) {
+            Double media = notaRepository.findByDisciplinaIdAndAlunoTurmaId(d.getId(),turmaId)
+                    .stream()
+                    .mapToDouble(Nota::getValor)
+                    .average()
+                    .orElse(0.0);
+            medias.add(new MediaDisciplinaResponse(d.getId(), d.getNome(), media));
+        }
+
+        return medias;
+    }
+
+    public List<EvolucaoBimestralResponse> listarEvolucaoBimestral(Long alunoId) {
+        List<Nota> notas = notaRepository.findByAlunoId(alunoId);
+
+        // Agrupa por bimestre (via avaliação) e disciplina
+        Map<Integer, Map<String, Double>> medias = notas.stream()
+                .filter(n -> n.getAvaliacao() != null && n.getAvaliacao().getBimestre() != null)
+                .collect(Collectors.groupingBy(
+                        n -> n.getAvaliacao().getBimestre(),
+                        Collectors.groupingBy(
+                                n -> n.getDisciplina().getNome(),
+                                Collectors.averagingDouble(Nota::getValor)
+                        )
+                ));
+
+        return medias.entrySet().stream()
+                .map(e -> new EvolucaoBimestralResponse(
+                        e.getKey(),
+                        e.getValue()
+                ))
+                .sorted(Comparator.comparing(EvolucaoBimestralResponse::bimestre))
+                .toList();
+    }
+
+
     public void deletar(Long id) {
         if (!notaRepository.existsById(id)) {
             throw new EntityNotFoundException("Nota não encontrada");
@@ -98,13 +141,13 @@ public class NotaService {
         return new NotaResponse(
                 nota.getId(),
                 nota.getValor(),
+                nota.getDataLancamento(),
                 nota.getAluno().getId(),
                 nota.getAluno().getNome(),
                 nota.getDisciplina().getId(),
                 nota.getDisciplina().getNome(),
                 nota.getAvaliacao().getId(),
-                nota.getAvaliacao().getTitulo(),
-                nota.getDataLancamento()
+                nota.getAvaliacao().getTitulo()
         );
     }
 }

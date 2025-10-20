@@ -9,12 +9,12 @@ import java.time.LocalDate;
 public record NotaResponse(
         Long id,
         Double valor,
+        LocalDate dataLancamento,
         Long alunoId,
         String alunoNome,
         Long disciplinaId,
         String disciplinaNome,
         Long avaliacaoId,
-        String avaliacaoTitulo,
-        LocalDate dataLancamento
+        String avaliacaoTitulo
 ) {
 }

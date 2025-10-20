@@ -12,6 +12,7 @@ public record AvaliacaoResponse(
         String titulo,
         LocalDate data,
         Double peso,
+        Integer bimestre,
         Long turmaId,
         Long disciplinaId,
         Double media

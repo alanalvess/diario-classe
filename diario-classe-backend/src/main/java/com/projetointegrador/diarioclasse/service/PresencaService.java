@@ -201,6 +201,5 @@ public class PresencaService {
         Optional<Presenca> presenca = presencaRepository.findByAlunoIdAndTurmaIdAndData(alunoId, turmaId, data);
         presenca.ifPresent(presencaRepository::delete);
     }
-
 }
 

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,5 +30,8 @@ public interface NotaRepository extends JpaRepository<Nota, Long> {
     // Conta quantas notas acima de um valor (ex: 7 para aprovação) o aluno possui
     @Query("SELECT COUNT(n) FROM Nota n WHERE n.aluno.id = :alunoId AND n.valor >= :notaMinima")
     Long countNotasAcima(@Param("alunoId") Long alunoId, @Param("notaMinima") double notaMinima);
+
+    List<Nota> findByDisciplinaIdAndAlunoTurmaId(Long id, Long turmaId);
+
 
 }
