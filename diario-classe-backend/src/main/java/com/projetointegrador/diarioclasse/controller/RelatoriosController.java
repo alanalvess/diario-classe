@@ -44,8 +44,8 @@ public class RelatoriosController {
 
     @GetMapping
     public ResponseEntity<byte[]> gerarRelatorio(
-            @RequestParam String relatorio, // risco, desempenho, alertas, etc.
-            @RequestParam String tipo,      // pdf ou xlsx
+            @RequestParam String relatorio,
+            @RequestParam String tipo,
             @RequestParam(required = false) Long turmaId
     ) throws IOException {
         byte[] arquivo;
@@ -64,17 +64,19 @@ public class RelatoriosController {
                 break;
 
             case "alertas":
-                arquivo = relatorioService.gerarRelatorioAlertasPdf(turmaId);
-                tipo = "pdf";
+                arquivo = "pdf".equalsIgnoreCase(tipo)
+                        ? relatorioService.gerarRelatorioAlertasPdf(turmaId)
+                        : relatorioService.gerarRelatorioAlertasExcel(turmaId);
                 break;
 
             case "professores":
-                arquivo = relatorioService.gerarRelatorioProfessoresPdf();
-                tipo = "pdf";
+                arquivo = "pdf".equalsIgnoreCase(tipo)
+                        ? relatorioService.gerarRelatorioProfessoresPdf()
+                        : relatorioService.gerarRelatorioProfessoresExcel();
                 break;
 
             case "desempenho":
-                arquivo =  "pdf".equalsIgnoreCase(tipo)
+                arquivo = "pdf".equalsIgnoreCase(tipo)
                         ? relatorioService.gerarRelatorioDesempenhoPdf(turmaId)
                         : relatorioService.gerarRelatorioDesempenhoExcel(turmaId);
                 break;
@@ -88,6 +90,7 @@ public class RelatoriosController {
             default:
                 return ResponseEntity.badRequest().build();
         }
+
 
         String contentType = "pdf".equalsIgnoreCase(tipo)
                 ? MediaType.APPLICATION_PDF_VALUE

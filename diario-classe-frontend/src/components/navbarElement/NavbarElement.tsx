@@ -37,10 +37,11 @@ function NavbarElement() {
 
         <div className="flex md:order-2 items-center space-x-4">
           {isAuthenticated ? (
-            <DropdownPerfil />
+            <DropdownPerfil/>
           ) : (
             <Link to='/login' className='flex items-center justify-center'>
-              <Button className='bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none focus:ring-0 cursor-pointer'>
+              <Button
+                className='bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none focus:ring-0 cursor-pointer'>
                 <span className='text-xl '>Entrar</span>
               </Button>
             </Link>
@@ -60,20 +61,15 @@ function NavbarElement() {
 
           <DarkThemeToggle className="cursor-pointer hover:bg-gray-700 focus:outline-none focus:ring-0"/>
           {isAuthenticated && (
-            // <Button
-            //   className='md:hidden text-gray-500 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-0 cursor-pointer'
-            //   onClick={() => setIsOpen(true)}
-            // >
-            //   <GiHamburgerMenu size={30}/>
-            // </Button>
             <Button
+              color="alternative"
               className='md:hidden text-gray-500 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-0 cursor-pointer'
-              onClick={() => setIsOpen(!isOpen)} // alterna abrir/fechar
+              onClick={() => setIsOpen(!isOpen)}
             >
               {isOpen ? (
-                <FaTimes size={30} /> // Ícone de “X” quando o Drawer está aberto
+                <FaTimes size={30}/>
               ) : (
-                <GiHamburgerMenu size={30} /> // Ícone de hambúrguer quando fechado
+                <GiHamburgerMenu size={30}/>
               )}
             </Button>
 

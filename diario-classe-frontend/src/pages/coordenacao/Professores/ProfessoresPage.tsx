@@ -1,5 +1,15 @@
 import React, {useEffect, useState} from "react";
-import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
+import {
+  Button,
+  Checkbox, Label,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeadCell,
+  TableRow,
+  TextInput
+} from "flowbite-react";
 import type {Disciplina, Professor, Turma} from "../../../models";
 import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
@@ -7,6 +17,8 @@ import {RotatingLines} from "react-loader-spinner";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import {FaEdit, FaTrashAlt} from "react-icons/fa";
 import EditarProfessor from "./editarProfessor/EditarProfessor.tsx";
+import MultiSelectDropdown from "../../../components/form/MultipleSelectDropdown.tsx";
+import InputField from "../../../components/form/InputField.tsx";
 
 export default function ProfessoresPage() {
   const {usuario, isHydrated, isAuthenticated} = useAuth();
@@ -103,54 +115,51 @@ export default function ProfessoresPage() {
     return turmas.find(t => t.id === id)?.nome || "N/A";
   }
 
+  // const toggleDisciplina = (id: number) => {
+  //   setDisciplinaIdsSelecionadas(prev =>
+  //     prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
+  //   );
+  // };
+  // const toggleTurma = (id: number) => {
+  //   setTurmaIdsSelecionadas(prev =>
+  //     prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
+  //   );
+  // };
+
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
       <h1 className="text-2xl font-bold mb-6">Gestão de Professores</h1>
 
       {/* Formulário */}
       <div className="flex flex-col gap-2 mb-6">
-        <input
+        <TextInput
           type="text"
+          name="nome"
           placeholder="Nome do professor"
           value={nome}
           onChange={e => setNome(e.target.value)}
-          className="border rounded p-2"
         />
-        <input
+        <TextInput
           type="email"
           placeholder="E-mail do professor"
           value={email}
           onChange={e => setEmail(e.target.value)}
-          className="border rounded p-2"
         />
 
-        {/* Seleção de Disciplinas (OBRIGATÓRIO) */}
-        <label className="font-semibold mt-2">Disciplinas *</label>
-        <select
-          multiple
-          value={disciplinaIdsSelecionadas.map(String)}
-          onChange={e => {
-            const values = Array.from(e.target.selectedOptions, opt => Number(opt.value));
-            setDisciplinaIdsSelecionadas(values);
-          }}
-          className="border rounded p-2"
-        >
-          {disciplinas.map(d => <option key={d.id} value={d.id}>{d.nome}</option>)}
-        </select>
+        <MultiSelectDropdown
+          titulo="Disciplinas *"
+          opcoes={disciplinas}
+          selecionados={disciplinaIdsSelecionadas}
+          setSelecionados={setDisciplinaIdsSelecionadas}
+        />
 
-        {/* Seleção de Turmas (OPCIONAL) */}
-        <label className="font-semibold mt-2">Turmas (opcional)</label>
-        <select
-          multiple
-          value={turmaIdsSelecionadas.map(String)}
-          onChange={e => {
-            const values = Array.from(e.target.selectedOptions, opt => Number(opt.value));
-            setTurmaIdsSelecionadas(values);
-          }}
-          className="border rounded p-2"
-        >
-          {turmas.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
-        </select>
+        <MultiSelectDropdown
+          titulo="Turmas (opcional)"
+          opcoes={turmas}
+          selecionados={turmaIdsSelecionadas}
+          setSelecionados={setTurmaIdsSelecionadas}
+        />
+
 
         <Button onClick={salvarProfessor}>
           {isLoading ?

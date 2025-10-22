@@ -98,35 +98,40 @@ export default function RelatoriosCoordenacao() {
         </Card>
 
         {/* Filtros */}
-        <div className="flex flex-wrap justify-center gap-4 mt-8">
-          <div>
-            <Label htmlFor="turma" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 w-full">
+          <div className="w-full">
             <Select
               id="turma"
+              className="w-full"
               value={turmaSelecionada}
               onChange={(e) => setTurmaSelecionada(e.target.value)}
             >
-              <option value="">Todas</option>
+              <option value="">Selecione a Turma</option>
               {turmas.map((t) => (
-                <option key={t.id}>{t.nome}</option>
+                <option key={t.id} value={t.id}>
+                  {t.nome}
+                </option>
               ))}
             </Select>
           </div>
 
-          <div>
-            <Label htmlFor="periodo" />
+          <div className="w-full">
             <Select
               id="periodo"
+              className="w-full"
               value={periodoSelecionado}
               onChange={(e) => setPeriodoSelecionado(e.target.value)}
             >
-              <option value="">Todos</option>
+              <option value="">Selecione o Bimestre</option>
               {periodos.map((p) => (
-                <option key={p}>{p}</option>
+                <option key={p} value={p}>
+                  {p}
+                </option>
               ))}
             </Select>
           </div>
         </div>
+
 
         {/* Cards dos relatórios */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
@@ -178,6 +183,9 @@ export default function RelatoriosCoordenacao() {
               Mostra percentuais de presença e ausência dos alunos.
             </p>
             <div className="flex gap-2">
+              <Button color="purple" onClick={() => handleDownload("frequencia", "pdf")}>
+                <FaFilePdf className="mr-2" /> PDF
+              </Button>
               <Button color="green" onClick={() => handleDownload("frequencia", "xlsx")}>
                 <FaFileExcel className="mr-2" /> Excel
               </Button>
@@ -197,6 +205,9 @@ export default function RelatoriosCoordenacao() {
               <Button color="purple" onClick={() => handleDownload("alertas", "pdf")}>
                 <FaFilePdf className="mr-2" /> PDF
               </Button>
+              <Button color="green" onClick={() => handleDownload("alertas", "xlsx")}>
+                <FaFileExcel className="mr-2" /> Excel
+              </Button>
             </div>
           </Card>
 
@@ -212,6 +223,9 @@ export default function RelatoriosCoordenacao() {
             <div className="flex gap-2">
               <Button color="purple" onClick={() => handleDownload("professores", "pdf")}>
                 <FaFilePdf className="mr-2" /> PDF
+              </Button>
+              <Button color="green" onClick={() => handleDownload("professores", "xlsx")}>
+                <FaFileExcel className="mr-2" /> Excel
               </Button>
             </div>
           </Card>

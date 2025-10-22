@@ -3,5 +3,6 @@ export interface Aluno {
   nome: string;
   matricula: string;
   turmaId: number;
+  turmaNome?: string;
   dataNascimento: string;
 }

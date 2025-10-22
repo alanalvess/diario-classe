@@ -1,9 +1,9 @@
 import {useEffect, useState} from "react";
 import {
   Button,
-  Modal,
-  ModalBody,
-  ModalHeader,
+  Card,
+  Select,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -12,58 +12,58 @@ import {
   TableRow
 } from "flowbite-react";
 import type {Aluno, Turma} from "../../../models";
-import {buscar, buscarQrCode, cadastrar, deletar} from "../../../services/Service.ts";
+import {buscar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
-import {jsPDF} from "jspdf";
 import {useAuth} from "../../../contexts/UseAuth.ts";
-import {RotatingLines} from "react-loader-spinner";
 import {LuQrCode} from "react-icons/lu";
 import {IoMdPersonAdd} from "react-icons/io";
-import {FaEdit, FaTrashAlt} from "react-icons/fa";
+import {FaEdit, FaPlus, FaTrashAlt} from "react-icons/fa";
 import ResponsaveisModal from "./responsaveisModal/ResponsaveisModal.tsx";
 import EditarAluno from "./editarAluno/EditarAluno.tsx";
+import CadastroAluno from "./cadastroAluno/CadastroAluno.tsx";
+import {useNavigate} from "react-router-dom";
+import {Roles} from "../../../enums/Roles.ts";
+import DeletarAluno from "./deletarAluno/DeletarAluno.tsx";
+import GerarQRCode from "./GerarQRCode/GerarQRCode.tsx";
 
 export default function AlunosPage() {
-  const {usuario, isHydrated, isAuthenticated, isLoading} = useAuth();
+  const navigate = useNavigate();
+
+  const {usuario, isHydrated, isAuthenticated} = useAuth();
 
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [turmas, setTurmas] = useState<Turma[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Formulário
-  const [nome, setNome] = useState("");
-  const [matricula, setMatricula] = useState("");
-  const [dataNascimento, setDataNascimento] = useState("");
-  const [turmaId, setTurmaId] = useState<number | "">("");
-
-  const [qrModalOpen, setQrModalOpen] = useState(false);
-  const [qrImage, setQrImage] = useState<string | null>(null);
-  const [qrAlunoNome, setQrAlunoNome] = useState<string>("");
-
+  const [modalCadastro, setModalCadastro] = useState(false);
   const [modalResponsavel, setModalResponsavel] = useState(false);
   const [modalEditarAluno, setModalEditarAluno] = useState(false);
-  const [alunoSelecionadoId, setAlunoSelecionadoId] = useState<number | null>(null);
-  const [alunoSelecionadoNome, setAlunoSelecionadoNome] = useState<string>("");
+  const [modalExclusao, setModalExclusao] = useState(false);
+  const [modalQrCode, setModalQrCode] = useState(false);
 
   const [alunoSelecionado, setAlunoSelecionado] = useState<Aluno | null>(null);
-
-  function adicionaResponsavel(alunoId: number, alunoNome: string) {
-    setAlunoSelecionadoId(alunoId);
-    setAlunoSelecionadoNome(alunoNome);
-    setModalResponsavel(true);
-  }
+  const [turmaSelecionada, setTurmaSelecionada] = useState("");
 
   async function buscarAlunos() {
+    setIsLoading(true);
     try {
-      await buscar("/alunos", setAlunos, {
-        headers: {Authorization: `Bearer ${usuario.token}`},
-      });
+      if (turmaSelecionada) {
+        // Buscar apenas alunos da turma selecionada
+        await buscar(`/alunos/turma/${turmaSelecionada}`, setAlunos, {
+          headers: {Authorization: `Bearer ${usuario.token}`},
+        });
+      } else {
+        // Buscar todos os alunos
+        await buscar("/alunos", setAlunos, {
+          headers: {Authorization: `Bearer ${usuario.token}`},
+        });
+      }
     } catch (error) {
       if (error instanceof Error) {
         ToastAlerta("Erro ao carregar alunos", Toast.Error);
       }
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }
 
@@ -74,246 +74,296 @@ export default function AlunosPage() {
       });
     } catch (error) {
       if (error instanceof Error) {
-        ToastAlerta("Erro ao carregar turmas", Toast.Error);
+        ToastAlerta("Erro ao carregar dados", Toast.Error);
       }
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }
 
-  // 🔹 Buscar alunos e turmas
   useEffect(() => {
     if (!isHydrated || !isAuthenticated) return;
-    buscarAlunos();
-    buscarTurmas();
+
+    Promise.all([buscarTurmas(), buscarAlunos()])
+      .catch((error) => console.error(error));
   }, [isHydrated, isAuthenticated]);
 
-  // 🔹 Criar aluno
-  async function salvarAluno() {
-    if (!nome || !matricula || !dataNascimento || !turmaId) {
-      ToastAlerta("⚠️ Nome, matrícula, data de nascimento e turma são obrigatórios", Toast.Error);
-      return;
+  useEffect(() => {
+    if (!turmaSelecionada || !isHydrated) return
+    buscarAlunos()
+  }, [turmaSelecionada, isHydrated]);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.COORDENADOR)) {
+      ToastAlerta("Você precisa estar autenticado como Coordenador", Toast.Info);
+      navigate("/login");
     }
-
-    const body = {
-      nome,
-      matricula,
-      dataNascimento,
-      turmaId
-    };
-
-    try {
-      await cadastrar("/alunos", body, (novoAluno: Aluno) => {
-        setAlunos(prev => [...prev, novoAluno]);
-        setNome("");
-        setMatricula("");
-        setDataNascimento("");
-        setTurmaId("");
-        ToastAlerta("✅ Aluno cadastrado com sucesso", Toast.Success);
-      }, {
-        headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        ToastAlerta("Erro ao criar aluno", Toast.Error);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  // 🔹 Excluir aluno
-  async function excluirAluno(id: number) {
-    try {
-      await deletar(`/alunos/${id}`, {headers: {Authorization: `Bearer ${usuario.token}`}});
-      setAlunos(prev => prev.filter(a => a.id !== id));
-      ToastAlerta("✅ Aluno excluído", Toast.Success);
-    } catch (error) {
-      if (error instanceof Error) {
-        ToastAlerta("Erro ao excluir aluno", Toast.Error);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function gerarQrCode(aluno: Aluno) {
-    try {
-      await buscarQrCode(`/alunos/${aluno.id}/qrcode`, setQrImage, {
-        headers: {Authorization: `Bearer ${usuario.token}`},
-      });
-
-      setQrAlunoNome(aluno.nome);
-      setQrModalOpen(true);
-    } catch (error) {
-      console.error(error);
-      ToastAlerta("Erro ao gerar QR Code", Toast.Error);
-    }
-  }
-
-  // 🔹 Imprimir / Exportar QR em PDF
-  function imprimirQrCode() {
-    if (!qrImage) return;
-    const pdf = new jsPDF();
-    pdf.text(`QR Code - ${qrAlunoNome}`, 10, 10);
-    pdf.addImage(qrImage, "PNG", 30, 20, 150, 150);
-    pdf.save(`qrcode_${qrAlunoNome}.pdf`);
-  }
-
-  // 🔹 Helper para nome da turma
-  function getTurmaNome(id: number) {
-    return turmas.find(t => t.id === id)?.nome || "N/A";
-  }
+  }, [isHydrated, isAuthenticated, usuario]);
 
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
-      <h1 className="text-2xl font-bold mb-6">Gestão de Alunos</h1>
+      <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100">
+          Gestão de Alunos
+        </h2>
+        <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">
+          Gerencie todos os alunos, visualize informações e adicione novos registros facilmente.
+        </p>
 
-      {/* Formulário */}
-      <div className="flex flex-col gap-2 mb-6">
-        <input
-          type="text"
-          placeholder="Nome do aluno"
-          value={nome}
-          onChange={e => setNome(e.target.value)}
-          className="border rounded p-2"
-        />
-        <input
-          type="text"
-          placeholder="Matrícula"
-          value={matricula}
-          onChange={e => setMatricula(e.target.value)}
-          className="border rounded p-2"
-        />
-        <input
-          type="date"
-          value={dataNascimento}
-          onChange={e => setDataNascimento(e.target.value)}
-          className="border rounded p-2"
-        />
-
-        <select
-          value={turmaId}
-          onChange={e => setTurmaId(Number(e.target.value))}
-          className="border rounded p-2"
+        <Button
+          color="alternative"
+          className="cursor-pointer mt-4 md:mt-0 flex items-center justify-center gap-2 px-6 py-3 rounded-lg shadow hover:shadow-md transition duration-200 focus:outline-none focus:ring-0"
+          onClick={() => setModalCadastro(true)}
         >
-          <option value="">Selecione a turma</option>
-          {turmas.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
-        </select>
-
-        <Button onClick={salvarAluno}>
-          {isLoading ?
-            <RotatingLines
-              strokeColor="white"
-              strokeWidth="5"
-              animationDuration="0.75"
-              width="24"
-              visible={true}
-            /> :
-            <span>
-              Adicionar Aluno
-            </span>
-          }
+          <FaPlus className="text-lg"/> Adicionar Aluno
         </Button>
+      </Card>
+
+      {/* Filtros */}
+      <div className="w-full my-5">
+        <Select
+          id="turma"
+          className="w-full"
+          value={turmaSelecionada}
+          onChange={(e) => setTurmaSelecionada(e.target.value)}
+        >
+          <option value="">Selecione a Turma</option>
+          {turmas.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.nome}
+            </option>
+          ))}
+        </Select>
       </div>
 
-      {/* Tabela */}
-      {alunos.length > 0 && (
-        <Table>
-          <TableHead>
-            <TableHeadCell>Nome</TableHeadCell>
-            <TableHeadCell>Matrícula</TableHeadCell>
-            <TableHeadCell>Data de Nascimento</TableHeadCell>
-            <TableHeadCell>Turma</TableHeadCell>
-            <TableHeadCell>Ações</TableHeadCell>
-          </TableHead>
-          <TableBody>
-            {alunos.map((aluno, i) => (
-              <TableRow key={i}>
-                <TableCell>{aluno.nome}</TableCell>
-                <TableCell>{aluno.matricula}</TableCell>
-                <TableCell>{new Date(aluno.dataNascimento).toLocaleDateString()}</TableCell>
-                <TableCell>{getTurmaNome(aluno.turmaId)}</TableCell>
-                <TableCell>
-                  <div className='flex flex-row gap-4'>
+
+      {isLoading ? (
+        <div className="flex justify-center mt-10">
+          <Spinner size="xl" color="purple"/>
+        </div>
+      ) : (
+        <div className="w-full">
+          <div
+            className="hidden md:block overflow-x-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+            <Table className="min-w-[700px] text-sm text-gray-700 dark:text-gray-300">
+              <TableHead className="bg-gray-100 dark:bg-gray-700">
+                <TableHeadCell className="text-center font-semibold">Nome</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Matrícula</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Nascimento</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Turma</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Ações</TableHeadCell>
+              </TableHead>
+
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-600">
+                {alunos.length > 0 ? (
+                  alunos.map((aluno, i) => (
+                    <TableRow
+                      key={i}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-150"
+                    >
+                      <TableCell className="text-center font-medium text-gray-900 dark:text-gray-100">
+                        {aluno.nome}
+                      </TableCell>
+                      <TableCell className="text-center">{aluno.matricula}</TableCell>
+                      <TableCell className="text-center">
+                        {new Date(aluno.dataNascimento).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-center">{aluno.turmaNome}</TableCell>
+                      <TableCell>
+                        <div className="flex justify-center gap-2 flex-wrap">
+                          <Button
+                            className="cursor-pointer text-gray-500 hover:text-gray-900 dark:hover:text-white focus:outline-none focus:ring-0"
+                            color="alternative"
+                            size="xs"
+                            onClick={() => {
+                              setAlunoSelecionado(aluno);
+                              setModalQrCode(true);
+                            }}
+                          >
+                            <LuQrCode size={18}/>
+                          </Button>
+
+                          <Button
+                            className="cursor-pointer text-blue-500 hover:text-blue-700 dark:hover:text-blue-400 focus:outline-none focus:ring-0"
+                            color="alternative"
+                            size="xs"
+                            onClick={() => {
+                              setAlunoSelecionado(aluno)
+                              setModalResponsavel(true)
+                            }}
+                          >
+                            <IoMdPersonAdd size={18}/>
+                          </Button>
+                          <Button
+                            className="cursor-pointer text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 focus:outline-none focus:ring-0"
+                            color="alternative"
+                            size="xs"
+                            onClick={() => {
+                              setAlunoSelecionado(aluno);
+                              setModalEditarAluno(true);
+                            }}
+                          >
+                            <FaEdit size={18}/>
+                          </Button>
+                          <Button
+                            className="cursor-pointer text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 focus:outline-none focus:ring-0"
+                            color="alternative"
+                            size="xs"
+                            onClick={() => {
+                              setAlunoSelecionado(aluno);
+                              setModalExclusao(true);
+                            }}
+                          >
+                            <FaTrashAlt size={18}/>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-gray-500 py-4">
+                      Nenhum aluno cadastrado.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* 📱 Layout mobile */}
+          <div className="md:hidden flex flex-col gap-4 mt-4">
+            {alunos.length > 0 ? (
+              alunos.map((aluno, i) => (
+                <div
+                  key={i}
+                  className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700"
+                >
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    {aluno.nome}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="font-semibold">Matrícula:</span> {aluno.matricula}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="font-semibold">Nascimento:</span>{" "}
+                    {new Date(aluno.dataNascimento).toLocaleDateString()}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="font-semibold">Turma:</span> {aluno.turmaNome}
+                  </p>
+
+                  <div className="flex justify-between mt-3 border-t border-gray-200 dark:border-gray-600 pt-3">
+                    <Button
+                      className="cursor-pointer text-gray-500 hover:text-gray-900 dark:hover:text-white focus:outline-none focus:ring-0"
+                      color="alternative"
+                      size="xs"
+                      onClick={() => {
+                        setAlunoSelecionado(aluno);
+                        setModalQrCode(true);
+                      }}
+                    >
+                      <LuQrCode size={18}/>
+                    </Button>
 
                     <Button
-                      color="failure"
+                      className="cursor-pointer text-blue-500 hover:text-blue-700 dark:hover:text-blue-400 focus:outline-none focus:ring-0"
+                      color="alternative"
                       size="xs"
-                      onClick={() => gerarQrCode(aluno)}
-                      className='cursor-pointer'
-                    >
-                      <LuQrCode size={20}/>
-                    </Button>
-                    <Button
-                      color="failure"
-                      size="xs"
-                      onClick={() => adicionaResponsavel(aluno.id, aluno.nome)}
-                      className='cursor-pointer'
+                      onClick={() => {
+                        setAlunoSelecionado(alunoSelecionado);
+                        setModalResponsavel(true);
+                      }}
                     >
                       <IoMdPersonAdd size={20}/>
                     </Button>
 
                     <Button
-                      color="warning"
+                      className="cursor-pointer text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 focus:outline-none focus:ring-0"
+                      color="alternative"
                       size="xs"
                       onClick={() => {
-                        // editaAluno(aluno.id);
-                        setAlunoSelecionado(aluno)
+                        setAlunoSelecionado(aluno);
                         setModalEditarAluno(true);
                       }}
-                      className='cursor-pointer'
                     >
                       <FaEdit size={20}/>
                     </Button>
 
-
                     <Button
-                      color="failure"
+                      className="cursor-pointer text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 focus:outline-none focus:ring-0"
+                      color="alternative"
                       size="xs"
-                      onClick={() => excluirAluno(aluno.id)}
-                      className='cursor-pointer'
+                      onClick={() => {
+                        setAlunoSelecionado(aluno);
+                        setModalExclusao(true);
+                      }}
                     >
                       <FaTrashAlt size={20}/>
                     </Button>
                   </div>
+                </div>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center text-gray-500 py-4">
+                  Nenhum responsável cadastrado.
                 </TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            )}
+          </div>
+        </div>
       )}
 
-      {/* Modal QR Code */}
-      <Modal show={qrModalOpen} onClose={() => setQrModalOpen(false)}>
-        <ModalHeader>QR Code de {qrAlunoNome}</ModalHeader>
-        <ModalBody className="flex flex-col items-center gap-4">
-          {qrImage ? (
-            <>
-              <img src={qrImage} alt="QR Code" className="w-48 h-48"/>
-              <Button onClick={imprimirQrCode}>📄 Imprimir / Baixar PDF</Button>
-            </>
-          ) : (
-            <p>Carregando QR Code...</p>
-          )}
-        </ModalBody>
-      </Modal>
+      <CadastroAluno
+        open={modalCadastro}
+        onClose={() => {
+          setModalCadastro(false);
+          setAlunoSelecionado(null);
+        }}
+        onSaved={buscarAlunos}
+      />
 
-      {alunoSelecionadoId !== null && (
-        <ResponsaveisModal
-          show={modalResponsavel}
-          onClose={() => setModalResponsavel(false)}
-          alunoId={alunoSelecionadoId}
-          alunoNome={alunoSelecionadoNome}
+      {alunoSelecionado && (
+        <GerarQRCode
+          open={modalQrCode}
+          onClose={() => setModalQrCode(false)}
+          aluno={alunoSelecionado}
         />
       )}
 
-      <EditarAluno
-        open={modalEditarAluno}
-        onClose={() => setModalEditarAluno(false)}
-        onSaved={buscarAlunos}
-        alunoSelecionado={alunoSelecionado}
-      />
+
+      {alunoSelecionado && (
+
+        <ResponsaveisModal
+          open={modalResponsavel}
+          onClose={() => setModalResponsavel(false)}
+          alunoSelecionado={alunoSelecionado}
+        />
+      )}
+
+      {alunoSelecionado && (
+        <EditarAluno
+          open={modalEditarAluno}
+          onClose={() => setModalEditarAluno(false)}
+          onSaved={buscarAlunos}
+          alunoSelecionado={alunoSelecionado}
+        />
+      )}
+
+      {alunoSelecionado && (
+        <DeletarAluno
+          isOpen={modalExclusao}
+          onClose={() => {
+            setModalExclusao(false);
+            setAlunoSelecionado(null);
+          }}
+          alunoSelecionado={alunoSelecionado}
+          aoDeletar={() => buscarAlunos()}
+        />
+      )}
     </div>
   );
 }

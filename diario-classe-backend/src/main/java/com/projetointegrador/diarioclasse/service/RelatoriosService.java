@@ -177,130 +177,8 @@ public class RelatoriosService {
         return outputStream.toByteArray();
     }
 
-    // ---------------- FREQUÊNCIA ----------------
-    public byte[] gerarRelatorioFrequenciaExcel(Long turmaId) throws IOException {
-        List<Aluno> alunos = (turmaId != null) ? alunoRepository.findByTurmaId(turmaId) : alunoRepository.findAll();
-
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Frequência");
-
-        Row header = sheet.createRow(0);
-        header.createCell(0).setCellValue("Aluno");
-        header.createCell(1).setCellValue("Turma");
-        header.createCell(2).setCellValue("Presenças");
-        header.createCell(3).setCellValue("Faltas");
-        header.createCell(4).setCellValue("Percentual");
-
-        int rowNum = 1;
-        for (Aluno aluno : alunos) {
-            long presencas = presencaRepository.countByAlunoIdAndPresenteTrue(aluno.getId());
-            long faltas = presencaRepository.countByAlunoIdAndPresenteFalse(aluno.getId());
-            double percentual = (presencas + faltas) > 0 ? ((double) presencas / (presencas + faltas)) * 100 : 0;
-
-            Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(aluno.getNome());
-            row.createCell(1).setCellValue(aluno.getTurma() != null ? aluno.getTurma().getNome() : "-");
-            row.createCell(2).setCellValue(presencas);
-            row.createCell(3).setCellValue(faltas);
-            row.createCell(4).setCellValue(percentual);
-        }
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        workbook.write(outputStream);
-        workbook.close();
-        return outputStream.toByteArray();
-    }
-
-    public byte[] gerarRelatorioFrequenciaPdf(Long turmaId) {
-        try {
-            // Buscar alunos da turma ou todos
-            List<Aluno> alunos = (turmaId != null)
-                    ? alunoRepository.findByTurmaId(turmaId)
-                    : alunoRepository.findAll();
-
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            Document document = new Document();
-            PdfWriter.getInstance(document, outputStream);
-
-            document.open();
-            document.add(new Paragraph("Relatório de Frequência"));
-            document.add(new Paragraph(" "));
-
-            PdfPTable table = new PdfPTable(5); // 5 colunas
-            table.setWidthPercentage(100);
-            table.addCell("Aluno");
-            table.addCell("Turma");
-            table.addCell("Presenças");
-            table.addCell("Faltas");
-            table.addCell("Percentual");
-
-            for (Aluno aluno : alunos) {
-                table.addCell(aluno.getNome());
-                table.addCell(aluno.getTurma().getNome());
-
-                long presencas = presencaRepository.countByAlunoIdAndPresenteTrue(aluno.getId());
-                long faltas = presencaRepository.countByAlunoIdAndPresenteFalse(aluno.getId());
-                double percentual = (presencas + faltas) > 0 ? ((double) presencas / (presencas + faltas)) * 100 : 0;
-
-                table.addCell(String.valueOf(presencas));
-                table.addCell(String.valueOf(faltas));
-                table.addCell(String.format("%.2f%%", percentual));
-            }
-
-            document.add(table);
-            document.close();
-            return outputStream.toByteArray();
-        } catch (DocumentException e) {
-            throw new RuntimeException("Erro ao gerar PDF de frequência", e);
-        }
-    }
 
     // ---------------- DESEMPENHO ----------------
-    public byte[] gerarRelatorioDesempenhoExcel(Long turmaId) throws IOException {
-        List<Turma> turmas = (turmaId != null) ? turmaRepository.findById(turmaId).map(List::of).orElse(List.of()) : turmaRepository.findAll();
-
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Desempenho");
-
-        Row header = sheet.createRow(0);
-        header.createCell(0).setCellValue("Turma");
-        header.createCell(1).setCellValue("Média Geral");
-        header.createCell(2).setCellValue("Aprovados");
-        header.createCell(3).setCellValue("Reprovados");
-
-        int rowNum = 1;
-        for (Turma turma : turmas) {
-            List<Aluno> alunos = alunoRepository.findByTurmaId(turma.getId());
-
-            List<Double> medias = alunos.stream()
-                    .map(a -> notaRepository.mediaAluno(a.getId()))
-                    .filter(Objects::nonNull) // ignora alunos sem média
-                    .toList();
-
-            double mediaGeral = medias.stream()
-                    .mapToDouble(Double::doubleValue)
-                    .average()
-                    .orElse(0);
-
-            long aprovados = medias.stream()
-                    .filter(m -> m >= 7)
-                    .count();
-
-            long reprovados = alunos.size() - aprovados;
-
-            Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(turma.getNome());
-            row.createCell(1).setCellValue(mediaGeral);
-            row.createCell(2).setCellValue(aprovados);
-            row.createCell(3).setCellValue(reprovados);
-        }
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        workbook.write(outputStream);
-        workbook.close();
-        return outputStream.toByteArray();
-    }
-
     public byte[] gerarRelatorioDesempenhoPdf(Long turmaId) {
         try {
             List<Turma> turmas = (turmaId != null)
@@ -356,6 +234,130 @@ public class RelatoriosService {
         }
     }
 
+    public byte[] gerarRelatorioDesempenhoExcel(Long turmaId) throws IOException {
+        List<Turma> turmas = (turmaId != null) ? turmaRepository.findById(turmaId).map(List::of).orElse(List.of()) : turmaRepository.findAll();
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Desempenho");
+
+        Row header = sheet.createRow(0);
+        header.createCell(0).setCellValue("Turma");
+        header.createCell(1).setCellValue("Média Geral");
+        header.createCell(2).setCellValue("Aprovados");
+        header.createCell(3).setCellValue("Reprovados");
+
+        int rowNum = 1;
+        for (Turma turma : turmas) {
+            List<Aluno> alunos = alunoRepository.findByTurmaId(turma.getId());
+
+            List<Double> medias = alunos.stream()
+                    .map(a -> notaRepository.mediaAluno(a.getId()))
+                    .filter(Objects::nonNull) // ignora alunos sem média
+                    .toList();
+
+            double mediaGeral = medias.stream()
+                    .mapToDouble(Double::doubleValue)
+                    .average()
+                    .orElse(0);
+
+            long aprovados = medias.stream()
+                    .filter(m -> m >= 7)
+                    .count();
+
+            long reprovados = alunos.size() - aprovados;
+
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(turma.getNome());
+            row.createCell(1).setCellValue(mediaGeral);
+            row.createCell(2).setCellValue(aprovados);
+            row.createCell(3).setCellValue(reprovados);
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+        return outputStream.toByteArray();
+    }
+
+
+    // ---------------- FREQUÊNCIA ----------------
+    public byte[] gerarRelatorioFrequenciaPdf(Long turmaId) {
+        try {
+            // Buscar alunos da turma ou todos
+            List<Aluno> alunos = (turmaId != null)
+                    ? alunoRepository.findByTurmaId(turmaId)
+                    : alunoRepository.findAll();
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            Document document = new Document();
+            PdfWriter.getInstance(document, outputStream);
+
+            document.open();
+            document.add(new Paragraph("Relatório de Frequência"));
+            document.add(new Paragraph(" "));
+
+            PdfPTable table = new PdfPTable(5); // 5 colunas
+            table.setWidthPercentage(100);
+            table.addCell("Aluno");
+            table.addCell("Turma");
+            table.addCell("Presenças");
+            table.addCell("Faltas");
+            table.addCell("Percentual");
+
+            for (Aluno aluno : alunos) {
+                table.addCell(aluno.getNome());
+                table.addCell(aluno.getTurma().getNome());
+
+                long presencas = presencaRepository.countByAlunoIdAndPresenteTrue(aluno.getId());
+                long faltas = presencaRepository.countByAlunoIdAndPresenteFalse(aluno.getId());
+                double percentual = (presencas + faltas) > 0 ? ((double) presencas / (presencas + faltas)) * 100 : 0;
+
+                table.addCell(String.valueOf(presencas));
+                table.addCell(String.valueOf(faltas));
+                table.addCell(String.format("%.2f%%", percentual));
+            }
+
+            document.add(table);
+            document.close();
+            return outputStream.toByteArray();
+        } catch (DocumentException e) {
+            throw new RuntimeException("Erro ao gerar PDF de frequência", e);
+        }
+    }
+
+    public byte[] gerarRelatorioFrequenciaExcel(Long turmaId) throws IOException {
+        List<Aluno> alunos = (turmaId != null) ? alunoRepository.findByTurmaId(turmaId) : alunoRepository.findAll();
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Frequência");
+
+        Row header = sheet.createRow(0);
+        header.createCell(0).setCellValue("Aluno");
+        header.createCell(1).setCellValue("Turma");
+        header.createCell(2).setCellValue("Presenças");
+        header.createCell(3).setCellValue("Faltas");
+        header.createCell(4).setCellValue("Percentual");
+
+        int rowNum = 1;
+        for (Aluno aluno : alunos) {
+            long presencas = presencaRepository.countByAlunoIdAndPresenteTrue(aluno.getId());
+            long faltas = presencaRepository.countByAlunoIdAndPresenteFalse(aluno.getId());
+            double percentual = (presencas + faltas) > 0 ? ((double) presencas / (presencas + faltas)) * 100 : 0;
+
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(aluno.getNome());
+            row.createCell(1).setCellValue(aluno.getTurma() != null ? aluno.getTurma().getNome() : "-");
+            row.createCell(2).setCellValue(presencas);
+            row.createCell(3).setCellValue(faltas);
+            row.createCell(4).setCellValue(percentual);
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+        return outputStream.toByteArray();
+    }
+
 
     // ---------------- ALERTAS ----------------
     public byte[] gerarRelatorioAlertasPdf(Long turmaId) {
@@ -395,6 +397,43 @@ public class RelatoriosService {
             throw new RuntimeException("Erro ao gerar PDF de alertas", e);
         }
     }
+
+    public byte[] gerarRelatorioAlertasExcel(Long turmaId) throws IOException {
+        List<Alerta> alertas = (turmaId != null)
+                ? alertaRepository.findByAlunoTurmaId(turmaId)
+                : alertaRepository.findAll();
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Alertas Acadêmicos");
+
+        Row header = sheet.createRow(0);
+        header.createCell(0).setCellValue("Aluno");
+        header.createCell(1).setCellValue("Risco Reprovação");
+        header.createCell(2).setCellValue("Risco Evasão");
+        header.createCell(3).setCellValue("Score");
+        header.createCell(4).setCellValue("Status");
+
+        int rowNum = 1;
+        for (Alerta alerta : alertas) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(alerta.getAluno().getNome());
+            row.createCell(1).setCellValue(alerta.isRiscoReprovacao() ? "Sim" : "Não");
+            row.createCell(2).setCellValue(alerta.isRiscoEvasao() ? "Sim" : "Não");
+            row.createCell(3).setCellValue(alerta.getScoreRisco());
+            row.createCell(4).setCellValue(alerta.getStatus().name());
+        }
+
+        // Ajusta automaticamente a largura das colunas
+        for (int i = 0; i <= 4; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+        return outputStream.toByteArray();
+    }
+
 
     // ---------------- PROFESSORES ----------------
     public byte[] gerarRelatorioProfessoresPdf() {
@@ -441,42 +480,40 @@ public class RelatoriosService {
         }
     }
 
-
-    // ---------------- INDICADORES ----------------
-    public byte[] gerarRelatorioIndicadoresExcel() throws IOException {
-        List<Aluno> alunos = alunoRepository.findAll();
+    public byte[] gerarRelatorioProfessoresExcel() throws IOException {
+        List<Professor> professores = professorRepository.findAll();
 
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Indicadores");
+        Sheet sheet = workbook.createSheet("Professores e Disciplinas");
 
         Row header = sheet.createRow(0);
-        header.createCell(0).setCellValue("Alunos");
-        header.createCell(1).setCellValue("Risco Reprovação");
-        header.createCell(2).setCellValue("Risco Evasão");
-        header.createCell(3).setCellValue("Média Geral");
+        header.createCell(0).setCellValue("Professor");
+        header.createCell(1).setCellValue("Disciplina");
+        header.createCell(2).setCellValue("Turma");
 
         int rowNum = 1;
-        for (Aluno aluno : alunos) {
-            // Busca alertas ativos do aluno
-            List<Alerta> alertas = alertaRepository.findByAlunoIdAndStatus(aluno.getId(), StatusAlerta.ATIVO);
-
-            // Pega o alerta mais recente pela data de geração
-            Alerta alertaMaisRecente = alertas.stream()
-                    .max(Comparator.comparing(Alerta::getDataGeracao))
-                    .orElse(null);
-
-            boolean riscoReprovacao = alertaMaisRecente != null && alertaMaisRecente.isRiscoReprovacao();
-            boolean riscoEvasao = alertaMaisRecente != null && alertaMaisRecente.isRiscoEvasao();
-
-            Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(aluno.getNome());
-            row.createCell(1).setCellValue(riscoReprovacao ? "Sim" : "Não");
-            row.createCell(2).setCellValue(riscoEvasao ? "Sim" : "Não");
-
-            Double mediaAluno = notaRepository.mediaAluno(aluno.getId());
-            row.createCell(3).setCellValue(mediaAluno != null ? mediaAluno : 0.0);
+        for (Professor prof : professores) {
+            for (Disciplina d : prof.getDisciplinas()) {
+                if (d.getTurmas() != null && !d.getTurmas().isEmpty()) {
+                    for (Turma t : d.getTurmas()) {
+                        Row row = sheet.createRow(rowNum++);
+                        row.createCell(0).setCellValue(prof.getNome());
+                        row.createCell(1).setCellValue(d.getNome());
+                        row.createCell(2).setCellValue(t.getNome());
+                    }
+                } else {
+                    Row row = sheet.createRow(rowNum++);
+                    row.createCell(0).setCellValue(prof.getNome());
+                    row.createCell(1).setCellValue(d.getNome());
+                    row.createCell(2).setCellValue("-");
+                }
+            }
         }
 
+        // Ajusta largura das colunas
+        for (int i = 0; i <= 2; i++) {
+            sheet.autoSizeColumn(i);
+        }
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         workbook.write(outputStream);
@@ -484,6 +521,8 @@ public class RelatoriosService {
         return outputStream.toByteArray();
     }
 
+
+    // ---------------- INDICADORES ----------------
     public byte[] gerarRelatorioIndicadoresPdf() {
         try {
             List<Aluno> alunos = alunoRepository.findAll();
@@ -527,5 +566,44 @@ public class RelatoriosService {
         }
     }
 
+    public byte[] gerarRelatorioIndicadoresExcel() throws IOException {
+        List<Aluno> alunos = alunoRepository.findAll();
 
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Indicadores");
+
+        Row header = sheet.createRow(0);
+        header.createCell(0).setCellValue("Alunos");
+        header.createCell(1).setCellValue("Risco Reprovação");
+        header.createCell(2).setCellValue("Risco Evasão");
+        header.createCell(3).setCellValue("Média Geral");
+
+        int rowNum = 1;
+        for (Aluno aluno : alunos) {
+            // Busca alertas ativos do aluno
+            List<Alerta> alertas = alertaRepository.findByAlunoIdAndStatus(aluno.getId(), StatusAlerta.ATIVO);
+
+            // Pega o alerta mais recente pela data de geração
+            Alerta alertaMaisRecente = alertas.stream()
+                    .max(Comparator.comparing(Alerta::getDataGeracao))
+                    .orElse(null);
+
+            boolean riscoReprovacao = alertaMaisRecente != null && alertaMaisRecente.isRiscoReprovacao();
+            boolean riscoEvasao = alertaMaisRecente != null && alertaMaisRecente.isRiscoEvasao();
+
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(aluno.getNome());
+            row.createCell(1).setCellValue(riscoReprovacao ? "Sim" : "Não");
+            row.createCell(2).setCellValue(riscoEvasao ? "Sim" : "Não");
+
+            Double mediaAluno = notaRepository.mediaAluno(aluno.getId());
+            row.createCell(3).setCellValue(mediaAluno != null ? mediaAluno : 0.0);
+        }
+
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+        return outputStream.toByteArray();
+    }
 }

@@ -7,6 +7,7 @@ public record AlunoResponse(
         String nome,
         String matricula,
         LocalDate dataNascimento,
-        Long turmaId
+        Long turmaId,
+        String turmaNome
 ) {
 }

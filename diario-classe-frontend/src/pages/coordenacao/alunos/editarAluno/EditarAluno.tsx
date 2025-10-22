@@ -1,5 +1,5 @@
 import {type ChangeEvent, useEffect, useState} from "react";
-import {Button, Modal, ModalBody, ModalHeader, Spinner} from "flowbite-react";
+import {Button, Card, Modal, ModalBody, ModalHeader, Spinner} from "flowbite-react";
 
 import {atualizarAtributo, buscar} from "../../../../services/Service";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta";
@@ -17,11 +17,11 @@ interface EditarAlunoProps {
 }
 
 function EditarAluno({
-                         open,
-                         onClose,
-                         onSaved,
-                         alunoSelecionado
-                       }: EditarAlunoProps) {
+                       open,
+                       onClose,
+                       onSaved,
+                       alunoSelecionado
+                     }: EditarAlunoProps) {
 
   const [alunoAtualizado, setAlunoAtualizado] = useState<Aluno>(
     {} as Aluno
@@ -46,10 +46,6 @@ function EditarAluno({
           return true;
         })
       );
-
-      // if (Array.isArray(usuarioAtualizado.roles) && usuarioAtualizado.roles.length > 0) {
-      //   dadosFiltrados.roles = usuarioAtualizado.roles;
-      // }
 
       await atualizarAtributo(
         `/alunos/${alunoSelecionado.id}`, dadosFiltrados, setAlunoAtualizado, {
@@ -82,19 +78,19 @@ function EditarAluno({
     });
   }
 
-  useEffect(() => {
-    async function buscarTurmas() {
-      try {
-        await buscar("/turmas", setTurmas, {
-          headers: { Authorization: `Bearer ${usuario.token}` },
-        });
-      } catch (error) {
-        console.error("Erro ao buscar turmas", error);
-      }
+  async function buscarTurmas() {
+    try {
+      await buscar("/turmas", setTurmas, {
+        headers: {Authorization: `Bearer ${usuario.token}`},
+      });
+    } catch (error) {
+      console.error("Erro ao buscar turmas", error);
     }
+  }
 
+  useEffect(() => {
     if (open) {
-      buscarTurmas();
+      buscarTurmas().then();
     }
   }, [open]);
 
@@ -110,63 +106,62 @@ function EditarAluno({
       <Modal show={open} onClose={onClose} size="md" popup>
         <ModalHeader/>
         <ModalBody>
-          <div className="justify-center">
-            <div
-              className="flex justify-center shadow-xl dark:shadow-lg shadow-cinza-300 dark:shadow-preto-600 bg-cinza-100 dark:bg-preto-300 py-[3vh] lg:py-[10vh] rounded-2xl font-bold">
-              <form className="flex max-w-md flex-col gap-4 w-[80%]" onSubmit={editarAluno}>
-                <h2 className="text-slate-900 dark:text-cinza-100 my-4 text-center text-2xl lg:text-4xl">
-                  Editar Aluno
-                </h2>
+          <form className="flex flex-col gap-4" onSubmit={editarAluno}>
+            <Card className="mb-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                Editar Aluno
+              </h2>
+            </Card>
 
-                <InputField
-                  label="Nome"
-                  name="nome"
-                  required
-                  value={alunoAtualizado.nome || ""}
-                  onChange={atualizarEstado}
-                />
+            <InputField
+              label="Nome"
+              name="nome"
+              required
+              value={alunoAtualizado.nome || ""}
+              onChange={atualizarEstado}
+            />
 
-                <InputField
-                  label="Matrícula"
-                  name="matricula"
-                  required
-                  value={alunoAtualizado.matricula || ""}
-                  onChange={atualizarEstado}
-                />
+            <InputField
+              label="Matrícula"
+              name="matricula"
+              required
+              value={alunoAtualizado.matricula || ""}
+              onChange={atualizarEstado}
+            />
 
-                <InputField
-                  label="Data de Nascimento"
-                  name="dataNascimento"
-                  type="date"
-                  required
-                  value={
-                    alunoAtualizado.dataNascimento
-                      ? new Date(alunoAtualizado.dataNascimento).toISOString().split("T")[0]
-                      : ""
-                  }
-                  onChange={atualizarEstado}
-                />
+            <InputField
+              label="Data de Nascimento"
+              name="dataNascimento"
+              type="date"
+              required
+              value={
+                alunoAtualizado.dataNascimento
+                  ? new Date(alunoAtualizado.dataNascimento).toISOString().split("T")[0]
+                  : ""
+              }
+              onChange={atualizarEstado}
+            />
 
+            <SelectField
+              label="Turma"
+              name="turmaId"
+              value={alunoAtualizado.turmaId || ""}
+              options={turmas.map(t => ({value: t.id, label: t.nome}))}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                setAlunoAtualizado({
+                  ...alunoAtualizado,
+                  turmaId: Number(e.target.value),
+                })
+              }
+            />
 
-                <SelectField
-                  label="Turma"
-                  name="turmaId"
-                  value={alunoAtualizado.turmaId || ""}
-                  options={turmas.map(t => ({ value: t.id, label: t.nome }))}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                    setAlunoAtualizado({
-                      ...alunoAtualizado,
-                      turmaId: Number(e.target.value),
-                    })
-                  }
-                />
-
-                <Button type="submit">
-                  {isLoading ? <Spinner aria-label="Carregando"/> : <span>Salvar Alterações</span>}
-                </Button>
-              </form>
-            </div>
-          </div>
+            <Button
+              type="submit"
+              color="green"
+              className='cursor-pointer mt-6 focus:outline-none focus:ring-0'>
+              {isLoading ? <Spinner size="md" light/> : <span>Salvar Alterações</span>}
+            </Button>
+          </form>
         </ModalBody>
       </Modal>
     </>

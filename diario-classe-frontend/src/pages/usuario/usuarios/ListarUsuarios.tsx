@@ -14,7 +14,7 @@ import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {buscar} from "../../../services/Service.ts";
 import type {Usuario} from "../../../models"
 import {useAuth} from "../../../contexts/UseAuth.ts";
-import {FaEdit, FaPlus, FaSearch, FaTrash, FaTrashAlt} from "react-icons/fa";
+import {FaEdit, FaPlus, FaSearch, FaTrashAlt} from "react-icons/fa";
 import Cadastro from "../cadastro/Cadastro.tsx";
 import EditarUsuario from "../editarUsuario/EditarUsuario.tsx";
 import DeletarUsuario from "../deletarUsuario/DeletarUsuario.tsx";

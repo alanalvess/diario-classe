@@ -1,128 +1,172 @@
 import {useEffect, useState} from "react";
 import {
   Button,
+  Card,
   Modal,
   ModalBody,
   ModalHeader,
+  Spinner,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeadCell,
-  TableRow,
-  TextInput
+  TableRow
 } from "flowbite-react";
-import {FaTrashAlt} from "react-icons/fa";
-import {buscar, cadastrar, deletar} from "../../../../services/Service.ts";
+import {FaEdit, FaPlus, FaTrashAlt} from "react-icons/fa";
+import {buscar} from "../../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta.ts";
 import {useAuth} from "../../../../contexts/UseAuth.ts";
-import type {Responsavel} from "../../../../models";
+import type {Aluno, Responsavel} from "../../../../models";
+import CadastroResponsavel from "../cadastroResponsavel/CadastroResponsavel.tsx";
+import EditarResponsavel from "../editarResponsavel/EditarResponsavel.tsx";
+import DeletarResponsavel from "../deletarResponsavel/DeletarResponsavel.tsx";
 
 interface ResponsaveisModalProps {
-  show: boolean;
+  open: boolean;
   onClose: () => void;
-  alunoId: number;
-  alunoNome: string;
+  alunoSelecionado?: Aluno | null;
 }
 
-export default function ResponsaveisModal({ show, onClose, alunoId, alunoNome }: ResponsaveisModalProps) {
+export default function ResponsaveisModal({open, onClose, alunoSelecionado}: ResponsaveisModalProps) {
   const {usuario} = useAuth();
   const [responsaveis, setResponsaveis] = useState<Responsavel[]>([]);
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-  const [telefone, setTelefone] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [responsavelSelecionado, setResponsavelSelecionado] = useState<Responsavel | null>(null);
+  const [modalEditarResponsavel, setModalEditarResponsavel] = useState(false);
+
+  const [modalCadastroResponsavel, setModalCadastroResponsavel] = useState(false);
+  const [modalExclusaoResponsavel, setModalExclusaoResponsavel] = useState(false);
 
   // 🔹 Buscar responsáveis do aluno
   async function listarResponsaveis() {
     try {
-      setLoading(true);
-      await buscar(`/alunos/${alunoId}/responsaveis`, setResponsaveis, {
+      setIsLoading(true);
+      await buscar(`/alunos/${alunoSelecionado.id}/responsaveis`, setResponsaveis, {
         headers: {authorization: `Bearer ${usuario.token}`},
       });
     } catch {
       ToastAlerta("Erro ao carregar responsáveis", Toast.Error);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }
 
   useEffect(() => {
-    if (show) {
-      listarResponsaveis();
-    }
-  }, [show]);
-
-  // 🔹 Adicionar responsável
-  async function salvarResponsavel() {
-    if (!nome || !email || !telefone) {
-      ToastAlerta("Preencha todos os campos", Toast.Error);
-      return;
-    }
-
-    const body = { nome, email, telefone };
-
-    try {
-      await cadastrar(`/responsaveis/aluno/${alunoId}`, body, (novo: Responsavel) => {
-        setResponsaveis(prev => [...prev, novo]);
-        setNome("");
-        setEmail("");
-        setTelefone("");
-        ToastAlerta("Responsável adicionado com sucesso", Toast.Success);
-        listarResponsaveis();
-      }, {headers: {Authorization: `Bearer ${usuario.token}`}});
-    } catch {
-      ToastAlerta("Erro ao adicionar responsável", Toast.Error);
-    }
-  }
-
-  // 🔹 Excluir responsável
-  async function removerResponsavel(id: number) {
-    try {
-      await deletar(`/responsaveis/${id}`, {headers: {Authorization: `Bearer ${usuario.token}`}});
-      setResponsaveis(prev => prev.filter(r => r.id !== id));
-      ToastAlerta("Responsável removido", Toast.Success);
-    } catch {
-      ToastAlerta("Erro ao remover responsável", Toast.Error);
-    }
-  }
+    if (open && alunoSelecionado) listarResponsaveis();
+  }, [open, alunoSelecionado]);
 
   return (
-    <Modal show={show} onClose={onClose}>
-      <ModalHeader>Responsáveis do(a) Aluno(a) {alunoNome}</ModalHeader>
-      <ModalBody>
-        <div className="flex flex-col gap-3 mb-4">
-          <TextInput placeholder="Nome" value={nome} onChange={e => setNome(e.target.value)} />
-          <TextInput placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
-          <TextInput placeholder="Telefone" value={telefone} onChange={e => setTelefone(e.target.value)} />
-          <Button onClick={salvarResponsavel}>Adicionar</Button>
-        </div>
+    <>
+      <Modal show={open} onClose={onClose} size="5xl" popup>
+        <ModalHeader/>
+        <ModalBody>
+          <Card className="mb-10 p-4 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+            <h2 className="text-xl text-gray-900 dark:text-gray-100">
+              Responsáveis do(a){" "}
+              <span className="font-bold text-green-600">{alunoSelecionado.nome}</span>
+            </h2>
 
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeadCell>Nome</TableHeadCell>
-              <TableHeadCell>Email</TableHeadCell>
-              <TableHeadCell>Telefone</TableHeadCell>
-              <TableHeadCell>Ações</TableHeadCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {responsaveis.map(r => (
-              <TableRow key={r.id}>
-                <TableCell>{r.nome}</TableCell>
-                <TableCell>{r.email}</TableCell>
-                <TableCell>{r.telefone}</TableCell>
-                <TableCell>
-                  <Button color="failure" size="xs" onClick={() => removerResponsavel(r.id)}>
-                    <FaTrashAlt size={16} />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </ModalBody>
-    </Modal>
+            <Button
+              color="alternative"
+              className="cursor-pointer mt-4 flex items-center justify-center gap-2 px-6 py-3 rounded-lg shadow hover:shadow-md transition duration-200 focus:outline-none focus:ring-0"
+              onClick={() => setModalCadastroResponsavel(true)}
+            >
+              <FaPlus className="text-lg"/> Adicionar Responsável
+            </Button>
+          </Card>
+
+          {isLoading ? (
+            <div className="flex justify-center py-6">
+              <Spinner size="lg" color="purple"/>
+            </div>
+          ) : (
+            <Table hoverable>
+              <TableHead>
+                <TableRow>
+                  <TableHeadCell>Nome</TableHeadCell>
+                  <TableHeadCell>Email</TableHeadCell>
+                  <TableHeadCell>Telefone</TableHeadCell>
+                  <TableHeadCell className="text-center">Ações</TableHeadCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {responsaveis.length > 0 ? (
+                  responsaveis.map(r => (
+                    <TableRow key={r.id}>
+                      <TableCell>{r.nome}</TableCell>
+                      <TableCell>{r.email}</TableCell>
+                      <TableCell>{r.telefone}</TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex justify-center gap-2 flex-wrap">
+                          <Button
+                            className="cursor-pointer text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 focus:outline-none focus:ring-0"
+                            color="alternative"
+                            size="xs"
+                            onClick={() => {
+                              setResponsavelSelecionado(r);
+                              setModalEditarResponsavel(true);
+                            }}
+                          >
+                            <FaEdit size={18}/>
+                          </Button>
+                          <Button
+                            className="cursor-pointer text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 focus:outline-none focus:ring-0"
+                            color="alternative"
+                            size="xs"
+                            onClick={() => {
+                              setResponsavelSelecionado(r);
+                              setModalExclusaoResponsavel(true);
+                            }}
+                          >
+                            <FaTrashAlt size={18}/>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-gray-500 py-4">
+                      Nenhum responsável cadastrado.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          )}
+        </ModalBody>
+      </Modal>
+
+      {/* 🔹 Modal de cadastro separado */}
+      <CadastroResponsavel
+        open={modalCadastroResponsavel}
+        onClose={() => setModalCadastroResponsavel(false)}
+        onSaved={listarResponsaveis}
+        alunoSelecionado={alunoSelecionado}
+      />
+
+      {responsavelSelecionado && (
+        <EditarResponsavel
+          open={modalEditarResponsavel}
+          onClose={() => setModalEditarResponsavel(false)}
+          onSaved={listarResponsaveis}
+          responsavelSelecionado={responsavelSelecionado}
+        />
+      )}
+
+      {responsavelSelecionado && (
+        <DeletarResponsavel
+          isOpen={modalExclusaoResponsavel}
+          onClose={() => {
+            setModalExclusaoResponsavel(false);
+            setResponsavelSelecionado(null);
+          }}
+          responsavelSelecionado={responsavelSelecionado}
+          aoDeletar={() => listarResponsaveis()}
+        />
+      )}
+    </>
   );
 }
