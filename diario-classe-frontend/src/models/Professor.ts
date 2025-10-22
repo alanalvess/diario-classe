@@ -3,5 +3,7 @@ export interface Professor {
   nome: string;
   email: string;
   disciplinaIds: number[];
+  disciplinaNomes?: string[];
   turmaIds?: number[];
+  turmaNomes?: string[];
 }
