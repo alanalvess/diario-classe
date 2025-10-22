@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Button, Card, Spinner, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
 import type {Disciplina, Professor, Turma} from "../../../models";
-import {buscar, deletar} from "../../../services/Service.ts";
+import {buscar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import {FaEdit, FaPlus, FaTrashAlt} from "react-icons/fa";
@@ -22,13 +22,13 @@ export default function ProfessoresPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [professorSelecionado, setProfessorSelecionado] = useState<Professor | null>(null);
+
+  const [modalCadastro, setModalCadastro] = useState(false);
   const [modalEditarProfessor, setModalEditarProfessor] = useState(false);
   const [modalExclusao, setModalExclusao] = useState(false);
 
-  const [modalCadastro, setModalCadastro] = useState(false);
-
-
   async function buscarProfessores() {
+    setIsLoading(true);
     try {
       await buscar("/professores", setProfessores, {
         headers: {Authorization: `Bearer ${usuario.token}`},
@@ -37,6 +37,32 @@ export default function ProfessoresPage() {
       if (error instanceof Error) {
         ToastAlerta("Erro ao carregar professores", Toast.Error);
       }
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function buscarDisciplinas() {
+    try {
+      await buscar("/disciplinas", setDisciplinas, {
+        headers: {Authorization: `Bearer ${usuario.token}`},
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao carregar disciplinas", Toast.Error);
+      }
+    }
+  }
+
+  async function buscarTurmas() {
+    try {
+      await buscar("/turmas", setTurmas, {
+        headers: {Authorization: `Bearer ${usuario.token}`},
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao carregar turmas", Toast.Error);
+      }
     }
   }
 
@@ -44,25 +70,9 @@ export default function ProfessoresPage() {
   useEffect(() => {
     if (!isHydrated || !isAuthenticated) return;
     buscarProfessores();
-    buscar("/disciplinas", setDisciplinas, {headers: {Authorization: `Bearer ${usuario.token}`}});
-    buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+    buscarDisciplinas()
+    buscarTurmas()
   }, [isHydrated, isAuthenticated]);
-
-
-  // 🔹 Excluir professor
-  async function excluirProfessor(id: number) {
-    try {
-      await deletar(`/professores/${id}`, {headers: {Authorization: `Bearer ${usuario.token}`}});
-      setProfessores(prev => prev.filter(p => p.id !== id));
-      ToastAlerta("✅ Professor excluído", Toast.Success);
-    } catch (error) {
-      if (error instanceof Error) {
-        ToastAlerta("Erro ao excluir professor", Toast.Error);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -132,17 +142,17 @@ export default function ProfessoresPage() {
                         ))}
                       </TableCell>
                       <TableCell className="text-center">
-                        <div className='flex flex-row gap-4'>
+                        <div className="flex justify-center gap-2 flex-wrap">
                           <Button
                             className="cursor-pointer text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 focus:outline-none focus:ring-0"
                             color="alternative"
                             size="xs"
                             onClick={() => {
-                              setProfessorSelecionado(professor)
+                              setProfessorSelecionado(professor);
                               setModalEditarProfessor(true);
                             }}
                           >
-                            <FaEdit size={20}/>
+                            <FaEdit size={18}/>
                           </Button>
 
                           <Button
@@ -154,7 +164,7 @@ export default function ProfessoresPage() {
                               setModalExclusao(true);
                             }}
                           >
-                            <FaTrashAlt size={20}/>
+                            <FaTrashAlt size={18}/>
                           </Button>
                         </div>
                       </TableCell>
@@ -162,7 +172,7 @@ export default function ProfessoresPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-gray-500 py-4">
+                    <TableCell colSpan={5} className="text-center text-gray-500 py-4">
                       Nenhum aluno cadastrado.
                     </TableCell>
                   </TableRow>
@@ -171,7 +181,6 @@ export default function ProfessoresPage() {
             </Table>
           </div>
 
-          {/* 📱 Layout mobile */}
           <div className="md:hidden flex flex-col gap-4 mt-4">
             {professores.length > 0 ? (
               professores.map((professor, i) => (

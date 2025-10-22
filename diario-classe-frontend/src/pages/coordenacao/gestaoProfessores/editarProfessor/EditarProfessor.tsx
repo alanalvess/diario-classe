@@ -23,9 +23,7 @@ function EditarProfessor({
                            professorSelecionado
                          }: EditarProfessorProps) {
 
-  const [professorAtualizado, setProfessorAtualizado] = useState<Professor>(
-    {} as Professor
-  );
+  const [professorAtualizado, setProfessorAtualizado] = useState<Professor>({} as Professor);
   const [isLoading, setIsLoading] = useState(false);
   const {usuario, handleLogout} = useAuth();
 
@@ -35,13 +33,11 @@ function EditarProfessor({
   const [disciplinaIdsSelecionadas, setDisciplinaIdsSelecionadas] = useState<number[]>([]);
   const [turmaIdsSelecionadas, setTurmaIdsSelecionadas] = useState<number[]>([]);
 
-  //
   async function editarProfessor(e: ChangeEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // 🔹 Clona e filtra o objeto para enviar só o que tem valor
       const dadosFiltrados = Object.fromEntries(
         Object.entries(professorAtualizado).filter(([key, value]) => {
           if (value === "" || value === null || value === undefined) return false;
@@ -107,12 +103,6 @@ function EditarProfessor({
   useEffect(() => {
     if (open) {
       buscarDisciplinas();
-    }
-  }, [open]);
-
-  useEffect(() => {
-
-    if (open) {
       buscarTurmas();
     }
   }, [open]);
@@ -170,7 +160,7 @@ function EditarProfessor({
               type="submit"
               color="green"
               className='cursor-pointer mt-6 focus:outline-none focus:ring-0'>
-              {isLoading ? <Spinner aria-label="Carregando"/> : <span>Salvar Alterações</span>}
+              {isLoading ? <Spinner size="md" light/> : <span>Salvar Alterações</span>}
             </Button>
           </form>
 

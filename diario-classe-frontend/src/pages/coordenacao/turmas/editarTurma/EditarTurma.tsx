@@ -1,12 +1,11 @@
 import React, {type ChangeEvent, useEffect, useState} from "react";
-import {Button, Modal, ModalBody, ModalHeader, Spinner} from "flowbite-react";
+import {Button, Card, Label, Modal, ModalBody, ModalHeader, Spinner, TextInput} from "flowbite-react";
 
 import {atualizarAtributo, buscar} from "../../../../services/Service";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta";
 import type {Disciplina, Professor, Turma} from "../../../../models"
-
-import InputField from "../../../../components/form/InputField.tsx";
 import {useAuth} from "../../../../contexts/UseAuth.ts";
+import MultiSelectDropdown from "../../../../components/form/MultipleSelectDropdown.tsx";
 
 interface EditarTurmaProps {
   open?: boolean;
@@ -22,23 +21,21 @@ function EditarTurma({
                        turmaSelecionada
                      }: EditarTurmaProps) {
 
-  const [turmaAtualizada, setTurmaAtualizada] = useState<Turma>(
-    {} as Turma
-  );
+  const [turmaAtualizada, setTurmaAtualizada] = useState<Turma>({} as Turma);
   const [isLoading, setIsLoading] = useState(false);
   const {usuario, handleLogout} = useAuth();
 
   const [professores, setProfessores] = useState<Professor[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
 
+  const [professorIdsSelecionados, setProfessorIdsSelecionados] = useState<number[]>([]);
+  const [disciplinaIdsSelecionadas, setDisciplinaIdsSelecionadas] = useState<number[]>([]);
 
-  //
   async function editarTurma(e: ChangeEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // 🔹 Clona e filtra o objeto para enviar só o que tem valor
       const dadosFiltrados = Object.fromEntries(
         Object.entries(turmaAtualizada).filter(([key, value]) => {
           if (value === "" || value === null || value === undefined) return false;
@@ -46,7 +43,9 @@ function EditarTurma({
           return true;
         })
       );
-      console.log("Payload enviado:", dadosFiltrados);
+
+      dadosFiltrados.professorIds = professorIdsSelecionados;
+      dadosFiltrados.disciplinaIds = disciplinaIdsSelecionadas;
 
       await atualizarAtributo(
         `/turmas/${turmaSelecionada.id}`, dadosFiltrados, setTurmaAtualizada, {
@@ -102,12 +101,6 @@ function EditarTurma({
   useEffect(() => {
     if (open) {
       buscarProfessores();
-    }
-  }, [open]);
-
-  useEffect(() => {
-
-    if (open) {
       buscarDisciplinas();
     }
   }, [open]);
@@ -115,6 +108,9 @@ function EditarTurma({
   useEffect(() => {
     if (turmaSelecionada) {
       setTurmaAtualizada({...turmaSelecionada});
+
+      setProfessorIdsSelecionados(turmaSelecionada.professorIds || []);
+      setDisciplinaIdsSelecionadas(turmaSelecionada.disciplinaIds || []);
     }
   }, [turmaSelecionada, open]);
 
@@ -123,77 +119,58 @@ function EditarTurma({
       <Modal show={open} onClose={onClose} size="md" popup>
         <ModalHeader/>
         <ModalBody>
-          <div className="justify-center">
-            <div
-              className="flex justify-center shadow-xl dark:shadow-lg shadow-cinza-300 dark:shadow-preto-600 bg-cinza-100 dark:bg-preto-300 py-[3vh] lg:py-[10vh] rounded-2xl font-bold">
-              <form className="flex max-w-md flex-col gap-4 w-[80%]" onSubmit={editarTurma}>
-                <h2 className="text-slate-900 dark:text-cinza-100 my-4 text-center text-2xl lg:text-4xl">
-                  Editar Turma
-                </h2>
+          <form className="flex flex-col gap-4" onSubmit={editarTurma}>
+            <Card className="mb-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                Editar Turma
+              </h2>
+            </Card>
 
-                <InputField
-                  label="Nome"
-                  name="nome"
-                  required
-                  value={turmaAtualizada.nome || ""}
-                  onChange={atualizarEstado}
-                />
+            <TextInput
+              name="nome"
+              placeholder="Nome"
+              required
+              value={turmaAtualizada.nome || ""}
+              onChange={atualizarEstado}
+            />
 
-                <InputField
-                  label="Ano Letivo"
-                  name="anoLetivo"
-                  required
-                  value={turmaAtualizada.anoLetivo || ""}
-                  onChange={atualizarEstado}
-                />
+            <TextInput
+              name="anoLetivo"
+              placeholder="Ano Letivo"
+              required
+              value={turmaAtualizada.anoLetivo || ""}
+              onChange={atualizarEstado}
+            />
 
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Disciplinas
-                </label>
-                <select
-                  multiple
-                  value={turmaAtualizada.disciplinaIds?.map(String) || []}
-                  onChange={(e) => {
-                    const values = Array.from(e.target.selectedOptions, opt => Number(opt.value));
-                    setTurmaAtualizada({
-                      ...turmaAtualizada,
-                      disciplinaIds: values,
-                    });
-                  }}
-                  className="border rounded p-2 w-full dark:bg-gray-800 dark:text-gray-100"
-                >
-                  {disciplinas.map(d => (
-                    <option key={d.id} value={d.id}>{d.nome}</option>
-                  ))}
-                </select>
-
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-4">
-                  Professores
-                </label>
-                <select
-                  multiple
-                  value={turmaAtualizada.professorIds?.map(String) || []}
-                  onChange={(e) => {
-                    const values = Array.from(e.target.selectedOptions, opt => Number(opt.value));
-                    setTurmaAtualizada({
-                      ...turmaAtualizada,
-                      professorIds: values,
-                    });
-                  }}
-                  className="border rounded p-2 w-full dark:bg-gray-800 dark:text-gray-100"
-                >
-                  {professores.map(p => (
-                    <option key={p.id} value={p.id}>{p.nome}</option>
-                  ))}
-                </select>
-
-
-                <Button type="submit">
-                  {isLoading ? <Spinner aria-label="Carregando"/> : <span>Salvar Alterações</span>}
-                </Button>
-              </form>
+            <div>
+              <Label>Professores</Label>
+              <MultiSelectDropdown
+                titulo="Professores"
+                opcoes={professores}
+                selecionados={professorIdsSelecionados}
+                setSelecionados={setProfessorIdsSelecionados}
+              />
             </div>
-          </div>
+
+            <div>
+              <Label>Disciplinas</Label>
+              <MultiSelectDropdown
+                titulo="Disciplinas"
+                opcoes={disciplinas}
+                selecionados={disciplinaIdsSelecionadas}
+                setSelecionados={setDisciplinaIdsSelecionadas}
+              />
+            </div>
+
+            <Button
+              type="submit"
+              color="green"
+              className='cursor-pointer mt-6 focus:outline-none focus:ring-0'
+            >
+              {isLoading ? <Spinner size="md" light/> : <span>Salvar Alterações</span>}
+            </Button>
+          </form>
+
         </ModalBody>
       </Modal>
     </>

@@ -6,59 +6,66 @@ import {buscar, cadastrar} from "../../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta.ts";
 import {useAuth} from "../../../../contexts/UseAuth.ts";
 import MultiSelectDropdown from "../../../../components/form/MultipleSelectDropdown.tsx";
+import {RotatingLines} from "react-loader-spinner";
 
-interface CadastroProfessorProps {
+interface CadastroTurmaProps {
   open: boolean;
   onClose: () => void;
   onSaved: () => void;
 }
 
-function CadastroProfessor({
+function CadastroTurma({
                              open,
                              onClose,
                              onSaved,
-                           }: CadastroProfessorProps) {
+                           }: CadastroTurmaProps) {
 
   const {usuario, isAuthenticated, isHydrated} = useAuth();
 
-  const [professorCadastro, setProfessorCadastro] = useState<Professor>(
+  const [turmaCadastro, setTurmaCadastro] = useState<Turma>(
     {
       id: 0,
       nome: "",
-      email: "",
+      anoLetivo: "",
+      mediaTurma: 0,
+      frequenciaMedia: 0,
+      professorIds: [],
+      professorNomes: [],
       disciplinaIds: [],
-      turmaIds: []
+      disciplinaNomes: [],
+      alunoIds: [],
+      alunoNomes: [],
     }
   )
 
-  const [turmas, setTurmas] = useState<Turma[]>([]);
+  const [professores, setProfessores] = useState<Professor[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const [professorIdsSelecionados, setProfessorIdsSelecionados] = useState<number[]>([]);
   const [disciplinaIdsSelecionadas, setDisciplinaIdsSelecionadas] = useState<number[]>([]);
-  const [turmaIdsSelecionadas, setTurmaIdsSelecionadas] = useState<number[]>([]);
 
   async function cadastrarNovoProfessor(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsLoading(true);
 
     const body = {
-      ...professorCadastro,
+      ...turmaCadastro,
+      professorIds: professorIdsSelecionados,
       disciplinaIds: disciplinaIdsSelecionadas,
-      turmaIds: turmaIdsSelecionadas,
     };
 
     try {
-      await cadastrar(`/professores`, body, setProfessorCadastro, {
+      await cadastrar(`/turmas`, body, setTurmaCadastro, {
         headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"},
       });
 
-      ToastAlerta("Usuário cadastrado com sucesso", Toast.Success);
+      ToastAlerta("Turma cadastrada com sucesso", Toast.Success);
       onSaved();
       onClose();
     } catch (error) {
       if (error instanceof Error) {
-        ToastAlerta("Erro ao cadastrar usuário", Toast.Error);
+        ToastAlerta("Erro ao cadastrar turma", Toast.Error);
       }
     } finally {
       setIsLoading(false);
@@ -66,10 +73,10 @@ function CadastroProfessor({
 
   }
 
-  async function buscarTurmas() {
+  async function buscarProfessores() {
     setIsLoading(true);
     try {
-      await buscar("/turmas", setTurmas, {
+      await buscar("/professores", setProfessores, {
         headers: {Authorization: `Bearer ${usuario.token}`},
       });
     } catch (error) {
@@ -98,21 +105,27 @@ function CadastroProfessor({
 
   useEffect(() => {
     if (!isHydrated || !isAuthenticated) return;
+    buscarProfessores();
     buscarDisciplinas()
-    buscarTurmas();
   }, [isHydrated, isAuthenticated]);
 
   useEffect(() => {
     if (open) {
-      setProfessorCadastro({
+      setTurmaCadastro({
         id: 0,
         nome: "",
-        email: "",
+        anoLetivo: "",
+        mediaTurma: 0,
+        frequenciaMedia: 0,
+        professorIds: [],
+        professorNomes: [],
         disciplinaIds: [],
-        turmaIds: []
+        disciplinaNomes: [],
+        alunoIds: [],
+        alunoNomes: [],
       });
-      setDisciplinaIdsSelecionadas([]); // também limpar o select
-      setTurmaIdsSelecionadas([]);
+      setProfessorIdsSelecionados([]);
+      setDisciplinaIdsSelecionadas([]);
     }
   }, [open]);
 
@@ -136,34 +149,34 @@ function CadastroProfessor({
               autoComplete="nome"
               placeholder="Nome"
               required
-              value={professorCadastro.nome}
-              onChange={e => setProfessorCadastro({...professorCadastro, nome: e.target.value})}
+              value={turmaCadastro.nome}
+              onChange={e => setTurmaCadastro({...turmaCadastro, nome: e.target.value})}
 
             />
 
             <TextInput
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              placeholder="E-Mail"
+              id="anoLetivo"
+              name="anoLetivo"
+              type="text"
+              autoComplete="anoLetivo"
+              placeholder="Ano Letivo"
               required
-              value={professorCadastro.email}
-              onChange={e => setProfessorCadastro({...professorCadastro, email: e.target.value})}
+              value={turmaCadastro.anoLetivo}
+              onChange={e => setTurmaCadastro({...turmaCadastro, anoLetivo: e.target.value})}
             />
 
             <MultiSelectDropdown
-              titulo="Disciplinas *"
+              titulo="Turmas"
+              opcoes={professores}
+              selecionados={professorIdsSelecionados}
+              setSelecionados={setProfessorIdsSelecionados}
+            />
+
+            <MultiSelectDropdown
+              titulo="Disciplinas"
               opcoes={disciplinas}
               selecionados={disciplinaIdsSelecionadas}
               setSelecionados={setDisciplinaIdsSelecionadas}
-            />
-
-            <MultiSelectDropdown
-              titulo="Turmas (opcional)"
-              opcoes={turmas}
-              selecionados={turmaIdsSelecionadas}
-              setSelecionados={setTurmaIdsSelecionadas}
             />
 
             <Button color="green" type="submit" className='cursor-pointer mt-6 focus:outline-none focus:ring-0'>
@@ -180,4 +193,4 @@ function CadastroProfessor({
   )
 }
 
-export default CadastroProfessor;
+export default CadastroTurma;
