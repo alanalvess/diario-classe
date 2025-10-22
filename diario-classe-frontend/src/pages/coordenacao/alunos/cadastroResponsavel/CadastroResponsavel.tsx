@@ -1,10 +1,13 @@
-import {type FormEvent, useEffect, useState} from "react";
-import {Button, Card, Modal, ModalBody, ModalHeader, Spinner, TextInput} from "flowbite-react";
+import React, {type FormEvent, useEffect, useState} from "react";
+import {Button, Card, Modal, ModalBody, ModalHeader, Select, Spinner, TextInput} from "flowbite-react";
 
 import type {Aluno, Responsavel} from "../../../../models";
 import {cadastrar} from "../../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta.ts";
 import {useAuth} from "../../../../contexts/UseAuth.ts";
+
+import type {Filiacao} from "../../../../enums/Filiacao.ts";
+import {FiliacaoText} from "../../../../utils/FiliacaoText.ts";
 
 interface CadastroResponsavelProps {
   open: boolean;
@@ -21,6 +24,7 @@ export default function CadastroResponsavel({open, onClose, onSaved, alunoSeleci
     nome: "",
     email: "",
     telefone: "",
+    filiacao: "" as Filiacao,
     alunoIds: [],
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -53,6 +57,7 @@ export default function CadastroResponsavel({open, onClose, onSaved, alunoSeleci
         nome: "",
         email: "",
         telefone: "",
+        filiacao: "" as Filiacao,
         alunoIds: [],
       });
     }
@@ -96,6 +101,23 @@ export default function CadastroResponsavel({open, onClose, onSaved, alunoSeleci
             value={responsavelCadastro.telefone}
             onChange={(e) => setResponsavelCadastro({...responsavelCadastro, telefone: e.target.value})}
           />
+
+          <Select
+            id="filiacao"
+            name="filiacao"
+            required
+            value={responsavelCadastro.filiacao}
+            onChange={(e) => setResponsavelCadastro({...responsavelCadastro, filiacao: e.target.value as Filiacao})}
+          >
+            <option value="">Selecione a Filiação</option>
+
+            {FiliacaoText.map(({ value, label }) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </Select>
+
 
           <Button
             type="submit"

@@ -1,10 +1,12 @@
-import {type ChangeEvent, useEffect, useState} from "react";
-import {Button, Card, Modal, ModalBody, ModalHeader, Spinner, TextInput} from "flowbite-react";
+import React, {type ChangeEvent, useEffect, useState} from "react";
+import {Button, Card, Modal, ModalBody, ModalHeader, Select, Spinner, TextInput} from "flowbite-react";
 
 import {atualizarAtributo} from "../../../../services/Service";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta";
 import type {Responsavel} from "../../../../models"
 import {useAuth} from "../../../../contexts/UseAuth.ts";
+import type {Filiacao} from "../../../../enums/Filiacao.ts";
+import {FiliacaoText} from "../../../../utils/FiliacaoText.ts";
 
 interface EditarResponsavelProps {
   open?: boolean;
@@ -115,9 +117,25 @@ function EditarResponsavel({
               type="tel"
               placeholder="Telefone"
               required
-              value={ResponsavelAtualizado.email || ""}
+              value={ResponsavelAtualizado.telefone || ""}
               onChange={atualizarEstado}
             />
+
+            <Select
+              id="filiacao"
+              name="filiacao"
+              required
+              value={ResponsavelAtualizado.filiacao}
+              onChange={atualizarEstado}
+            >
+              <option value="">Selecione a Filiação</option>
+
+              {FiliacaoText.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </Select>
 
             <Button
               type="submit"

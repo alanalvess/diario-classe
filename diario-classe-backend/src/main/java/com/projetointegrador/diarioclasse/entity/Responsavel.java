@@ -1,5 +1,6 @@
 package com.projetointegrador.diarioclasse.entity;
 
+import com.projetointegrador.diarioclasse.enums.Filiacao;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +25,7 @@ public class Responsavel {
     private String nome;
     private String email;
     private String telefone;
+    private Filiacao filiacao;
 
     @ManyToMany
     @JoinTable(

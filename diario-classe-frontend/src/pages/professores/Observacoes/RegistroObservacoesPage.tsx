@@ -209,14 +209,15 @@ export default function RegistroObservacoesPage() {
 
           {Object.entries(CategoriasAgrupadas).map(([grupo, categorias]) => (
             <optgroup key={grupo} label={grupo}>
-              {categorias.map((valor) => (
-                <option key={valor} value={valor}>
-                  {valor.charAt(0) + valor.slice(1).toLowerCase().replaceAll("_", " ")}
+              {categorias.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
                 </option>
               ))}
             </optgroup>
           ))}
         </select>
+
 
 
         <textarea placeholder="Descrição" value={descricao} onChange={e => setDescricao(e.target.value)}

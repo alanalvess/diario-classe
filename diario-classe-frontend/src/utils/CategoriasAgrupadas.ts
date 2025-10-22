@@ -2,22 +2,22 @@ import {CategoriaObservacao} from "../enums/CategoriaObservacao.ts";
 
 export const CategoriasAgrupadas = {
   Acadêmicas: [
-    CategoriaObservacao.ATIVIDADE,
-    CategoriaObservacao.DESEMPENHO,
-    CategoriaObservacao.PARTICIPACAO,
+    {value: CategoriaObservacao.ATIVIDADE, label: 'Atividade'},
+    {value: CategoriaObservacao.DESEMPENHO, label: 'Desempenho'},
+    {value: CategoriaObservacao.PARTICIPACAO, label: 'Participação'},
   ],
   Comportamentais: [
-    CategoriaObservacao.COMPORTAMENTO,
-    CategoriaObservacao.INDISCIPLINA,
+    {value: CategoriaObservacao.COMPORTAMENTO, label: 'Comportamento'},
+    {value: CategoriaObservacao.INDISCIPLINA, label: 'Indisciplina'},
   ],
   Socioemocionais: [
-    CategoriaObservacao.SAUDE,
-    CategoriaObservacao.EMOCIONAL,
+    {value: CategoriaObservacao.SAUDE, label: 'Saúde'},
+    {value: CategoriaObservacao.EMOCIONAL, label: 'Emocional'},
   ],
   Administrativas: [
-    CategoriaObservacao.FALTA,
-    CategoriaObservacao.JUSTIFICATIVA,
-    CategoriaObservacao.REUNIAO,
-    CategoriaObservacao.OBSERVACAO_GERAL,
+    {value: CategoriaObservacao.FALTA, label: 'Falta'},
+    {value: CategoriaObservacao.JUSTIFICATIVA, label: 'Justificativa'},
+    {value: CategoriaObservacao.REUNIAO, label: 'Reunião'},
+    {value: CategoriaObservacao.OBSERVACAO_GERAL, label: 'Observação geral'},
   ],
-};
+}

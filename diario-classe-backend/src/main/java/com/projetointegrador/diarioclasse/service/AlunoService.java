@@ -108,6 +108,7 @@ public class AlunoService {
                         responsavel.getNome(),
                         responsavel.getEmail(),
                         responsavel.getTelefone(),
+                        responsavel.getFiliacao(),
                         responsavel.getAlunos() != null
                                 ? responsavel.getAlunos().stream().map(Aluno::getId).toList()
                                 : List.of()

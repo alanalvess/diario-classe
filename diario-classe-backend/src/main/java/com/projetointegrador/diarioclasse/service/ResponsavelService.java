@@ -4,15 +4,11 @@ import com.projetointegrador.diarioclasse.dto.request.ResponsavelRequest;
 import com.projetointegrador.diarioclasse.dto.request.patchrequest.ResponsavelPatchRequest;
 import com.projetointegrador.diarioclasse.dto.response.AlunoResponse;
 import com.projetointegrador.diarioclasse.dto.response.ResponsavelResponse;
-import com.projetointegrador.diarioclasse.dto.response.UsuarioResponse;
 import com.projetointegrador.diarioclasse.entity.Aluno;
 import com.projetointegrador.diarioclasse.entity.Responsavel;
-import com.projetointegrador.diarioclasse.entity.Usuario;
-import com.projetointegrador.diarioclasse.exeption.PermissaoNegadaException;
 import com.projetointegrador.diarioclasse.repository.AlunoRepository;
 import com.projetointegrador.diarioclasse.repository.ResponsavelRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -41,6 +37,7 @@ public class ResponsavelService {
                 .nome(request.nome())
                 .email(request.email())
                 .telefone(request.telefone())
+                .filiacao(request.filiacao())
                 .alunos(alunos)
                 .build();
 
@@ -58,6 +55,7 @@ public class ResponsavelService {
                 .nome(request.nome())
                 .email(request.email())
                 .telefone(request.telefone())
+                .filiacao(request.filiacao())
                 .alunos(new ArrayList<>()) // sempre lista mutável
                 .build();
 
@@ -89,6 +87,7 @@ public class ResponsavelService {
         responsavel.setNome(request.nome());
         responsavel.setEmail(request.email());
         responsavel.setTelefone(request.telefone());
+        responsavel.setFiliacao(request.filiacao());
         responsavel.setAlunos(alunos);
 
         responsavelRepository.save(responsavel);
@@ -102,6 +101,7 @@ public class ResponsavelService {
         if (request.nome() != null) responsavel.setNome(request.nome());
         if (request.email() != null) responsavel.setEmail(request.email());
         if (request.telefone() != null) responsavel.setTelefone(request.telefone());
+        if (request.filiacao() != null) responsavel.setFiliacao(request.filiacao());
 
         responsavelRepository.save(responsavel);
         return toResponse(responsavel);
@@ -158,6 +158,7 @@ public class ResponsavelService {
                 r.getNome(),
                 r.getEmail(),
                 r.getTelefone(),
+                r.getFiliacao(),
                 alunoIds
         );
     }

@@ -255,7 +255,7 @@ export default function AlunosPage() {
                     <span className="font-semibold">Turma:</span> {aluno.turmaNome}
                   </p>
 
-                  <div className="flex justify-between mt-3 border-t border-gray-200 dark:border-gray-600 pt-3">
+                  <div className="flex justify-around mt-3 border-t border-gray-200 dark:border-gray-600 pt-3">
                     <Button
                       className="cursor-pointer text-gray-500 hover:text-gray-900 dark:hover:text-white focus:outline-none focus:ring-0"
                       color="alternative"
@@ -265,7 +265,7 @@ export default function AlunosPage() {
                         setModalQrCode(true);
                       }}
                     >
-                      <LuQrCode size={18}/>
+                      <LuQrCode size={20}/>
                     </Button>
 
                     <Button
@@ -273,8 +273,8 @@ export default function AlunosPage() {
                       color="alternative"
                       size="xs"
                       onClick={() => {
-                        setAlunoSelecionado(alunoSelecionado);
-                        setModalResponsavel(true);
+                        setAlunoSelecionado(aluno)
+                        setModalResponsavel(true)
                       }}
                     >
                       <IoMdPersonAdd size={20}/>
@@ -307,11 +307,11 @@ export default function AlunosPage() {
                 </div>
               ))
             ) : (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center text-gray-500 py-4">
+              <Card>
+                <div className="text-center text-gray-500 py-4">
                   Nenhum responsável cadastrado.
-                </TableCell>
-              </TableRow>
+                </div>
+              </Card>
             )}
           </div>
         </div>
