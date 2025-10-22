@@ -52,7 +52,7 @@ public class ProfessorService {
                 .map(id -> disciplinaRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Disciplina não encontrada: " + id)))
                 .collect(Collectors.toList());
-        List<Turma> turma = request.turmaIds().stream()
+        List<Turma> turmas = request.turmaIds().stream()
                 .map(id -> turmaRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Turma não encontrada: " + id)))
                 .collect(Collectors.toList());
@@ -61,7 +61,7 @@ public class ProfessorService {
                 .nome(request.nome())
                 .email(request.email())
                 .disciplinas(disciplinas)
-                .turmas(turma)
+                .turmas(turmas)
                 .build();
 
         professorRepository.save(professor);
@@ -129,8 +129,16 @@ public class ProfessorService {
                 ? professor.getDisciplinas().stream().map(Disciplina::getId).collect(Collectors.toList())
                 : Collections.emptyList();
 
+        List<String> disciplinaNomes = professor.getDisciplinas() != null
+                ? professor.getDisciplinas().stream().map(Disciplina::getNome).collect(Collectors.toList())
+                : Collections.emptyList();
+
         List<Long> turmaIds = professor.getTurmas() != null
                 ? professor.getTurmas().stream().map(Turma::getId).toList()
+                : Collections.emptyList();
+
+        List<String> turmaNomes = professor.getTurmas() != null
+                ? professor.getTurmas().stream().map(Turma::getNome).toList()
                 : Collections.emptyList();
 
         return new ProfessorResponse(
@@ -138,7 +146,10 @@ public class ProfessorService {
                 professor.getNome(),
                 professor.getEmail(),
                 disciplinaIds,
-                turmaIds
+                disciplinaNomes,
+                turmaIds,
+                turmaNomes
+
         );
     }
 }

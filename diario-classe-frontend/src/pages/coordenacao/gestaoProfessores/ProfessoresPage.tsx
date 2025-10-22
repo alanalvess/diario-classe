@@ -1,25 +1,15 @@
 import React, {useEffect, useState} from "react";
-import {
-  Button, Card,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeadCell,
-  TableRow,
-  TextInput
-} from "flowbite-react";
+import {Button, Card, Spinner, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
 import type {Disciplina, Professor, Turma} from "../../../models";
-import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
+import {buscar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
-import {RotatingLines} from "react-loader-spinner";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import {FaEdit, FaPlus, FaTrashAlt} from "react-icons/fa";
 import EditarProfessor from "./editarProfessor/EditarProfessor.tsx";
-import MultiSelectDropdown from "../../../components/form/MultipleSelectDropdown.tsx";
 import {Roles} from "../../../enums/Roles.ts";
 import {useNavigate} from "react-router-dom";
 import CadastroProfessor from "./cadastroProfessor/CadastroProfessor.tsx";
+import DeletarProfessor from "./deletarProfessor/DeletarProfessor.tsx";
 
 export default function ProfessoresPage() {
   const {usuario, isHydrated, isAuthenticated} = useAuth();
@@ -29,15 +19,11 @@ export default function ProfessoresPage() {
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [turmas, setTurmas] = useState<Turma[]>([]);
 
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-  const [disciplinaIdsSelecionadas, setDisciplinaIdsSelecionadas] = useState<number[]>([]);
-  const [turmaIdsSelecionadas, setTurmaIdsSelecionadas] = useState<number[]>([]);
-
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [professorSelecionado, setProfessorSelecionado] = useState<Professor | null>(null);
   const [modalEditarProfessor, setModalEditarProfessor] = useState(false);
+  const [modalExclusao, setModalExclusao] = useState(false);
 
   const [modalCadastro, setModalCadastro] = useState(false);
 
@@ -62,39 +48,6 @@ export default function ProfessoresPage() {
     buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${usuario.token}`}});
   }, [isHydrated, isAuthenticated]);
 
-  // 🔹 Criar professor
-  async function salvarProfessor() {
-    if (!nome || !email || disciplinaIdsSelecionadas.length === 0) {
-      ToastAlerta("⚠️ Nome, e-mail e ao menos uma disciplina são obrigatórios", Toast.Error);
-      return;
-    }
-
-    const body = {
-      nome,
-      email,
-      disciplinaIds: disciplinaIdsSelecionadas,
-      turmaIds: turmaIdsSelecionadas.length > 0 ? turmaIdsSelecionadas : []
-    };
-
-    try {
-      await cadastrar("/professores", body, (novoProfessor: Professor) => {
-        setProfessores(prev => [...prev, novoProfessor]);
-        setNome("");
-        setEmail("");
-        setDisciplinaIdsSelecionadas([]);
-        setTurmaIdsSelecionadas([]);
-        ToastAlerta("✅ Professor criado com sucesso", Toast.Success);
-      }, {
-        headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        ToastAlerta("Erro ao criar professor", Toast.Error);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   // 🔹 Excluir professor
   async function excluirProfessor(id: number) {
@@ -139,95 +92,152 @@ export default function ProfessoresPage() {
         </Button>
       </Card>
 
-      {/* Formulário */}
-      <div className="flex flex-col gap-2 mb-6">
-        <TextInput
-          type="text"
-          name="nome"
-          placeholder="Nome do professor"
-          value={nome}
-          onChange={e => setNome(e.target.value)}
-        />
-        <TextInput
-          type="email"
-          placeholder="E-mail do professor"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-        />
 
-        <MultiSelectDropdown
-          titulo="Disciplinas *"
-          opcoes={disciplinas}
-          selecionados={disciplinaIdsSelecionadas}
-          setSelecionados={setDisciplinaIdsSelecionadas}
-        />
+      {isLoading ? (
+        <div className="flex justify-center mt-10">
+          <Spinner size="xl" color="purple"/>
+        </div>
+      ) : (
+        <div className="w-full">
+          <div
+            className="hidden md:block overflow-x-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
 
-        <MultiSelectDropdown
-          titulo="Turmas (opcional)"
-          opcoes={turmas}
-          selecionados={turmaIdsSelecionadas}
-          setSelecionados={setTurmaIdsSelecionadas}
-        />
+            <Table className="min-w-[700px] text-sm text-gray-700 dark:text-gray-300">
+              <TableHead className="bg-gray-100 dark:bg-gray-700">
+                <TableHeadCell className="text-center font-semibold">Nome</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Email</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Disciplinas</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Turmas</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Ações</TableHeadCell>
+              </TableHead>
 
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-600">
+                {professores.length > 0 ? (
+                  professores.map((professor, i) => (
+                    <TableRow
+                      key={i}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-150"
+                    >
+                      <TableCell
+                        className="text-center font-medium text-gray-900 dark:text-gray-100">{professor.nome}</TableCell>
+                      <TableCell className="text-center">{professor.email}</TableCell>
+                      <TableCell className="text-center">
+                        {professor.disciplinaNomes.map((nome, index) => (
+                          <div key={index}>{nome}</div>
+                        ))}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {professor.turmaNomes.map((nome, index) => (
+                          <div key={index}>{nome}</div>
+                        ))}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <div className='flex flex-row gap-4'>
+                          <Button
+                            className="cursor-pointer text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 focus:outline-none focus:ring-0"
+                            color="alternative"
+                            size="xs"
+                            onClick={() => {
+                              setProfessorSelecionado(professor)
+                              setModalEditarProfessor(true);
+                            }}
+                          >
+                            <FaEdit size={20}/>
+                          </Button>
 
-        <Button onClick={salvarProfessor}>
-          {isLoading ?
-            <RotatingLines
-              strokeColor="white"
-              strokeWidth="5"
-              animationDuration="0.75"
-              width="24"
-              visible={true}
-            /> :
-            <span>Adicionar Professor</span>}
-        </Button>
-      </div>
+                          <Button
+                            className="cursor-pointer text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 focus:outline-none focus:ring-0"
+                            color="alternative"
+                            size="xs"
+                            onClick={() => {
+                              setProfessorSelecionado(professor)
+                              setModalExclusao(true);
+                            }}
+                          >
+                            <FaTrashAlt size={20}/>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-gray-500 py-4">
+                      Nenhum aluno cadastrado.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
 
-      {/* Tabela */}
-      {professores.length > 0 && (
-        <Table>
-          <TableHead>
-            <TableHeadCell>Nome</TableHeadCell>
-            <TableHeadCell>Email</TableHeadCell>
-            <TableHeadCell>Disciplinas</TableHeadCell>
-            <TableHeadCell>Turmas</TableHeadCell>
-            <TableHeadCell>Ações</TableHeadCell>
-          </TableHead>
-          <TableBody>
-            {professores.map((professor, i) => (
-              <TableRow key={i}>
-                <TableCell>{professor.nome}</TableCell>
-                <TableCell>{professor.email}</TableCell>
-                <TableCell>{professor.disciplinaNomes.map(nome => (nome)).join(", ")}</TableCell>
-                <TableCell>{professor.turmaNomes.map(nome => (nome)).join(", ")}</TableCell>
-                <TableCell>
-                  <div className='flex flex-row gap-4'>
+          {/* 📱 Layout mobile */}
+          <div className="md:hidden flex flex-col gap-4 mt-4">
+            {professores.length > 0 ? (
+              professores.map((professor, i) => (
+                <div
+                  key={i}
+                  className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700"
+                >
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    {professor.nome}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 py-2">
+                    <span className="font-semibold">E-Mail:</span> {professor.email}
+                  </p>
+
+                  <p className="text-sm text-gray-600 dark:text-gray-400py-2">
+                    <span className="font-semibold">Disciplinas:</span>
+                    {professor.disciplinaNomes.map((nome, index) => (
+                      <div key={index}><span>-</span>{nome}</div>
+                    ))}
+                  </p>
+
+                  <p className="text-sm text-gray-600 dark:text-gray-400 py-2">
+                    <span className="font-semibold">Turmas:</span>
+                    {professor.turmaNomes.map((nome, index) => (
+                      <div key={index}><span>-</span>{nome}</div>
+                    ))}
+                  </p>
+
+                  <div className="flex justify-around mt-3 border-t border-gray-200 dark:border-gray-600 pt-3">
                     <Button
-                      color="warning"
+                      className="cursor-pointer text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 focus:outline-none focus:ring-0"
+                      color="alternative"
                       size="xs"
                       onClick={() => {
-                        setProfessorSelecionado(professor)
+                        setProfessorSelecionado(professor);
                         setModalEditarProfessor(true);
                       }}
-                      className='cursor-pointer'
                     >
                       <FaEdit size={20}/>
                     </Button>
 
-                  <Button
-                    color="failure"
-                    size="xs"
-                    onClick={() => excluirProfessor(professor.id)}
-                  >
-                    <FaTrashAlt size={20}/>
-                  </Button>
+                    <Button
+                      className="cursor-pointer text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 focus:outline-none focus:ring-0"
+                      color="alternative"
+                      size="xs"
+                      onClick={() => {
+                        setProfessorSelecionado(professor);
+                        setModalExclusao(true);
+                      }}
+                    >
+                      <FaTrashAlt size={20}/>
+                    </Button>
                   </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                </div>
+              ))
+            ) : (
+              <Card>
+                <div className="text-center text-gray-500 py-4">
+                  Nenhum responsável cadastrado.
+                </div>
+              </Card>
+            )}
+          </div>
+        </div>
       )}
+
 
       <CadastroProfessor
         open={modalCadastro}
@@ -238,12 +248,26 @@ export default function ProfessoresPage() {
         onSaved={buscarProfessores}
       />
 
-      <EditarProfessor
-        open={modalEditarProfessor}
-        onClose={() => setModalEditarProfessor(false)}
-        onSaved={buscarProfessores}
-        professorSelecionado={professorSelecionado}
-      />
+      {professorSelecionado && (
+        <EditarProfessor
+          open={modalEditarProfessor}
+          onClose={() => setModalEditarProfessor(false)}
+          onSaved={buscarProfessores}
+          professorSelecionado={professorSelecionado}
+        />
+      )}
+
+      {professorSelecionado && (
+        <DeletarProfessor
+          isOpen={modalExclusao}
+          onClose={() => {
+            setModalExclusao(false);
+            setProfessorSelecionado(null);
+          }}
+          professorSelecionado={professorSelecionado}
+          aoDeletar={() => buscarProfessores()}
+        />
+      )}
     </div>
   );
 }

@@ -7,6 +7,8 @@ public record ProfessorResponse(
         String nome,
         String email,
         List<Long> disciplinaIds,
-        List<Long> turmaIds
+        List<String> disciplinaNomes,
+        List<Long> turmaIds,
+        List<String> turmaNomes
 ) {
 }

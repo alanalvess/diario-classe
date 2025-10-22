@@ -24,7 +24,7 @@ import CadastroAluno from "./cadastroAluno/CadastroAluno.tsx";
 import {useNavigate} from "react-router-dom";
 import {Roles} from "../../../enums/Roles.ts";
 import DeletarAluno from "./deletarAluno/DeletarAluno.tsx";
-import GerarQRCode from "./GerarQRCode/GerarQRCode.tsx";
+import GerarQRCode from "./gerarQRCode/GerarQRCode.tsx";
 
 export default function AlunosPage() {
   const navigate = useNavigate();
@@ -336,7 +336,6 @@ export default function AlunosPage() {
 
 
       {alunoSelecionado && (
-
         <ResponsaveisModal
           open={modalResponsavel}
           onClose={() => setModalResponsavel(false)}
@@ -365,5 +364,6 @@ export default function AlunosPage() {
         />
       )}
     </div>
-  );
+  )
+    ;
 }
