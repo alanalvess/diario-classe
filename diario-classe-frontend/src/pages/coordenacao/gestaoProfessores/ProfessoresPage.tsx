@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {
-  Button,
-  Checkbox, Label,
+  Button, Card,
   Table,
   TableBody,
   TableCell,
@@ -15,13 +14,16 @@ import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {RotatingLines} from "react-loader-spinner";
 import {useAuth} from "../../../contexts/UseAuth.ts";
-import {FaEdit, FaTrashAlt} from "react-icons/fa";
+import {FaEdit, FaPlus, FaTrashAlt} from "react-icons/fa";
 import EditarProfessor from "./editarProfessor/EditarProfessor.tsx";
 import MultiSelectDropdown from "../../../components/form/MultipleSelectDropdown.tsx";
-import InputField from "../../../components/form/InputField.tsx";
+import {Roles} from "../../../enums/Roles.ts";
+import {useNavigate} from "react-router-dom";
+import CadastroProfessor from "./cadastroProfessor/CadastroProfessor.tsx";
 
 export default function ProfessoresPage() {
   const {usuario, isHydrated, isAuthenticated} = useAuth();
+  const navigate = useNavigate();
 
   const [professores, setProfessores] = useState<Professor[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
@@ -36,6 +38,9 @@ export default function ProfessoresPage() {
 
   const [professorSelecionado, setProfessorSelecionado] = useState<Professor | null>(null);
   const [modalEditarProfessor, setModalEditarProfessor] = useState(false);
+
+  const [modalCadastro, setModalCadastro] = useState(false);
+
 
   async function buscarProfessores() {
     try {
@@ -106,29 +111,33 @@ export default function ProfessoresPage() {
     }
   }
 
-  // 🔹 Helpers para exibir nomes
-  function getDisciplinaNome(id: number) {
-    return disciplinas.find(d => d.id === id)?.nome || "N/A";
-  }
+  useEffect(() => {
+    if (!isHydrated) return;
 
-  function getTurmaNome(id: number) {
-    return turmas.find(t => t.id === id)?.nome || "N/A";
-  }
-
-  // const toggleDisciplina = (id: number) => {
-  //   setDisciplinaIdsSelecionadas(prev =>
-  //     prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
-  //   );
-  // };
-  // const toggleTurma = (id: number) => {
-  //   setTurmaIdsSelecionadas(prev =>
-  //     prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
-  //   );
-  // };
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.COORDENADOR)) {
+      ToastAlerta("Você precisa estar autenticado como Coordenador", Toast.Info);
+      navigate("/login");
+    }
+  }, [isHydrated, isAuthenticated, usuario]);
 
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
-      <h1 className="text-2xl font-bold mb-6">Gestão de Professores</h1>
+      <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100">
+          Gestão de Professores
+        </h2>
+        <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">
+          Gerencie todos os professores, visualize informações e adicione novos registros facilmente.
+        </p>
+
+        <Button
+          color="alternative"
+          className="cursor-pointer mt-4 md:mt-0 flex items-center justify-center gap-2 px-6 py-3 rounded-lg shadow hover:shadow-md transition duration-200 focus:outline-none focus:ring-0"
+          onClick={() => setModalCadastro(true)}
+        >
+          <FaPlus className="text-lg"/> Adicionar Professor
+        </Button>
+      </Card>
 
       {/* Formulário */}
       <div className="flex flex-col gap-2 mb-6">
@@ -189,8 +198,8 @@ export default function ProfessoresPage() {
               <TableRow key={i}>
                 <TableCell>{professor.nome}</TableCell>
                 <TableCell>{professor.email}</TableCell>
-                <TableCell>{professor.disciplinaIds.map(id => getDisciplinaNome(id)).join(", ")}</TableCell>
-                <TableCell>{professor.turmaIds.map(id => getTurmaNome(id)).join(", ")}</TableCell>
+                <TableCell>{professor.disciplinaNomes.map(nome => (nome)).join(", ")}</TableCell>
+                <TableCell>{professor.turmaNomes.map(nome => (nome)).join(", ")}</TableCell>
                 <TableCell>
                   <div className='flex flex-row gap-4'>
                     <Button
@@ -219,6 +228,15 @@ export default function ProfessoresPage() {
           </TableBody>
         </Table>
       )}
+
+      <CadastroProfessor
+        open={modalCadastro}
+        onClose={() => {
+          setModalCadastro(false);
+          setProfessorSelecionado(null);
+        }}
+        onSaved={buscarProfessores}
+      />
 
       <EditarProfessor
         open={modalEditarProfessor}

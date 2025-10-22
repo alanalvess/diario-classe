@@ -1,8 +1,8 @@
 import {type ChangeEvent, useEffect, useState} from "react";
 import {Button, Modal, ModalBody, ModalHeader, Spinner} from "flowbite-react";
 
-import {atualizarAtributo, buscar} from "../../../../services/Service";
-import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta";
+import {atualizarAtributo, buscar} from "../../../../services/Service.ts";
+import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta.ts";
 import type {Aluno, Disciplina, Observacao, Professor, Turma} from "../../../../models"
 
 import InputField from "../../../../components/form/InputField.tsx";

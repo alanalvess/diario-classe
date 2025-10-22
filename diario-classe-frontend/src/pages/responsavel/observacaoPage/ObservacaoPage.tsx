@@ -1,10 +1,9 @@
 import {useEffect, useState} from "react";
 import {Badge, Card, Spinner, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
-import {FaBookOpen, FaStickyNote, FaUserTie} from "react-icons/fa";
+import {FaStickyNote} from "react-icons/fa";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import {buscar} from "../../../services/Service.ts";
 import type {Aluno, Observacao, Responsavel} from "../../../models";
-import {CategoriaObservacao} from "../../../enums/CategoriaObservacao.ts";
 import SelectField from "../../../components/form/SelectField.tsx";
 import {CategoriasAgrupadas} from "../../../utils/CategoriasAgrupadas.ts";
 
@@ -16,6 +15,12 @@ export default function ObservacoesPage() {
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [alunoSelecionado, setAlunoSelecionado] = useState<string>("");
 
+  const categoriaCores: Record<string, "success" | "failure" | "info" | "secondary"> = {
+    Acadêmicas: "info",
+    Comportamentais: "failure",
+    Socioemocionais: "success",
+    Administrativas: "secondary",
+  };
 
   async function buscarResponsavelPorEmail() {
     try {
@@ -103,13 +108,13 @@ export default function ObservacoesPage() {
 
       {isLoading ? (
         <div className="flex justify-center mt-10">
-          <Spinner size="xl" />
+          <Spinner size="xl"/>
         </div>
       ) : (
         alunoSelecionado && (
           <Card className="p-6 mt-10 shadow-md">
             <div className="flex items-center gap-3 mb-6">
-              <FaStickyNote className="text-3xl text-blue-600" />
+              <FaStickyNote className="text-3xl text-blue-600"/>
               <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
                 Anotações Recentes
               </h2>
@@ -152,51 +157,17 @@ export default function ObservacoesPage() {
                           {obs.professorNome || "-"}
                         </div>
                       </TableCell>
-
-                      {/* 🏷️ Categoria */}
                       <TableCell>
-                        {Object.entries(CategoriasAgrupadas).map(
-                          ([grupo, categorias]) => {
-                            if (
-                              categorias.includes(
-                                obs.categoria as CategoriaObservacao
-                              )
-                            ) {
-                              let color:
-                                | "success"
-                                | "failure"
-                                | "info"
-                                | "secondary" = "info";
-                              switch (grupo) {
-                                case "Acadêmicas":
-                                  color = "info";
-                                  break;
-                                case "Comportamentais":
-                                  color = "failure";
-                                  break;
-                                case "Socioemocionais":
-                                  color = "success";
-                                  break;
-                                case "Administrativas":
-                                  color = "secondary";
-                                  break;
-                              }
-
-                              return (
-                                <Badge key={obs.id} color={color}>
-                                  {obs.categoria
-                                      .charAt(0)
-                                      .toUpperCase() +
-                                    obs.categoria
-                                      .slice(1)
-                                      .toLowerCase()
-                                      .replaceAll("_", " ")}
-                                </Badge>
-                              );
-                            }
-                            return null;
-                          }
-                        )}
+                        {Object.entries(CategoriasAgrupadas).map(([grupo, categorias]) => {
+                          const categoria = categorias.find((cat) => cat.value === obs.categoria);
+                          return (
+                            categoria && (
+                              <Badge key={obs.id} color={categoriaCores[grupo]}>
+                                {categoria.label}
+                              </Badge>
+                            )
+                          );
+                        })}
                       </TableCell>
 
                       {/* 📝 Descrição */}
