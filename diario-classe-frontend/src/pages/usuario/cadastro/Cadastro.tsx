@@ -1,11 +1,10 @@
-import {type ChangeEvent, type FormEvent, useState} from "react";
-import {Button, Label, Modal, ModalBody, ModalHeader, TextInput} from "flowbite-react";
+import React, {type ChangeEvent, type FormEvent, useState} from "react";
+import {Button, Card, Modal, ModalBody, ModalHeader, Select, Spinner, TextInput} from "flowbite-react";
 
 import type {Usuario} from "../../../models";
 import {cadastrar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {Roles} from "../../../enums/Roles.ts";
-import {RotatingLines} from "react-loader-spinner";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 
 interface CadastroProps {
@@ -87,122 +86,84 @@ function Cadastro({
       <Modal show={open} onClose={onClose} size="md" popup>
         <ModalHeader/>
         <ModalBody>
-          <div
-            className="py-5 flex justify-center shadow-xl shadow-cinza-300 dark:shadow-preto-600 bg-cinza-100 dark:bg-preto-300  rounded-2xl font-bold">
-            <form className="flex w-[80%] flex-col gap-4" onSubmit={cadastrarNovoUsuario}>
-              <h2 className="text-slate-900 dark:text-cinza-100  text-center text-4xl">
-                Cadastro
+          <form className="flex flex-col gap-4" onSubmit={cadastrarNovoUsuario}>
+            <Card className="mb-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                Cadastro de Usuário
               </h2>
+            </Card>
 
-              <div>
-                <div className="mb-2 block">
-                  <Label htmlFor="nome"/>
-                </div>
+            <TextInput
+              id="nome"
+              name="nome"
+              type="text"
+              autoComplete="nome"
+              placeholder="Nome"
+              required
+              value={usuarioCadastro.nome}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => atualizarEstado(e)}
+            />
 
-                <TextInput
-                  id="nome"
-                  name="nome"
-                  type="text"
-                  autoComplete="nome"
-                  placeholder="Nome"
-                  required
-                  value={usuarioCadastro.nome}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    atualizarEstado(e)
-                  }
-                />
-              </div>
+            <TextInput
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              placeholder="email@email.com"
+              required
+              value={usuarioCadastro.email}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                atualizarEstado(e)
+              }
+            />
 
-              <div>
-                <div className="mb-2 block">
-                  <Label htmlFor="email"/>
-                </div>
+            <TextInput
+              id="senha"
+              name="senha"
+              type="password"
+              autoComplete="senha"
+              placeholder="senha"
+              required
+              value={usuarioCadastro.senha}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                atualizarEstado(e)
+              }
+            />
 
-                <TextInput
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="email@email.com"
-                  required
-                  value={usuarioCadastro.email}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    atualizarEstado(e)
-                  }
-                />
-              </div>
+            <TextInput
+              id="confirmarSenha"
+              name="confirmarSenha"
+              placeholder="confirmarSenha"
+              type="password"
+              required
+              value={confirmarSenha}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                handleConfirmarSenha(e)
+              }
+            />
 
-              <div>
-                <div className="mb-2 block">
-                  <Label htmlFor="senha"/>
-                </div>
+            <Select
+              id="roles"
+              name="roles"
+              value={usuarioCadastro.roles[0] || ""}
+              onChange={atualizarEstado}
+              required
+            >
+              <option value="">Selecione o tipo</option>
+              {Object.values(Roles).map((role) => (
+                <option key={role} value={role}>
+                  {role}
+                </option>
+              ))}
+            </Select>
 
-                <TextInput
-                  id="senha"
-                  name="senha"
-                  type="password"
-                  autoComplete="senha"
-                  placeholder="senha"
-                  required
-                  value={usuarioCadastro.senha}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    atualizarEstado(e)
-                  }
-                />
-              </div>
-
-              <div>
-                <div className="mb-2 block">
-                  <Label htmlFor="confirmarSenha"/>
-                </div>
-
-                <TextInput
-                  id="confirmarSenha"
-                  name="confirmarSenha"
-                  placeholder="confirmarSenha"
-                  type="password"
-                  required
-                  value={confirmarSenha}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleConfirmarSenha(e)
-                  }
-                />
-              </div>
-
-              {/* Tipo de Usuário */}
-              <div>
-                <Label htmlFor="roles"/>
-                <select
-                  id="roles"
-                  name="roles"
-                  value={usuarioCadastro.roles[0] || ""}
-                  onChange={atualizarEstado}
-                  className="border rounded p-2 w-full"
-                  required
-                >
-                  <option value="">Selecione o tipo</option>
-                  {Object.values(Roles).map((role) => (
-                    <option key={role} value={role}>
-                      {role}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <Button type="submit" className=' mt-6'>
-                {isLoading ?
-                  <RotatingLines
-                    strokeColor="white"
-                    strokeWidth="5"
-                    animationDuration="0.75"
-                    width="24"
-                    visible={true}
-                  /> :
-                  <span>Cadastrar</span>
-                }
-              </Button>
-            </form>
-          </div>
+            <Button color="green" type="submit" className='cursor-pointer mt-6 focus:outline-none focus:ring-0'>
+              {isLoading ?
+                <Spinner size="md" light/> :
+                <span>Cadastrar</span>
+              }
+            </Button>
+          </form>
 
         </ModalBody>
       </Modal>

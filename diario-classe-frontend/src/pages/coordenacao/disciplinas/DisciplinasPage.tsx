@@ -1,28 +1,32 @@
-import {useEffect, useState} from "react";
-import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
-import type {Aluno, Disciplina} from "../../../models";
-import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
+import React, {useEffect, useState} from "react";
+import {Button, Card, Spinner, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
+import type {Disciplina} from "../../../models";
+import {buscar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
-import {RotatingLines} from "react-loader-spinner";
 import {useAuth} from "../../../contexts/UseAuth.ts";
-import {LuQrCode} from "react-icons/lu";
-import {IoMdPersonAdd} from "react-icons/io";
-import {FaEdit, FaTrashAlt} from "react-icons/fa";
-import EditarAluno from "../alunos/editarAluno/EditarAluno.tsx";
+import {FaEdit, FaPlus, FaTrashAlt} from "react-icons/fa";
 import EditarDisciplina from "./editarDisciplina/EditarDisciplina.tsx";
+import CadastroDisciplina from "./cadastroDisciplina/CadastroDisciplina.tsx";
+import DeletarDisciplina from "./deletarDisciplina/DeletarDisciplina.tsx";
+import {Roles} from "../../../enums/Roles.ts";
+import {useNavigate} from "react-router-dom";
 
 export default function DisciplinasPage() {
   const {usuario, isHydrated, isAuthenticated} = useAuth();
 
+  const navigate = useNavigate();
+
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
-  const [nome, setNome] = useState("");
-  const [codigo, setCodigo] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const [disciplinaSelecionada, setDisciplinaSelecionada] = useState<Disciplina | null>(null);
+
+  const [modalCadastro, setModalCadastro] = useState(false);
   const [modalEditarDisciplina, setModalEditarDisciplina] = useState(false);
+  const [modalExclusao, setModalExclusao] = useState(false);
 
   async function buscarDisciplinas() {
+    setIsLoading(true);
     try {
       await buscar("/disciplinas", setDisciplinas, {
         headers: {Authorization: `Bearer ${usuario.token}`},
@@ -31,144 +35,196 @@ export default function DisciplinasPage() {
       if (error instanceof Error) {
         ToastAlerta("Erro ao carregar disciplinas", Toast.Error);
       }
+    } finally {
+      setIsLoading(false);
     }
   }
+
   // 🔹 Buscar disciplinas
   useEffect(() => {
     if (!isHydrated || !isAuthenticated) return;
     buscarDisciplinas();
   }, [isHydrated, isAuthenticated]);
 
-  // 🔹 Criar disciplina
-  async function salvarDisciplina() {
-    if (!nome || !codigo) {
-      ToastAlerta("⚠️ Nome e código são obrigatórios", Toast.Error);
-      return;
-    }
+  useEffect(() => {
+    if (!isHydrated) return;
 
-    const body = {nome, codigo};
-
-    try {
-      await cadastrar("/disciplinas", body, (novaDisciplina: Disciplina) => {
-        setDisciplinas(prev => [...prev, novaDisciplina]);
-        setNome("");
-        setCodigo("");
-        ToastAlerta("✅ Disciplina criada com sucesso", Toast.Success);
-      }, {
-        headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        ToastAlerta("Erro ao criar disciplina", Toast.Error);
-      }
-    } finally {
-      setIsLoading(false);
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.COORDENADOR)) {
+      ToastAlerta("Você precisa estar autenticado como Coordenador", Toast.Info);
+      navigate("/login");
     }
-  }
-
-  // 🔹 Excluir disciplina
-  async function excluirDisciplina(id: number) {
-    try {
-      await deletar(`/disciplinas/${id}`, {headers: {Authorization: `Bearer ${usuario.token}`}});
-      setDisciplinas(prev => prev.filter(d => d.id !== id));
-      ToastAlerta("✅ Disciplina excluída", Toast.Success);
-    } catch (error) {
-      if (error instanceof Error) {
-        ToastAlerta("Erro ao excluir disciplina", Toast.Error);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  }, [isHydrated, isAuthenticated, usuario]);
 
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
-      <h1 className="text-2xl font-bold mb-6">Gestão de Disciplinas</h1>
+      <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+          Gestão de Disciplinas
+        </h2>
+        <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">
+          Gerencie todos as disciplinas, visualize informações e adicione novos registros facilmente.
+        </p>
 
-      {/* Formulário */}
-      <div className="flex flex-col gap-2 mb-6">
-        <input
-          type="text"
-          placeholder="Nome da disciplina"
-          value={nome}
-          onChange={e => setNome(e.target.value)}
-          className="border rounded p-2"
-        />
-        <input
-          type="text"
-          placeholder="Código da disciplina"
-          value={codigo}
-          onChange={e => setCodigo(e.target.value)}
-          className="border rounded p-2"
-        />
-        <Button onClick={salvarDisciplina}>
-          {isLoading ?
-            <RotatingLines
-              strokeColor="white"
-              strokeWidth="5"
-              animationDuration="0.75"
-              width="24"
-              visible={true}
-            /> :
-            <span>Adicionar Disciplina</span>}
+        <Button
+          color="alternative"
+          className="cursor-pointer mt-4 md:mt-0 flex items-center justify-center gap-2 px-6 py-3 rounded-lg shadow hover:shadow-md transition duration-200 focus:outline-none focus:ring-0"
+          onClick={() => setModalCadastro(true)}
+        >
+          <FaPlus className="text-lg"/> Adicionar Disciplina
         </Button>
-      </div>
-
-      {/* Tabela */}
-      {disciplinas.length > 0 && (
-        <Table>
-          <TableHead>
-            <TableHeadCell>Nome</TableHeadCell>
-            <TableHeadCell>Código</TableHeadCell>
-            <TableHeadCell>Média da Turma</TableHeadCell>
-            <TableHeadCell>Frequência Média</TableHeadCell>
-            <TableHeadCell>Ações</TableHeadCell>
-          </TableHead>
-          <TableBody>
-            {disciplinas.map((disciplina, i) => (
-              <TableRow key={i}>
-                <TableCell>{disciplina.nome}</TableCell>
-                <TableCell>{disciplina.codigo}</TableCell>
-                <TableCell>{disciplina.mediaTurma?.toFixed(1) ?? "—"}</TableCell>
-                <TableCell>{disciplina.frequenciaMedia?.toFixed(1) ?? "—"}%</TableCell>
-                <TableCell>
-                  <div className='flex flex-row gap-4'>
+      </Card>
 
 
+      {isLoading ? (
+        <div className="flex justify-center mt-10">
+          <Spinner size="xl" color="purple"/>
+        </div>
+      ) : (
+        <div className="w-full">
+          <div
+            className="hidden md:block overflow-x-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
 
+            <Table className="min-w-[700px] text-sm text-gray-700 dark:text-gray-300">
+              <TableHead className="bg-gray-100 dark:bg-gray-700">
+                <TableHeadCell className="text-center font-semibold">Nome</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Código</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Média da Turma</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Frequência Média</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Ações</TableHeadCell>
+              </TableHead>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-600">
+                {disciplinas.length > 0 ? (
+                  disciplinas.map((disciplina, i) => (
+                    <TableRow
+                      key={i}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-150"
+                    >
+                      <TableCell
+                        className="text-center font-medium text-gray-900 dark:text-gray-100">{disciplina.nome}</TableCell>
+                      <TableCell className="text-center">{disciplina.codigo}</TableCell>
+                      <TableCell className="text-center">{disciplina.mediaTurma?.toFixed(1) ?? "—"}</TableCell>
+                      <TableCell className="text-center">{disciplina.frequenciaMedia?.toFixed(1) ?? "—"}%</TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex justify-center gap-2 flex-wrap">
+                          <Button
+                            className="cursor-pointer text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 focus:outline-none focus:ring-0"
+                            color="alternative"
+                            size="xs"
+                            onClick={() => {
+                              setDisciplinaSelecionada(disciplina)
+                              setModalEditarDisciplina(true);
+                            }}
+                          >
+                            <FaEdit size={18}/>
+                          </Button>
+
+                          <Button
+                            className="cursor-pointer text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 focus:outline-none focus:ring-0"
+                            color="alternative"
+                            size="xs"
+                            onClick={() => {
+                              setDisciplinaSelecionada(disciplina);
+                              setModalExclusao(true);
+                            }}
+                          >
+                            <FaTrashAlt size={18}/>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center text-gray-500 py-4">
+                      Nenhuma turma cadastrada.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="md:hidden flex flex-col gap-4 mt-4">
+            {disciplinas.length > 0 ? (
+              disciplinas.map((turma, i) => (
+                <div
+                  key={i}
+                  className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700"
+                >
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    {turma.nome}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 py-2">
+                    <span className="font-semibold">Código: </span>{turma.codigo}
+                  </p>
+
+                  <div className="flex justify-around mt-3 border-t border-gray-200 dark:border-gray-600 pt-3">
                     <Button
-                      color="warning"
+                      className="cursor-pointer text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 focus:outline-none focus:ring-0"
+                      color="alternative"
                       size="xs"
                       onClick={() => {
-                        setDisciplinaSelecionada(disciplina)
+                        setDisciplinaSelecionada(turma);
                         setModalEditarDisciplina(true);
                       }}
-                      className='cursor-pointer'
                     >
                       <FaEdit size={20}/>
                     </Button>
 
-                  <Button
-                    color="failure"
-                    size="xs"
-                    onClick={() => excluirDisciplina(disciplina.id)}
-                  >
+                    <Button
+                      className="cursor-pointer text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 focus:outline-none focus:ring-0"
+                      color="alternative"
+                      size="xs"
+                      onClick={() => {
+                        setDisciplinaSelecionada(turma);
+                        setModalExclusao(true);
+                      }}
+                    >
                       <FaTrashAlt size={20}/>
-                  </Button>
+                    </Button>
                   </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                </div>
+              ))
+            ) : (
+              <Card>
+                <div className="text-center text-gray-500 py-4">
+                  Nenhum responsável cadastrado.
+                </div>
+              </Card>
+            )}
+          </div>
+        </div>
       )}
 
-      <EditarDisciplina
-        open={modalEditarDisciplina}
-        onClose={() => setModalEditarDisciplina(false)}
+      <CadastroDisciplina
+        open={modalCadastro}
+        onClose={() => {
+          setModalCadastro(false);
+          setDisciplinaSelecionada(null);
+        }}
         onSaved={buscarDisciplinas}
-        disciplinaSelecionada={disciplinaSelecionada}
       />
+
+      {disciplinaSelecionada && (
+        <EditarDisciplina
+          open={modalEditarDisciplina}
+          onClose={() => setModalEditarDisciplina(false)}
+          onSaved={buscarDisciplinas}
+          disciplinaSelecionada={disciplinaSelecionada}
+        />
+      )}
+
+      {disciplinaSelecionada && (
+        <DeletarDisciplina
+          isOpen={modalExclusao}
+          onClose={() => {
+            setModalExclusao(false);
+            setDisciplinaSelecionada(null);
+          }}
+          disciplinaSelecionada={disciplinaSelecionada}
+          aoDeletar={() => buscarDisciplinas()}
+        />
+      )}
     </div>
   );
 }

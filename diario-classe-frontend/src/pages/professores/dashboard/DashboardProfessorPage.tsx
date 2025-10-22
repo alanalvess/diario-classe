@@ -2,7 +2,7 @@ import {useAuth} from "../../../contexts/UseAuth.ts";
 import {useEffect, useState} from "react";
 import type {Aluno, Nota, Observacao, Presenca, Professor, Turma} from "../../../models";
 import {buscar} from "../../../services/Service.ts";
-import {Card, Select} from "flowbite-react";
+import {Card, Select, Spinner} from "flowbite-react";
 import {Bar, Line} from "react-chartjs-2";
 
 import {
@@ -17,6 +17,9 @@ import {
   Title,
   Tooltip
 } from "chart.js";
+import {Roles} from "../../../enums/Roles.ts";
+import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
+import {useNavigate} from "react-router-dom";
 
 ChartJS.register(
   ArcElement,
@@ -36,7 +39,9 @@ type EvolucaoBimestral = {
 };
 
 export default function DashboardProfessorPage() {
-  const {usuario} = useAuth();
+  const {usuario, isHydrated, isAuthenticated} = useAuth();
+  const navigate = useNavigate();
+
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [turmaSelecionada, setTurmaSelecionada] = useState<number | null>(null);
   const [alunos, setAlunos] = useState<Aluno[]>([]);
@@ -53,6 +58,15 @@ export default function DashboardProfessorPage() {
 
   const cores = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#A78BFA"];
 
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.PROFESSOR)) {
+      ToastAlerta("Você precisa estar autenticado como Coordenador", Toast.Info);
+      navigate("/login");
+    }
+  }, [isHydrated, isAuthenticated, usuario]);
 
   async function buscarProfessorPorEmail() {
     try {
@@ -167,11 +181,6 @@ export default function DashboardProfessorPage() {
 
   const totalObservacoes = observacoes.length;
   const totalAlunos = alunos.length;
-
-  // const medias = notas.map(n => n.valor).filter(v => v != null);
-  // const mediaGeral = medias.length > 0
-  //   ? (medias.reduce((a, b) => a + b, 0) / medias.length).toFixed(1)
-  //   : 0.0;
 
   const feriados: string[] = ["2025-01-01"];
 
@@ -374,12 +383,15 @@ export default function DashboardProfessorPage() {
   };
 
 
+
   return (
-    <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10 space-y-6">
-      <Card className="p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100"> 📊 Dashboard do Professor </h2>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Gere e baixe relatórios acadêmicos detalhados para análise e acompanhamento.
+    <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
+      <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+          Dashboard do Professor
+        </h2>
+        <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">
+          Analise os principais indicadores da turma.
         </p>
       </Card>
 
@@ -391,69 +403,72 @@ export default function DashboardProfessorPage() {
           className="rounded-md my-4 w-full"
         >
           <option value="">
-            Selecione...
+            Selecione a turma...
           </option>
           {turmas.map((t: Turma) => (<option key={t.id} value={t.id}> {t.nome} </option>))}
         </Select>
       </div>
-      <div className="grid grid-cols-1  md:grid-cols-3  gap-4">
-        <Card>
-          <h2 className="text-lg font-semibold">Alunos</h2>
-          <p className="text-3xl font-bold text-blue-600">
-            {isLoading ? "..." : totalAlunos}
-          </p>
-          <p className="text-sm text-gray-500">Total na turma</p>
-        </Card>
-        <Card>
-          <h2 className="text-lg font-semibold">Média Geral</h2>
-          <p className="text-3xl font-bold text-green-600">
-            {isLoading ? "..." : mediaGeral}
-          </p>
-          <p className="text-sm text-gray-500">Média de notas</p>
-        </Card>
-        <Card>
-          <h2 className="text-lg font-semibold">Observações</h2>
-          <p className="text-3xl font-bold text-red-600">
-            {isLoading ? "..." : totalObservacoes}
-          </p>
-          <p className="text-sm text-gray-500">Registradas na turma</p>
-        </Card>
-      </div>
 
-      {/* Gráficos */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <h2 className="font-bold mb-2">Evolução de Notas ao Longo do Tempo</h2>
-          {evolucaoNotas.length > 0 ? (
-            <Line
-              data={evolucaoData}
-              options={{
-                responsive: true,
-                plugins: {legend: {position: "top"}},
-                scales: {y: {beginAtZero: true, max: 10}},
-              }}
-            />
-          ) : (
-            <p className="text-gray-500">Sem evolução de notas disponível.</p>
-          )}
+      {turmaSelecionada && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 my-6 gap-4">
+            <Card>
+              <h2 className="text-lg font-semibold">Alunos</h2>
+              <p className="text-3xl font-bold text-blue-600">
+                {isLoading ? "..." : totalAlunos}
+              </p>
+              <p className="text-sm text-gray-500">Total na turma</p>
+            </Card>
 
+            <Card>
+              <h2 className="text-lg font-semibold">Média Geral</h2>
+              <p className="text-3xl font-bold text-green-600">
+                {isLoading ? "..." : mediaGeral}
+              </p>
+              <p className="text-sm text-gray-500">Média de notas</p>
+            </Card>
 
-        </Card>
-        <Card>
-          <h2 className="font-bold mb-2">Média de Notas por Disciplina</h2>
-          <Bar
-            data={notasData}
-            options={{indexAxis: "x"}}/>
-        </Card>
-        <Card>
-          <h2 className="font-bold mb-2">Frequência de Presença por Aluno</h2>
-          <Bar data={frequenciaData} options={{indexAxis: "y"}}/>
-        </Card>
-        <Card>
-          <h2 className="text-lg font-semibold mb-2">📅 Presenças e Faltas</h2>
-          <Line data={presencasData}/>
-        </Card>
-      </div>
+            <Card>
+              <h2 className="text-lg font-semibold">Observações</h2>
+              <p className="text-3xl font-bold text-red-600">
+                {isLoading ? "..." : totalObservacoes}
+              </p>
+              <p className="text-sm text-gray-500">Registradas na turma</p>
+            </Card>
+          </div>
+
+          {/* Gráficos */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <h2 className="font-bold mb-2">Evolução de Notas ao Longo do Tempo</h2>
+              <Line
+                data={evolucaoData}
+                options={{
+                  responsive: true,
+                  plugins: { legend: { position: "top" } },
+                  scales: { y: { beginAtZero: true, max: 10 } },
+                }}
+              />
+            </Card>
+
+            <Card>
+              <h2 className="font-bold mb-2">Média de Notas por Disciplina</h2>
+              <Bar data={notasData} options={{ indexAxis: "x" }} />
+            </Card>
+
+            <Card>
+              <h2 className="font-bold mb-2">Frequência de Presença por Aluno</h2>
+              <Bar data={frequenciaData} options={{ indexAxis: "y" }} />
+            </Card>
+
+            <Card>
+              <h2 className="text-lg font-semibold mb-2">📅 Presenças e Faltas</h2>
+              <Line data={presencasData} />
+            </Card>
+          </div>
+        </>
+      )}
+
     </div>
   );
 }

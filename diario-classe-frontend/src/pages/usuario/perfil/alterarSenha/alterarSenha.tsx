@@ -1,5 +1,5 @@
-import {useState, type ChangeEvent} from "react";
-import {Modal, Button, Label, TextInput, ModalHeader, ModalBody} from "flowbite-react";
+import React, {useState, type ChangeEvent} from "react";
+import {Modal, Button, Label, TextInput, ModalHeader, ModalBody, Card} from "flowbite-react";
 
 import {useAuth} from "../../../../contexts/UseAuth.ts";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta.ts";
@@ -36,10 +36,15 @@ export default function AlterarSenha({ show, onClose }) {
   }
 
   return (
-    <Modal show={show} onClose={onClose}>
-      <ModalHeader>Alterar Senha</ModalHeader>
+    <Modal show={show} onClose={onClose} size="md" popup>
+      <ModalHeader />
       <ModalBody>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <Card className="mb-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              Alterar Senha
+            </h2>
+          </Card>
           <div>
             <Label htmlFor="senhaAtual" />
             <TextInput
@@ -81,10 +86,18 @@ export default function AlterarSenha({ show, onClose }) {
           </div>
 
           <div className="flex justify-end gap-2 pt-3">
-            <Button color="gray" onClick={onClose}>
+            <Button
+              className="cursor-pointer focus:outline-none focus:ring-0"
+              color="alternative"
+              onClick={onClose}
+            >
               Cancelar
             </Button>
-            <Button color="warning" type="submit">
+            <Button
+              className="cursor-pointer focus:outline-none focus:ring-0"
+              color="green"
+              type="submit"
+            >
               Atualizar
             </Button>
           </div>

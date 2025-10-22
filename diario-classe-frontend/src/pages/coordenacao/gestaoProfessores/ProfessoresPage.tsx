@@ -86,7 +86,7 @@ export default function ProfessoresPage() {
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
       <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
-        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
           Gestão de Professores
         </h2>
         <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">
@@ -109,9 +109,7 @@ export default function ProfessoresPage() {
         </div>
       ) : (
         <div className="w-full">
-          <div
-            className="hidden md:block overflow-x-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
-
+          <div className="hidden md:block overflow-x-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
             <Table className="min-w-[700px] text-sm text-gray-700 dark:text-gray-300">
               <TableHead className="bg-gray-100 dark:bg-gray-700">
                 <TableHeadCell className="text-center font-semibold">Nome</TableHeadCell>

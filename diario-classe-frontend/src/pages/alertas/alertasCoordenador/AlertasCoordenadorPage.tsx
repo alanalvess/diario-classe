@@ -1,5 +1,16 @@
 import {useEffect, useState} from "react";
-import {Badge, Card, Spinner, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
+import {
+  Badge,
+  Card,
+  Select,
+  Spinner,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeadCell,
+  TableRow
+} from "flowbite-react";
 import type {Alerta} from "../../../models/Alerta.ts";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import type {Aluno} from "../../../models";
@@ -92,85 +103,52 @@ export default function AlertasCoordenadorPage() {
 
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
-      <Card className="p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+      <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-          📢 Alertas Acadêmicos
+          Alertas Acadêmicos
         </h2>
         <p className="text-gray-600 dark:text-gray-400 mt-2">
           Veja os alertas de risco acadêmico emitidos ao longo do período letivo.
         </p>
       </Card>
       <div className="mt-8 flex justify-center">
-        <SelectField
-          label="Aluno"
+        <Select
           name="aluno"
           required
+          className="w-full"
           value={alunoSelecionado}
           onChange={(e) => setAlunoSelecionado(e.target.value)}
-          options={alunos.map((a) => ({
-            value: a.id,
-            label: a.nome,
-          }))}
-          // className="w-80"
-        />
+         >
+          <option value="">Selecione o Aluno</option>
+          {alunos.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.nome}
+            </option>
+          ))}
+        </Select>
       </div>
       <Card className="w-full mt-8 max-w-6xl shadow-lg">
         {isLoading ? (
           <div className="flex justify-center items-center h-40">
-            <Spinner size="xl" color="info"/>
+            <Spinner size="xl" color="info" />
           </div>
         ) : alertas.length === 0 ? (
           <div className="text-center py-10 text-gray-600 text-lg">
             🎉 Nenhum alerta ativo no momento.
           </div>
         ) : (
-          <Table hoverable striped>
-            <TableHead>
-              <TableHeadCell>Aluno</TableHeadCell>
-              <TableHeadCell>Risco Reprovação</TableHeadCell>
-              <TableHeadCell>Risco Evasão</TableHeadCell>
-              <TableHeadCell>Score</TableHeadCell>
-              <TableHeadCell>Data</TableHeadCell>
-              <TableHeadCell>Status</TableHeadCell>
-            </TableHead>
-
-            <TableBody>
+          <>
+            {/* 📱 VISUALIZAÇÃO MOBILE (cards) */}
+            <div className="block md:hidden space-y-4">
               {alertas.map((a) => (
-                <TableRow key={a.id}>
-                  <TableCell>{a.alunoNome}</TableCell>
-
-                  <TableCell>
-                    <Badge color={a.riscoReprovacao ? "failure" : "success"}>
-                      {a.riscoReprovacao ? "Sim" : "Não"}
-                    </Badge>
-                  </TableCell>
-
-                  <TableCell>
-                    <Badge color={a.riscoEvasao ? "failure" : "success"}>
-                      {a.riscoEvasao ? "Sim" : "Não"}
-                    </Badge>
-                  </TableCell>
-
-                  <TableCell>
-                    <span className={corDoScore(a.scoreRisco ?? 0)}>
-                      {a.scoreRisco != null ? a.scoreRisco.toFixed(2) : "-"}
-                    </span>
-                  </TableCell>
-
-                  <TableCell>{new Date(a.dataGeracao).toLocaleDateString("pt-BR")}</TableCell>
-
-                  <TableCell className="flex items-center gap-3">
-                    {/* Dropdown para mudar status */}
-                    <select
-                      className="border border-gray-300 text-sm rounded-md px-2 py-1 bg-white cursor-pointer"
-                      value={a.status}
-                      onChange={(e) => atualizarStatus(a.id, e.target.value)}
-                    >
-                      <option value="ATIVO">Ativo</option>
-                      <option value="REVISADO">Revisado</option>
-                      <option value="RESOLVIDO">Resolvido</option>
-                    </select>
-                    {/* Badge colorida por status */}
+                <Card
+                  key={a.id}
+                  className="p-4 shadow-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                      {a.alunoNome}
+                    </h3>
                     <Badge
                       color={
                         a.status === "ATIVO"
@@ -182,14 +160,111 @@ export default function AlertasCoordenadorPage() {
                     >
                       {a.status}
                     </Badge>
+                  </div>
 
-                  </TableCell>
-                </TableRow>
+                  <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                    <p>
+                      <span className="font-semibold">Risco Reprovação:</span>{" "}
+                      <Badge color={a.riscoReprovacao ? "failure" : "success"}>
+                        {a.riscoReprovacao ? "Sim" : "Não"}
+                      </Badge>
+                    </p>
+                    <p>
+                      <span className="font-semibold">Risco Evasão:</span>{" "}
+                      <Badge color={a.riscoEvasao ? "failure" : "success"}>
+                        {a.riscoEvasao ? "Sim" : "Não"}
+                      </Badge>
+                    </p>
+                    <p>
+                      <span className="font-semibold">Score:</span>{" "}
+                      <span className={corDoScore(a.scoreRisco ?? 0)}>
+                {a.scoreRisco != null ? a.scoreRisco.toFixed(2) : "-"}
+              </span>
+                    </p>
+                    <p>
+                      <span className="font-semibold">Data:</span>{" "}
+                      {new Date(a.dataGeracao).toLocaleDateString("pt-BR")}
+                    </p>
+                  </div>
+
+                  <div className="mt-3">
+                    <select
+                      className="w-full border border-gray-300 text-sm rounded-md px-2 py-1 bg-white cursor-pointer dark:bg-gray-700 dark:text-gray-100"
+                      value={a.status}
+                      onChange={(e) => atualizarStatus(a.id, e.target.value)}
+                    >
+                      <option value="ATIVO">Ativo</option>
+                      <option value="REVISADO">Revisado</option>
+                      <option value="RESOLVIDO">Resolvido</option>
+                    </select>
+                  </div>
+                </Card>
               ))}
-            </TableBody>
+            </div>
 
-          </Table>
+            {/* 💻 VISUALIZAÇÃO DESKTOP (tabela normal) */}
+            <div className="hidden md:block">
+              <Table hoverable striped>
+                <TableHead>
+                  <TableHeadCell>Aluno</TableHeadCell>
+                  <TableHeadCell>Risco Reprovação</TableHeadCell>
+                  <TableHeadCell>Risco Evasão</TableHeadCell>
+                  <TableHeadCell>Score</TableHeadCell>
+                  <TableHeadCell>Data</TableHeadCell>
+                  <TableHeadCell>Status</TableHeadCell>
+                </TableHead>
+                <TableBody>
+                  {alertas.map((a) => (
+                    <TableRow key={a.id}>
+                      <TableCell>{a.alunoNome}</TableCell>
+                      <TableCell>
+                        <Badge color={a.riscoReprovacao ? "failure" : "success"}>
+                          {a.riscoReprovacao ? "Sim" : "Não"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge color={a.riscoEvasao ? "failure" : "success"}>
+                          {a.riscoEvasao ? "Sim" : "Não"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                <span className={corDoScore(a.scoreRisco ?? 0)}>
+                  {a.scoreRisco != null ? a.scoreRisco.toFixed(2) : "-"}
+                </span>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(a.dataGeracao).toLocaleDateString("pt-BR")}
+                      </TableCell>
+                      <TableCell className="flex items-center gap-3">
+                        <select
+                          className="border border-gray-300 text-sm rounded-md px-2 py-1 bg-white cursor-pointer"
+                          value={a.status}
+                          onChange={(e) => atualizarStatus(a.id, e.target.value)}
+                        >
+                          <option value="ATIVO">Ativo</option>
+                          <option value="REVISADO">Revisado</option>
+                          <option value="RESOLVIDO">Resolvido</option>
+                        </select>
+                        <Badge
+                          color={
+                            a.status === "ATIVO"
+                              ? "warning"
+                              : a.status === "REVISADO"
+                                ? "info"
+                                : "success"
+                          }
+                        >
+                          {a.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         )}
+
       </Card>
     </div>
   );

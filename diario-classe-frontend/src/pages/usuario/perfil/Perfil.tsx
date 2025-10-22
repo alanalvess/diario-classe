@@ -1,8 +1,8 @@
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Avatar, Button, Card, Spinner} from 'flowbite-react';
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import UserImg from "../../../assets/images/user.png"
-import {Link, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
 import {buscar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import type {Usuario} from "../../../models";
@@ -12,7 +12,7 @@ import {FaKey, FaUserEdit} from "react-icons/fa";
 
 export default function Perfil() {
 
-  const { usuario, isHydrated } = useAuth();
+  const {usuario, isHydrated} = useAuth();
   const id = useParams<{ id: string }>();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -25,7 +25,7 @@ export default function Perfil() {
     try {
       setIsLoading(true);
       await buscar(`/usuarios/${id?.id}`, setDadosUsuario, {
-        headers: { Authorization: `Bearer ${usuario?.token}` },
+        headers: {Authorization: `Bearer ${usuario?.token}`},
       });
     } catch (error) {
       if (error instanceof Error) return;
@@ -45,7 +45,7 @@ export default function Perfil() {
   if (!isHydrated || !usuario) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Spinner size="xl" />
+        <Spinner size="xl"/>
       </div>
     );
   }
@@ -54,36 +54,42 @@ export default function Perfil() {
 
   return (
     <>
-      <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10 space-y-6">
-        <div className="flex justify-between items-center gap-4 flex-wrap">
-          <h1 className="text-2xl font-bold text-gray-700 dark:text-gray-300">Perfil</h1>
+      <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
+        <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+          <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+            Perfil de Usuário
+          </h2>
+          <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">
+            Gerencie seus dados e altere a senha.
+          </p>
 
-          <div className="flex items-center gap-4">
-            <div className="flex gap-3 mt-6">
-              <Button
-                onClick={() => setOpenEditar(true)}
-                className='bg-green-500 hover:bg-green-600 dark:bg-green-700 dark:hover:bg-green-600'
-              >
-                <FaUserEdit className="mr-2" /> Editar Dados
-              </Button>
-              <Button
-                onClick={() => setOpenSenha(true)}
-                className='bg-green-500 hover:bg-green-600 dark:bg-green-700 dark:hover:bg-green-600'
-              >
-                <FaKey className="mr-2" /> Alterar Senha
-              </Button>
-            </div>
-            {/*<Link*/}
-            {/*  to={`/editarUsuario/${usuario?.id}`}*/}
-            {/*  className="border-b-2 text-teal-800 hover:text-teal-600 dark:text-gray-200 dark:hover:text-teal-400"*/}
-            {/*>*/}
-            {/*  Editar Meu Perfil*/}
-            {/*</Link>*/}
+          {/*<Button*/}
+          {/*  color="alternative"*/}
+          {/*  className="cursor-pointer mt-4 md:mt-0 flex items-center justify-center gap-2 px-6 py-3 rounded-lg shadow hover:shadow-md transition duration-200 focus:outline-none focus:ring-0"*/}
+          {/*  onClick={() => setModalCadastro(true)}*/}
+          {/*>*/}
+          {/*  <FaPlus className="text-lg"/> Adicionar Professor*/}
+          {/*</Button>*/}
+          <div className="flex gap-3 mt-6 w-full">
+            <Button
+              color="alternative"
+              onClick={() => setOpenEditar(true)}
+              className='cursor-pointer w-full focus:outline-none focus:ring-0'
+            >
+              <FaUserEdit className="mr-2" size={20}/> Editar Dados
+            </Button>
+            <Button
+              color="alternative"
+              onClick={() => setOpenSenha(true)}
+              className='cursor-pointer w-full focus:outline-none focus:ring-0'
+            >
+              <FaKey className="mr-2"/> Alterar Senha
+            </Button>
           </div>
-        </div>
+        </Card>
 
         {isLoading ? (
-          <Spinner aria-label="Default status example"/>
+          <Spinner size="xl" color="purple"/>
         ) : (
           <Card className="p-0 overflow-x-auto">
             <div className="flex flex-col items-center text-center">

@@ -105,7 +105,7 @@ export default function AlunosPage() {
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
       <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
-        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
           Gestão de Alunos
         </h2>
         <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">

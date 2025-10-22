@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {Button, Card, Spinner, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
-import {buscar, deletar} from "../../../services/Service.ts";
+import {buscar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import type {Disciplina, Professor, Turma} from "../../../models";
 import {useAuth} from "../../../contexts/UseAuth.ts";
@@ -8,9 +8,12 @@ import {FaEdit, FaPlus, FaTrashAlt} from "react-icons/fa";
 import EditarTurma from "./editarTurma/EditarTurma.tsx";
 import CadastroTurma from "./cadastroTurma/CadastroTurma.tsx";
 import DeletarTurma from "./deletarTurma/DeletarTurma.tsx";
+import {Roles} from "../../../enums/Roles.ts";
+import {useNavigate} from "react-router-dom";
 
 export default function TurmasPage() {
   const {usuario, isHydrated, isAuthenticated} = useAuth();
+  const navigate = useNavigate();
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [professores, setProfessores] = useState<Professor[]>([]);
@@ -39,18 +42,57 @@ export default function TurmasPage() {
     }
   }
 
+  async function buscarProfessores() {
+    setIsLoading(true);
+    try {
+      await buscar("/professores", setProfessores, {
+        headers: {Authorization: `Bearer ${usuario.token}`},
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao carregar alunos", Toast.Error);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function buscarDisciplinas() {
+    setIsLoading(true);
+    try {
+      await buscar("/disciplinas", setDisciplinas, {
+        headers: {Authorization: `Bearer ${usuario.token}`},
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao carregar alunos", Toast.Error);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   // 🔹 Buscar turmas
   useEffect(() => {
     if (!isHydrated || !isAuthenticated) return;
     buscarTurmas();
-    buscar("/professores", setProfessores, {headers: {Authorization: `Bearer ${usuario.token}`}});
-    buscar("/disciplinas", setDisciplinas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+    buscarProfessores();
+    buscarDisciplinas();
   }, [isHydrated, isAuthenticated]);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.COORDENADOR)) {
+      ToastAlerta("Você precisa estar autenticado como Coordenador", Toast.Info);
+      navigate("/login");
+    }
+  }, [isHydrated, isAuthenticated, usuario]);
 
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
       <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
-        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
           Gestão de Turmas
         </h2>
         <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">
@@ -62,7 +104,7 @@ export default function TurmasPage() {
           className="cursor-pointer mt-4 md:mt-0 flex items-center justify-center gap-2 px-6 py-3 rounded-lg shadow hover:shadow-md transition duration-200 focus:outline-none focus:ring-0"
           onClick={() => setModalCadastro(true)}
         >
-          <FaPlus className="text-lg"/> Adicionar Professor
+          <FaPlus className="text-lg"/> Adicionar Turma
         </Button>
       </Card>
 
@@ -137,7 +179,7 @@ export default function TurmasPage() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center text-gray-500 py-4">
-                      Nenhum aluno cadastrado.
+                      Nenhuma turma cadastrada.
                     </TableCell>
                   </TableRow>
                 )}

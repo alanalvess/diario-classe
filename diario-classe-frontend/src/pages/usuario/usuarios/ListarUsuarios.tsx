@@ -1,7 +1,9 @@
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
   Badge,
   Button,
+  Card,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -62,133 +64,224 @@ function ListarUsuarios() {
 
   return (
     <>
-      <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10 space-y-6">
+      <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
+        <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+          <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+            Gestão de Usuários
+          </h2>
+          <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">
+            Gerencie todos os usuários, autorize ou revogue o acesso de professores e responsáveis pelos alunos, bem
+            como de outros coordenadores.
+          </p>
 
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row justify-between items-center">
-            <h1 className="text-2xl font-bold">Gerenciamento de Usuários</h1>
-            <Button color="success" onClick={() => setModalCadastro(true)}>
-              <FaPlus className="mr-2"/> Novo Usuário
-            </Button>
+          <Button
+            color="alternative"
+            className="cursor-pointer mt-4 md:mt-0 flex items-center justify-center gap-2 px-6 py-3 rounded-lg shadow hover:shadow-md transition duration-200 focus:outline-none focus:ring-0"
+            onClick={() => setModalCadastro(true)}
+          >
+            <FaPlus className="text-lg"/> Adicionar Novo Usuário
+          </Button>
+        </Card>
+
+        <div className="relative w-full mb-6">
+          <TextInput
+            type="text"
+            placeholder="Buscar por nome"
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && buscarPorNome()}
+            className="w-full" // espaço para o ícone à direita
+          />
+
+          <button
+            onClick={buscarPorNome}
+            className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600"
+          >
+            <FaSearch size={18}/>
+          </button>
+        </div>
+
+        {isLoading ? (
+          <div className="flex justify-center mt-10">
+            <Spinner size="xl" color="purple"/>
           </div>
-
-          <div className="flex gap-2 items-center">
-            <TextInput
-              type="text"
-              placeholder="Buscar por nome"
-              value={busca}
-              icon={FaSearch}
-              onChange={(e) => setBusca(e.target.value)}
-              className="w-full sm:w-1/3"
-            />
-            <Button onClick={buscarPorNome}>Buscar</Button>
-          </div>
-
-          {/* 🧾 Tabela */}
-          <div className="overflow-x-auto mt-4">
-            <Table hoverable={true}>
-              <TableHead>
-                <TableRow>
-                  <TableHeadCell>Nome</TableHeadCell>
-                  <TableHeadCell>Email</TableHeadCell>
-                  <TableHeadCell>Funções</TableHeadCell>
-                  <TableHeadCell>Ações</TableHeadCell>
-                </TableRow>
-              </TableHead>
-
-              <TableBody className="divide-y">
-                {isLoading ? (
+        ) : (
+          <div className="w-full">
+            <div
+              className="hidden md:block overflow-x-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+              {/* 🧾 Tabela - visível apenas em telas médias pra cima */}
+              <Table className="min-w-[700px] text-sm text-gray-700 dark:text-gray-300">
+                <TableHead className="bg-gray-100 dark:bg-gray-700">
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-6">
-                      Carregando...
-                    </TableCell>
+                    <TableHeadCell className="text-center font-semibold">Nome</TableHeadCell>
+                    <TableHeadCell className="text-center font-semibold">Email</TableHeadCell>
+                    <TableHeadCell className="text-center font-semibold">Funções</TableHeadCell>
+                    <TableHeadCell className="text-center font-semibold">Ações</TableHeadCell>
                   </TableRow>
-                ) : usuarios.length === 0 ? (
-                  <TableRow>
+                </TableHead>
 
-                    <TableCell colSpan={4} className="text-center py-6">
-                      Nenhum usuário encontrado
-                    </TableCell>
-                  </TableRow>
+                <TableBody className="divide-y divide-gray-200 dark:divide-gray-600">
+                  {usuarios.length > 0 ? (
+                    usuarios.map((u) => (
+                      <TableRow
+                        key={u.id}
+                        className="hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-150"
+                      >
+                        <TableCell
+                          className="text-center font-medium text-gray-900 dark:text-gray-100">{u.nome}</TableCell>
+                        <TableCell className="text-center">{u.email}</TableCell>
+                        <TableCell className="text-center">
+                          {u.roles.map((role) => (
+                            <Badge key={role} color="info" className="mr-1">
+                              {role}
+                            </Badge>
+                          ))}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex justify-center gap-2 flex-wrap">
+                            <Button
+                              className="cursor-pointer text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 focus:outline-none focus:ring-0"
+                              color="alternative"
+                              size="xs"
+                              onClick={() => {
+                                setUsuarioSelecionado(u);
+                                setModalEdicao(true);
+                              }}
+                            >
+                              <FaEdit size={18}/>
+                            </Button>
+                            <Button
+                              className="cursor-pointer text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 focus:outline-none focus:ring-0"
+                              color="alternative"
+                              size="xs"
+                              onClick={() => {
+                                setUsuarioSelecionado(u);
+                                setModalExclusao(true);
+                              }}
+                            >
+                              <FaTrashAlt size={18}/>
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center text-gray-500 py-4">
+                        Nenhum usuário cadastrado.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
 
-                ) : (
-                  usuarios.map((u) => (
-                    <TableRow key={u.id}>
-                      <TableCell>{u.nome}</TableCell>
-                      <TableCell>{u.email}</TableCell>
-                      <TableCell>
+            <div className="md:hidden flex flex-col gap-4 mt-4">
+              {usuarios.length > 0 ? (
+                usuarios.map((u) => (
+                  <Card
+                    key={u.id}
+                    className="shadow-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                  >
+                    {/* Cabeçalho */}
+                    <div className="mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
+                      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                        {u.nome}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        {u.email}
+                      </p>
+                    </div>
+
+                    {/* Funções */}
+                    <div className="mb-4">
+                      {/*<p className="text-sm text-gray-700 dark:text-gray-300 font-medium">*/}
+                      {/*  Funções:*/}
+                      {/*</p>*/}
+                      <div className="flex flex-wrap gap-1 mt-1">
                         {u.roles.map((role) => (
-                          <Badge key={role} color="info" className="mr-1">
+                          <Badge key={role} color="info" className="text-xs">
                             {role}
                           </Badge>
                         ))}
-                      </TableCell>
-                      <TableCell className="flex gap-2">
-                        <div className='flex flex-row gap-4'>
+                      </div>
+                    </div>
 
+                    {/* Botões de ação */}
+                    <div className="flex flex-wrap justify-center gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                      <Button
+                        className="cursor-pointer text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 focus:outline-none focus:ring-0"
+                        color="alternative"
+                        size="xs"
+                        onClick={() => {
+                          setUsuarioSelecionado(u);
+                          setModalEdicao(true);
+                        }}
+                      >
+                        <FaEdit size={20}/>
+                      </Button>
 
-                          <Button
-                            color="info"
-                            size="xs"
-                            onClick={() => {
-                              setUsuarioSelecionado(u);
-                              setModalEdicao(true);
-                            }}
-                          >
-                            <FaEdit size={20}/>
-                          </Button>
-                          <Button
-                            color="failure"
-                            size="xs"
-                            onClick={() => {
-                              setUsuarioSelecionado(u);
-                              setModalExclusao(true);
-                            }}
-                          >
-                            <FaTrashAlt size={20}/>
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                      <Button
+                        className="cursor-pointer text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 focus:outline-none focus:ring-0"
+                        color="alternative"
+                        size="xs"
+                        onClick={() => {
+                          setUsuarioSelecionado(u);
+                          setModalExclusao(true);
+                        }}
+                      >
+                        <FaTrashAlt size={20}/>
+                      </Button>
+                    </div>
+                  </Card>
+                ))
+              ) : (
+                <Card>
+                  <div className="text-center text-gray-500 py-4">
+                    Nenhum usuário cadastrado.
+                  </div>
+                </Card>
+              )}
+            </div>
           </div>
+        )}
 
-          <Cadastro
-            open={modalCadastro}
-            onClose={() => {
-              setModalCadastro(false);
-              setUsuarioSelecionado(null);
-            }}
-            onSaved={listarUsuarios}
-          />
+        <Cadastro
+          open={modalCadastro}
+          onClose={() => {
+            setModalCadastro(false);
+            setUsuarioSelecionado(null);
+          }}
+          onSaved={listarUsuarios}
+        />
 
-          <EditarUsuario
-            open={modalEdicao}
+        {usuarioSelecionado && (
+
+        <EditarUsuario
+          open={modalEdicao}
+          onClose={() => {
+            setModalEdicao(false);
+            setUsuarioSelecionado(null);
+          }}
+          usuarioSelecionado={usuarioSelecionado}
+          onSaved={listarUsuarios}
+        />
+        )}
+
+        {usuarioSelecionado && (
+          <DeletarUsuario
+            isOpen={modalExclusao}
             onClose={() => {
-              setModalEdicao(false);
+              setModalExclusao(false);
               setUsuarioSelecionado(null);
             }}
             usuarioSelecionado={usuarioSelecionado}
-            onSaved={listarUsuarios}
+            aoDeletar={() => listarUsuarios()}
           />
+        )}
 
-          {usuarioSelecionado && (
-            <DeletarUsuario
-              isOpen={modalExclusao}
-              onClose={() => {
-                setModalExclusao(false);
-                setUsuarioSelecionado(null);
-              }}
-              usuarioSelecionado={usuarioSelecionado}
-              aoDeletar={() => listarUsuarios()}
-            />
-          )}
-
-        </div>
       </div>
+      {/*</div>*/}
     </>
   );
 }

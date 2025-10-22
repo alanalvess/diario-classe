@@ -1,23 +1,26 @@
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
   Button,
+  Card,
   Checkbox,
   Modal,
   ModalBody,
   ModalHeader,
+  Select,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeadCell,
-  TableRow
+  TableRow,
+  TextInput
 } from "flowbite-react";
 import {buscar, cadastrar, deletar, registrarPresencaQRCode} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
-import type {Presenca, Turma} from "../../../models";
-import {RotatingLines} from "react-loader-spinner";
+import type {Presenca, Professor, Turma} from "../../../models";
 import QRCodeScanner from "../../../components/qrCodeScanner/QrCodeScanner.tsx";
 import {useAuth} from "../../../contexts/UseAuth.ts";
+import {FaCamera} from "react-icons/fa";
 
 export default function RegistroPresencaPage() {
   const {usuario, handleLogout, isHydrated, isAuthenticated} = useAuth();
@@ -32,14 +35,41 @@ export default function RegistroPresencaPage() {
     new Date().toISOString().split("T")[0]
   );
 
-  useEffect(() => {
-    if (isHydrated && isAuthenticated) {
-      buscar("/turmas", setTurmas, {
-        headers: {Authorization: `Bearer ${usuario.token}`},
-      });
-    }
-  }, [isAuthenticated, isHydrated]);
+  const [professor, setProfessor] = useState<Professor>();
 
+  async function buscarProfessorPorEmail() {
+    try {
+      await buscar(`/professores/email/${usuario.email}`, setProfessor,
+        {headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}}
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async function buscarTurmasPorProfessor() {
+    try {
+      await buscar(`/turmas/professor/${professor.id}`, setTurmas,
+        {headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}}
+      )
+      ;
+    } catch (error) {
+      console.error("Erro ao carregar turmas do professor", error);
+    }
+  }
+
+
+  useEffect(() => {
+    if (usuario?.email) {
+      buscarProfessorPorEmail();
+    }
+  }, [usuario?.email]);
+
+  useEffect(() => {
+    if (professor?.id) {
+      buscarTurmasPorProfessor();
+    }
+  }, [professor]);
 
   async function buscarPresencas() {
     if (!turmaSelecionada || !dataChamada) {
@@ -53,7 +83,7 @@ export default function RegistroPresencaPage() {
       await buscar(
         `/presencas/turmas/${turmaSelecionada}?data=${dataChamada}`,
         setPresencas,
-        { headers: { Authorization: `Bearer ${usuario.token}` } }
+        {headers: {Authorization: `Bearer ${usuario.token}`}}
       );
     } catch (error) {
       if (error.toString().includes("403")) {
@@ -108,46 +138,51 @@ export default function RegistroPresencaPage() {
     }
   }
 
-  // // Quando ler o QR Code
-  // const handleScan = async (result) => {
-  //   if (result?.text) {
-  //     setScanResult(result.text);
-  //     setQrOpen(false);
-  //
-  //     const [alunoId, turmaId, nome] = result.text.split(";");
-  //
-  //     try {
-  //         await registrarPresencaQRCode(
-  //           "/presencas/presenca/scan",
-  //           { alunoId: String(alunoId), turmaId: String(turmaId), metodoChamada: "QR_CODE" },
-  //           { headers: { Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/x-www-form-urlencoded" } }
-  //         );
-  //
-  //       // ✅ Exibir confirmação amigável
-  //       ToastAlerta(`✅ Presença registrada via QR Code para ${nome}`, Toast.Success);
-  //
-  //       await buscarPresencas();
-  //     } catch (error) {
-  //       if (error instanceof Error) {
-  //         ToastAlerta("❌ Erro ao registrar presença via QR Code", Toast.Error);
-  //       }
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   }
-  // };
+  const handleScanQRCode = async (base64Text: string) => {
+    setQrOpen(false);
+    setIsLoading(true);
 
+    try {
+      const decoded = atob(base64Text);
+      const qrData = JSON.parse(decoded);
+      const {nome} = qrData;
+
+      await registrarPresencaQRCode(
+        `/presencas/presenca/scan?qrData=${encodeURIComponent(base64Text)}`, {}, {
+          headers: {
+            Authorization: `Bearer ${usuario.token}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
+
+      ToastAlerta(`✅ Presença registrada via QR Code para ${nome}`, Toast.Success);
+      await buscarPresencas();
+    } catch (error) {
+      console.error("❌ Erro ao processar QR Code:", error);
+      ToastAlerta("Erro ao processar ou registrar presença via QR Code", Toast.Error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
 
-      <h1 className="text-2xl font-bold mb-6">Registro de Presença</h1>
+      <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+          Registro de Presença
+        </h2>
+        <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">
+          Marque diariamente a frequência dos alunos, via QR Code ou de modo manual.
+        </p>
+      </Card>
 
-      <div className="flex flex-wrap md:flex-nowrap justify-between items-center mb-6 gap-4">
-        {/* Esquerda: selects e botão carregar */}
-        <div className="flex flex-wrap gap-4">
-          <select
-            className="border rounded p-2"
+      <div className="flex flex-col-reverse md:flex-row md:items-center md:justify-between mb-6 gap-4 md:gap-6">
+        {/* lado esquerdo: selects */}
+        <div className="flex flex-col md:flex-row gap-4 flex-grow md:max-w-[60%] w-full">
+          <Select
+            className="w-full"
             value={turmaSelecionada ?? ""}
             onChange={(e) => setTurmaSelecionada(Number(e.target.value))}
           >
@@ -157,108 +192,47 @@ export default function RegistroPresencaPage() {
                 {t.nome} ({t.anoLetivo})
               </option>
             ))}
-          </select>
+          </Select>
 
-          <input
+          <TextInput
+            className="w-full"
             type="date"
-            className="border rounded p-2"
             value={dataChamada}
             onChange={(e) => setDataChamada(e.target.value)}
           />
-
-          <Button
-            onClick={buscarPresencas}
-            disabled={!turmaSelecionada || !dataChamada || isLoading}
-            className="w-full md:w-auto"
-          >
-            {isLoading ? (
-              <RotatingLines
-                strokeColor="white"
-                strokeWidth="5"
-                animationDuration="0.75"
-                width="24"
-                visible={true}
-              />
-            ) : (
-              <span>Carregar alunos</span>
-            )}
-          </Button>
-
         </div>
 
-        {/* Direita: botão QR Code */}
+        {/* lado direito: botão QR */}
         <Button
-          // color="success"
           onClick={() => setQrOpen(true)}
-          className="w-full md:w-auto"
+          color="green"
+          className="cursor-pointer w-full md:w-auto md:min-w-[10%] flex items-center justify-center focus:outline-none focus:ring-0"
         >
-          📷 Ler QR Code
+          <FaCamera className="mr-2"/>
+          QR Code
         </Button>
       </div>
 
 
-      <Modal show={qrOpen} onClose={() => setQrOpen(false)}>
-        <ModalHeader>Ler QR Code</ModalHeader>
-        <ModalBody>
-          <QRCodeScanner
-            onScan={async (base64Text) => {
-              setQrOpen(false);
-              setIsLoading(true);
-
-              try {
-                // 🔹 Opcional: decodificar só para exibir nome no toast
-                const decoded = atob(base64Text);
-                const qrData = JSON.parse(decoded);
-                const { nome } = qrData;
-
-                // 🔹 Envia Base64 para o backend via query param
-                await registrarPresencaQRCode(
-                  `/presencas/presenca/scan?qrData=${encodeURIComponent(base64Text)}`,
-                  {}, // corpo vazio
-                  {
-                    headers: {
-                      Authorization: `Bearer ${usuario.token}`,
-                      "Content-Type": "application/x-www-form-urlencoded",
-                    },
-                  }
-                );
-
-                ToastAlerta(
-                  `✅ Presença registrada via QR Code para ${nome}`,
-                  Toast.Success
-                );
-
-                await buscarPresencas();
-              } catch (error) {
-                console.error("❌ Erro ao processar QR Code:", error);
-                ToastAlerta(
-                  "Erro ao processar ou registrar presença via QR Code",
-                  Toast.Error
-                );
-              } finally {
-                setIsLoading(false);
-              }
-            }}
-          />
-
-
-        </ModalBody>
-
-      </Modal>
-
       {presencas.length > 0 && (
-        <Table className="mt-6">
-          <TableHead>
-            <TableHeadCell>Aluno</TableHeadCell>
-            <TableHeadCell>Presente</TableHeadCell>
-            <TableHeadCell>Ações</TableHeadCell>
+        <Table className="text-sm text-gray-700 dark:text-gray-300">
+          <TableHead className="bg-gray-100 dark:bg-gray-700">
+            <TableHeadCell className="text-center font-semibold">Aluno</TableHeadCell>
+            <TableHeadCell className="text-center font-semibold">Presente</TableHeadCell>
+            <TableHeadCell className="text-center font-semibold">Ações</TableHeadCell>
           </TableHead>
-          <TableBody>
+          <TableBody className="divide-y divide-gray-200 dark:divide-gray-600">
             {presencas.map((p) => (
-              <TableRow key={p.alunoId}>
-                <TableCell>{p.alunoNome}</TableCell>
-                <TableCell>
+              <TableRow
+                key={p.alunoId}
+                className="hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-150"
+              >
+                <TableCell
+                  className="text-center font-medium text-gray-900 dark:text-gray-100">{p.alunoNome}</TableCell>
+                <TableCell className="text-center">
                   <Checkbox
+                    className="focus:ring-0 dark:ring-offset-0 dark:focus:ring-0 focus:ring-offset-0 focus:outline-none"
+                    color="dark"
                     checked={p.presente}
                     onChange={(e) => {
                       setPresencas((prev) =>
@@ -269,16 +243,78 @@ export default function RegistroPresencaPage() {
                     }}
                   />
                 </TableCell>
-                <TableCell>
-                  <Button size="xs" color="blue" onClick={() => salvarPresenca(p)}>
-                    Salvar
-                  </Button>
+                <TableCell className="text-center">
+                  <div className="flex justify-center gap-2 flex-wrap">
+                    <Button
+                      className="cursor-pointer focus:outline-none focus:ring-0"
+                      size="xs"
+                      color="alternative"
+                      onClick={() => salvarPresenca(p)}
+                    >
+                      Salvar
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       )}
+
+      <Modal show={qrOpen} onClose={() => setQrOpen(false)} size={"xl"} popup>
+        <ModalHeader />
+        <ModalBody>
+
+          <Card className="mb-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              QR Code Scanner
+            </h2>
+          </Card>
+          {/*<QRCodeScanner*/}
+          {/*  onScan={async (base64Text) => {*/}
+          {/*    setQrOpen(false);*/}
+          {/*    setIsLoading(true);*/}
+
+          {/*    try {*/}
+          {/*      // 🔹 Opcional: decodificar só para exibir nome no toast*/}
+          {/*      const decoded = atob(base64Text);*/}
+          {/*      const qrData = JSON.parse(decoded);*/}
+          {/*      const { nome } = qrData;*/}
+
+          {/*      // 🔹 Envia Base64 para o backend via query param*/}
+          {/*      await registrarPresencaQRCode(*/}
+          {/*        `/presencas/presenca/scan?qrData=${encodeURIComponent(base64Text)}`,*/}
+          {/*        {}, // corpo vazio*/}
+          {/*        {*/}
+          {/*          headers: {*/}
+          {/*            Authorization: `Bearer ${usuario.token}`,*/}
+          {/*            "Content-Type": "application/x-www-form-urlencoded",*/}
+          {/*          },*/}
+          {/*        }*/}
+          {/*      );*/}
+
+          {/*      ToastAlerta(*/}
+          {/*        `✅ Presença registrada via QR Code para ${nome}`,*/}
+          {/*        Toast.Success*/}
+          {/*      );*/}
+
+          {/*      await buscarPresencas();*/}
+          {/*    } catch (error) {*/}
+          {/*      console.error("❌ Erro ao processar QR Code:", error);*/}
+          {/*      ToastAlerta(*/}
+          {/*        "Erro ao processar ou registrar presença via QR Code",*/}
+          {/*        Toast.Error*/}
+          {/*      );*/}
+          {/*    } finally {*/}
+          {/*      setIsLoading(false);*/}
+          {/*    }*/}
+          {/*  }}*/}
+          {/*/>*/}
+
+          <QRCodeScanner onScan={handleScanQRCode}/>
+        </ModalBody>
+      </Modal>
+
     </div>
   );
 }

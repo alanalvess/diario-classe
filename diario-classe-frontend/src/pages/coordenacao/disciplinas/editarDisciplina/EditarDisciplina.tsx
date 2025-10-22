@@ -1,11 +1,9 @@
 import React, {type ChangeEvent, useEffect, useState} from "react";
-import {Button, Modal, ModalBody, ModalHeader, Spinner} from "flowbite-react";
+import {Button, Card, Modal, ModalBody, ModalHeader, Spinner, TextInput} from "flowbite-react";
 
 import {atualizarAtributo} from "../../../../services/Service";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta";
 import type {Disciplina} from "../../../../models"
-
-import InputField from "../../../../components/form/InputField.tsx";
 import {useAuth} from "../../../../contexts/UseAuth.ts";
 
 interface EditarDisciplinaProps {
@@ -16,11 +14,11 @@ interface EditarDisciplinaProps {
 }
 
 function EditarDisciplina({
-                       open,
-                       onClose,
-                       onSaved,
-                       disciplinaSelecionada
-                     }: EditarDisciplinaProps) {
+                            open,
+                            onClose,
+                            onSaved,
+                            disciplinaSelecionada
+                          }: EditarDisciplinaProps) {
 
   const [disciplinaAtualizada, setDisciplinaAtualizada] = useState<Disciplina>(
     {} as Disciplina
@@ -33,7 +31,6 @@ function EditarDisciplina({
     setIsLoading(true);
 
     try {
-      // 🔹 Clona e filtra o objeto para enviar só o que tem valor
       const dadosFiltrados = Object.fromEntries(
         Object.entries(disciplinaAtualizada).filter(([key, value]) => {
           if (value === "" || value === null || value === undefined) return false;
@@ -41,7 +38,6 @@ function EditarDisciplina({
           return true;
         })
       );
-      console.log("Payload enviado:", dadosFiltrados);
 
       await atualizarAtributo(
         `/disciplinas/${disciplinaSelecionada.id}`, dadosFiltrados, setDisciplinaAtualizada, {
@@ -85,40 +81,42 @@ function EditarDisciplina({
       <Modal show={open} onClose={onClose} size="md" popup>
         <ModalHeader/>
         <ModalBody>
-          <div className="justify-center">
-            <div
-              className="flex justify-center shadow-xl dark:shadow-lg shadow-cinza-300 dark:shadow-preto-600 bg-cinza-100 dark:bg-preto-300 py-[3vh] lg:py-[10vh] rounded-2xl font-bold">
-              <form className="flex max-w-md flex-col gap-4 w-[80%]" onSubmit={editarDisciplina}>
-                <h2 className="text-slate-900 dark:text-cinza-100 my-4 text-center text-2xl lg:text-4xl">
-                  Editar Disciplina
-                </h2>
+          <form className="flex flex-col gap-4" onSubmit={editarDisciplina}>
+            <Card className="mb-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                Editar Disciplina
+              </h2>
+            </Card>
 
-                <InputField
-                  label="Nome da Disciplina"
-                  name="nome"
-                  required
-                  value={disciplinaAtualizada.nome || ""}
-                  onChange={atualizarEstado}
-                />
+            <TextInput
+              name="nome"
+              placeholder="Nome"
+              required
+              value={disciplinaAtualizada.nome || ""}
+              onChange={atualizarEstado}
+            />
 
-                <InputField
-                  label="Código da Disciplina"
-                  name="codigo"
-                  required
-                  value={disciplinaAtualizada.codigo || ""}
-                  onChange={atualizarEstado}
-                />
+            <TextInput
+              name="codigo"
+              placeholder="Código"
+              required
+              value={disciplinaAtualizada.codigo || ""}
+              onChange={atualizarEstado}
+            />
 
-                <Button type="submit">
-                  {isLoading ? <Spinner aria-label="Carregando"/> : <span>Salvar Alterações</span>}
-                </Button>
-              </form>
-            </div>
-          </div>
+            <Button
+              type="submit"
+              color="green"
+              className='cursor-pointer mt-6 focus:outline-none focus:ring-0'
+            >
+              {isLoading ? <Spinner size="md" light/> : <span>Salvar Alterações</span>}
+            </Button>
+          </form>
         </ModalBody>
       </Modal>
     </>
-  );
+  )
+    ;
 }
 
 export default EditarDisciplina;

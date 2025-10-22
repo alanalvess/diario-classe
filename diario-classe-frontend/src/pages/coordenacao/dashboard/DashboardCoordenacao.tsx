@@ -6,11 +6,16 @@ import {buscar} from "../../../services/Service.ts";
 import {Card} from "flowbite-react";
 import type {Aluno, Disciplina, Observacao, Professor, Turma} from "../../../models";
 import {useAuth} from "../../../contexts/UseAuth.ts";
+import {Roles} from "../../../enums/Roles.ts";
+import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
+import {useNavigate} from "react-router-dom";
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 export default function DashboardCoordenacaoPage() {
   const {usuario, isHydrated, isAuthenticated} = useAuth();
+
+  const navigate = useNavigate();
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [professores, setProfessores] = useState<Professor[]>([]);
@@ -40,12 +45,7 @@ export default function DashboardCoordenacaoPage() {
     count: alunos.filter(a => a.turmaId === t.id).length
   }));
 
-  // const dataAlunosPorTurma = {
-  //   labels: alunosPorTurma.map(a => a.turma),
-  //   datasets: [{ label: "Alunos por Turma", data: alunosPorTurma.map(a => a.count), backgroundColor: "rgba(54, 162, 235, 0.6)" }]
-  // };
-
-  const dataAlunosPorTurma = {
+ const dataAlunosPorTurma = {
     labels: alunosPorTurma.map(a => a.turma),
     datasets: [{
       label: "Alunos por Turma",
@@ -55,19 +55,10 @@ export default function DashboardCoordenacaoPage() {
     }]
   };
 
-  // 🔹 Disciplinas por turma
   const disciplinasPorTurma = turmas.map(t => ({
     turma: t.nome,
     count: t.disciplinaNomes ? t.disciplinaNomes.length : 0
   }));
-
-  // const dataDisciplinasPorTurma = {
-  //   labels: disciplinasPorTurma.map(d => d.turma),
-  //   datasets: [{
-  //     label: "Disciplinas por Turma",
-  //     data: disciplinasPorTurma.map(d => d.count),
-  //     backgroundColor: "rgba(255, 206, 86, 0.6)" }]
-  // };
 
   const dataDisciplinasPorTurma = {
     labels: disciplinasPorTurma.map(d => d.turma),
@@ -79,16 +70,10 @@ export default function DashboardCoordenacaoPage() {
     }]
   };
 
-  // 🔹 Professores por turma
   const professoresPorTurma = turmas.map(t => ({
     turma: t.nome,
     count: professores.filter(professor => professor.turmaIds.includes(t.id)).length
   }));
-
-  // const dataProfessoresPorTurma = {
-  //   labels: professoresPorTurma.map(p => p.turma),
-  //   datasets: [{ label: "Professores por Turma", data: professoresPorTurma.map(p => p.count), backgroundColor: "rgba(75, 192, 192, 0.6)" }]
-  // };
 
   const dataProfessoresPorTurma = {
     labels: professoresPorTurma.map(p => p.turma),
@@ -100,7 +85,6 @@ export default function DashboardCoordenacaoPage() {
     }]
   };
 
-  // 🔹 Observações por categoria
   const categoriasCount: Record<string, number> = {};
   observacoes.forEach(o => {
     categoriasCount[o.categoria] = (categoriasCount[o.categoria] || 0) + 1;
@@ -113,11 +97,26 @@ export default function DashboardCoordenacaoPage() {
     }]
   };
 
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.COORDENADOR)) {
+      ToastAlerta("Você precisa estar autenticado como Coordenador", Toast.Info);
+      navigate("/login");
+    }
+  }, [isHydrated, isAuthenticated, usuario]);
+
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
-      <h1 className="text-2xl font-bold mb-6">Dashboard da Coordenação</h1>
+      <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+          Dashboard da Coordenação
+        </h2>
+        <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">
+          Acompanhe os principais indicadores acadêmicos de turmas, alunos e professores.
+        </p>
+      </Card>
 
-      {/* Indicadores principais */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         <Card className="p-4 border rounded shadow">
           <h2 className="text-lg font-semibold">Turmas</h2>
@@ -144,13 +143,7 @@ export default function DashboardCoordenacaoPage() {
         </Card>
       </div>
 
-      {/* Gráficos */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        {/*<Card>*/}
-        {/*  <h2 className="font-bold mb-2">Alunos por Turma</h2>*/}
-        {/*  <Bar data={dataAlunosPorTurma} />*/}
-        {/*</Card>*/}
-
         <Card className="p-4">
           <h2 className="font-bold mb-2">Alunos por Turma</h2>
           <Bar
@@ -162,14 +155,6 @@ export default function DashboardCoordenacaoPage() {
               }
             }}
           />
-          {/*<div className="flex flex-wrap gap-3 mt-4">*/}
-          {/*  {alunosPorTurma.map((a, i) => (*/}
-          {/*    <div key={a.turma} className="flex items-center space-x-2">*/}
-          {/*      <span className="w-4 h-4 rounded-sm" style={{backgroundColor: cores[i % cores.length]}}></span>*/}
-          {/*      <span className="text-sm">{a.turma}</span>*/}
-          {/*    </div>*/}
-          {/*  ))}*/}
-          {/*</div>*/}
         </Card>
 
         <Card>

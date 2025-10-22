@@ -1,5 +1,5 @@
-import {type FormEvent, useContext, useEffect, useState} from "react";
-import {Modal, Button, Label, TextInput, ModalHeader, ModalBody} from "flowbite-react";
+import React, {type FormEvent, useState} from "react";
+import {Button, Card, Modal, ModalBody, ModalHeader, TextInput} from "flowbite-react";
 import {atualizarAtributo} from "../../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta.ts";
 import {useAuth} from "../../../../contexts/UseAuth.ts";
@@ -12,7 +12,7 @@ interface EditarMeuUsuarioProps {
   usuarioSelecionado?: Usuario | null;
 }
 
-export default function EditarMeuUsuario({ show, onClose, onSaved, usuarioSelecionado }: EditarMeuUsuarioProps) {
+export default function EditarMeuUsuario({show, onClose, onSaved, usuarioSelecionado}: EditarMeuUsuarioProps) {
 
   const {usuario} = useAuth();
   const [meuUsuario, setMeuUsuario] = useState({
@@ -47,36 +47,46 @@ export default function EditarMeuUsuario({ show, onClose, onSaved, usuarioSeleci
   }
 
   return (
-    <Modal show={show} onClose={onClose}>
-      <ModalHeader>Editar Dados do Usuário</ModalHeader>
+    <Modal show={show} onClose={onClose} size="md" popup>
+      <ModalHeader/>
       <ModalBody>
         <form onSubmit={editarMeuUsuario} className="space-y-4">
-          <div>
-            <Label htmlFor="nome" />
-            <TextInput
-              id="nome"
-              value={meuUsuario.nome}
-              onChange={(e) => setMeuUsuario({ ...meuUsuario, nome: e.target.value })}
-              required
-            />
-          </div>
 
-          <div>
-            <Label htmlFor="email" />
-            <TextInput
-              id="email"
-              type="email"
-              value={meuUsuario.email}
-              onChange={(e) => setMeuUsuario({ ...meuUsuario, email: e.target.value })}
-              required
-            />
-          </div>
+          <Card className="mb-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              Editar Meus Dados
+            </h2>
+          </Card>
+          <TextInput
+            id="nome"
+            placeholder="Nome"
+            value={meuUsuario.nome}
+            onChange={(e) => setMeuUsuario({...meuUsuario, nome: e.target.value})}
+            required
+          />
+
+          <TextInput
+            id="email"
+            type="email"
+            placeholder="E-mail"
+            value={meuUsuario.email}
+            onChange={(e) => setMeuUsuario({...meuUsuario, email: e.target.value})}
+            required
+          />
 
           <div className="flex justify-end gap-2 pt-3">
-            <Button color="gray" onClick={onClose}>
+            <Button
+              className="cursor-pointer focus:outline-none focus:ring-0"
+              color="alternative"
+              onClick={onClose}
+            >
               Cancelar
             </Button>
-            <Button color="blue" type="submit">
+            <Button
+              className="cursor-pointer focus:outline-none focus:ring-0"
+              color="green"
+              type="submit"
+            >
               Salvar
             </Button>
           </div>

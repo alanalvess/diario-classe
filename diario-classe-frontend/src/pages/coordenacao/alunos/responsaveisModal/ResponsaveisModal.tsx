@@ -64,7 +64,7 @@ export default function ResponsaveisModal({open, onClose, alunoSelecionado}: Res
         <ModalHeader/>
         <ModalBody>
           <Card className="mb-10 p-4 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
-            <h2 className="text-xl text-gray-900 dark:text-gray-100">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
               Responsáveis do(a){" "}
               <span className="font-bold text-green-600">{alunoSelecionado.nome}</span>
             </h2>

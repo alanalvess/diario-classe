@@ -52,7 +52,6 @@ export default function NotasPage() {
     }
   }
 
-
   useEffect(() => {
     if (!usuario?.email) return;
     buscarResponsavelPorEmail();
@@ -62,7 +61,6 @@ export default function NotasPage() {
     if (!responsavel?.email) return;
     buscarAlunosDoResponsavel();
   }, [responsavel]);
-
 
   useEffect(() => {
     if (!usuario) return;
@@ -174,7 +172,7 @@ export default function NotasPage() {
 
       {isLoading ? (
         <div className="flex justify-center mt-10">
-          <Spinner size="xl"/>
+          <Spinner size="xl" color="purple"/>
         </div>
       ) : (
         alunoSelecionado &&

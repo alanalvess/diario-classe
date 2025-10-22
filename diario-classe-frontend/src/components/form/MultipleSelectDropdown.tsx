@@ -29,7 +29,7 @@ export default function MultiSelectDropdown({titulo, opcoes, selecionados, setSe
               {opcoes.map((opt) => (
                 <div key={opt.id} className="flex items-center gap-2">
                   <Checkbox
-                    color="info"
+                    color="dark"
                     className="focus:ring-0 dark:ring-offset-0 dark:focus:ring-0 focus:ring-offset-0 focus:outline-none"
                     id={`opt-${opt.id}`}
                     checked={selecionados.includes(opt.id)}

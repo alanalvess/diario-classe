@@ -6,7 +6,6 @@ import {buscar, cadastrar} from "../../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta.ts";
 import {useAuth} from "../../../../contexts/UseAuth.ts";
 import MultiSelectDropdown from "../../../../components/form/MultipleSelectDropdown.tsx";
-import {RotatingLines} from "react-loader-spinner";
 
 interface CadastroTurmaProps {
   open: boolean;
@@ -45,7 +44,7 @@ function CadastroTurma({
   const [professorIdsSelecionados, setProfessorIdsSelecionados] = useState<number[]>([]);
   const [disciplinaIdsSelecionadas, setDisciplinaIdsSelecionadas] = useState<number[]>([]);
 
-  async function cadastrarNovoProfessor(e: FormEvent<HTMLFormElement>) {
+  async function cadastrarNovaDisciplina(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsLoading(true);
 
@@ -135,10 +134,10 @@ function CadastroTurma({
         <ModalHeader/>
 
         <ModalBody>
-          <form className="flex flex-col gap-4" onSubmit={cadastrarNovoProfessor}>
+          <form className="flex flex-col gap-4" onSubmit={cadastrarNovaDisciplina}>
             <Card className="mb-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                Cadastro de Professor
+                Cadastro de Turma
               </h2>
             </Card>
 
