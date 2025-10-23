@@ -42,6 +42,15 @@ public class AvaliacaoController {
         return ResponseEntity.ok(avaliacaoService.listarPorDisciplina(disciplinaId));
     }
 
+    @GetMapping("/turma/{turmaId}/disciplina/{disciplinaId}")
+    public ResponseEntity<List<AvaliacaoResponse>> listarPorTurmaEDisciplina(
+            @PathVariable Long turmaId,
+            @PathVariable Long disciplinaId
+    ) {
+        return ResponseEntity.ok(avaliacaoService.listarPorTurmaEDisciplina(turmaId, disciplinaId));
+    }
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         avaliacaoService.deletar(id);

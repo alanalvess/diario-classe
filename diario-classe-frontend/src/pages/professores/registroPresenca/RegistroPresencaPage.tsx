@@ -21,9 +21,13 @@ import type {Presenca, Professor, Turma} from "../../../models";
 import QRCodeScanner from "../../../components/qrCodeScanner/QrCodeScanner.tsx";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import {FaCamera} from "react-icons/fa";
+import {Roles} from "../../../enums/Roles.ts";
+import {useNavigate} from "react-router-dom";
 
 export default function RegistroPresencaPage() {
   const {usuario, handleLogout, isHydrated, isAuthenticated} = useAuth();
+
+  const navigate = useNavigate();
 
   const [presencas, setPresencas] = useState<Presenca[]>([]);
   const [qrOpen, setQrOpen] = useState(false);
@@ -36,6 +40,15 @@ export default function RegistroPresencaPage() {
   );
 
   const [professor, setProfessor] = useState<Professor>();
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.PROFESSOR)) {
+      ToastAlerta("Você precisa estar autenticado como Professor", Toast.Info);
+      navigate("/login");
+    }
+  }, [isHydrated, isAuthenticated, usuario]);
 
   async function buscarProfessorPorEmail() {
     try {

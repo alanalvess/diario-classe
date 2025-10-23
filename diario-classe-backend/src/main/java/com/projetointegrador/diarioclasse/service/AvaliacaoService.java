@@ -61,6 +61,13 @@ public class AvaliacaoService {
                 .toList();
     }
 
+    public List<AvaliacaoResponse> listarPorTurmaEDisciplina(Long turmaId, Long disciplinaId) {
+        return avaliacaoRepository.findByTurmaIdAndDisciplinaId(turmaId, disciplinaId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public AvaliacaoResponse atualizar(Long id, AvaliacaoRequest request) {
         Avaliacao avaliacao = avaliacaoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Avaliação não encontrada"));
@@ -171,5 +178,6 @@ public class AvaliacaoService {
                 avaliacao.calcularMedia()
         );
     }
+
 }
 

@@ -63,7 +63,7 @@ export default function DashboardProfessorPage() {
     if (!isHydrated) return;
 
     if (!isAuthenticated || !usuario?.roles.includes(Roles.PROFESSOR)) {
-      ToastAlerta("Você precisa estar autenticado como Coordenador", Toast.Info);
+      ToastAlerta("Você precisa estar autenticado como Professor", Toast.Info);
       navigate("/login");
     }
   }, [isHydrated, isAuthenticated, usuario]);

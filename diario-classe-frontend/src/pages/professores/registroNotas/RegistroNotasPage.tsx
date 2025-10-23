@@ -1,13 +1,27 @@
-import {useEffect, useState} from "react";
-import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
+import React, {useEffect, useState} from "react";
+import {
+  Button,
+  Card,
+  Select,
+  Spinner,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeadCell,
+  TableRow, TextInput
+} from "flowbite-react";
 import {buscar, cadastrar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
-import type {Aluno, Avaliacao, Disciplina, Nota, Turma} from "../../../models";
-import {RotatingLines} from "react-loader-spinner";
+import type {Aluno, Avaliacao, Disciplina, Nota, Professor, Turma} from "../../../models";
 import {useAuth} from "../../../contexts/UseAuth.ts";
+import {Roles} from "../../../enums/Roles.ts";
+import {useNavigate} from "react-router-dom";
 
 export default function RegistroNotasPage() {
   const {usuario, isHydrated, isAuthenticated} = useAuth();
+
+  const navigate = useNavigate();
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
@@ -21,12 +35,50 @@ export default function RegistroNotasPage() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // 🔹 Buscar turmas do professor
+
+  const [professor, setProfessor] = useState<Professor>();
+
   useEffect(() => {
-    if (isHydrated && isAuthenticated) {
-      buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+    if (!isHydrated) return;
+
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.PROFESSOR)) {
+      ToastAlerta("Você precisa estar autenticado como Professor", Toast.Info);
+      navigate("/login");
     }
-  }, [isAuthenticated, isHydrated]);
+  }, [isHydrated, isAuthenticated, usuario]);
+
+  async function buscarProfessorPorEmail() {
+    try {
+      await buscar(`/professores/email/${usuario.email}`, setProfessor,
+        {headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}}
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async function buscarTurmasPorProfessor() {
+    try {
+      await buscar(`/turmas/professor/${professor.id}`, setTurmas,
+        {headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}}
+      )
+      ;
+    } catch (error) {
+      console.error("Erro ao carregar turmas do professor", error);
+    }
+  }
+
+  useEffect(() => {
+    if (usuario?.email) {
+      buscarProfessorPorEmail();
+    }
+  }, [usuario?.email]);
+
+  useEffect(() => {
+    if (professor?.id) {
+      buscarTurmasPorProfessor();
+    }
+  }, [professor]);
 
   // 🔹 Buscar disciplinas da turmas selecionada
   async function buscarDisciplinas() {
@@ -37,14 +89,22 @@ export default function RegistroNotasPage() {
   }
 
   // 🔹 Buscar avaliações da disciplina selecionada
+  // async function buscarAvaliacoes() {
+  //   if (!disciplina) return;
+  //   await buscar(`/avaliacoes/disciplina/${disciplina}`, setAvaliacoes, {
+  //     headers: {Authorization: `Bearer ${usuario.token}`},
+  //   });
+  // }
+
   async function buscarAvaliacoes() {
-    if (!disciplina) return;
-    await buscar(`/avaliacoes/disciplina/${disciplina}`, setAvaliacoes, {
+    if (!turma || !disciplina) return;
+    await buscar(`/avaliacoes/turma/${turma}/disciplina/${disciplina}`, setAvaliacoes, {
       headers: {Authorization: `Bearer ${usuario.token}`},
     });
   }
 
-  // 🔹 Buscar alunos da disciplina
+
+  // 🔹 Buscar alunos da turma
   async function buscarAlunos() {
     if (!turma) return;
     await buscar(`/alunos/turma/${turma}`, setAlunos, {
@@ -126,16 +186,21 @@ export default function RegistroNotasPage() {
 
   useEffect(() => {
     if (disciplina && isAuthenticated) {
-      buscarAlunos().then(() => buscarNotas());
       buscarAvaliacoes();
       setAvaliacao(null); // resetar avaliação ao mudar disciplina
-      setNotas([]);
     }
   }, [disciplina, isAuthenticated]);
 
   useEffect(() => {
     if (avaliacao && isAuthenticated) buscarNotas();
   }, [avaliacao, isAuthenticated]);
+
+  useEffect(() => {
+    if (turma && disciplina && avaliacao) {
+      buscarAlunos().then(() => buscarNotas());
+      setNotas([]);
+    }
+  }, [turma, disciplina, avaliacao]);
 
   // 🔹 Combinar alunos + notas existentes
   const notasComAlunos = alunos.map(aluno => {
@@ -151,12 +216,20 @@ export default function RegistroNotasPage() {
 
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
-      <h1 className="text-2xl font-bold mb-6">Registro de Notas</h1>
+
+      <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+          Registro de Notas
+        </h2>
+        <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">
+          Gerencie todos as notas de avaliações dos alunos por turma e disciplina.
+        </p>
+      </Card>
 
       {/* Filtros */}
-      <div className="flex flex-wrap gap-4 mb-6">
-        <select
-          className="border rounded p-2 flex-1"
+      <div className="flex flex-col md:flex-row gap-2 md:gap-4 mb-6">
+        <Select
+          className="py-2 w-full md:flex-1"
           value={turma ?? ""}
           onChange={(e) => setTurma(Number(e.target.value))}
         >
@@ -166,10 +239,10 @@ export default function RegistroNotasPage() {
               {t.nome} ({t.anoLetivo})
             </option>
           ))}
-        </select>
+        </Select>
 
-        <select
-          className="border rounded p-2 flex-1"
+        <Select
+          className="py-2 w-full md:flex-1"
           value={disciplina ?? ""}
           onChange={(e) => setDisciplina(Number(e.target.value))}
         >
@@ -179,10 +252,10 @@ export default function RegistroNotasPage() {
               {d.nome}
             </option>
           ))}
-        </select>
+        </Select>
 
-        <select
-          className="border rounded p-2 flex-1"
+        <Select
+          className="py-2 w-full md:flex-1"
           value={avaliacao ?? ""}
           onChange={(e) => setAvaliacao(Number(e.target.value))}
         >
@@ -192,82 +265,95 @@ export default function RegistroNotasPage() {
               {a.titulo}
             </option>
           ))}
-        </select>
-
-        <Button onClick={buscarNotas} disabled={!avaliacao}>
-          {isLoading ?
-            <RotatingLines
-              strokeColor="white"
-              strokeWidth="5"
-              animationDuration="0.75"
-              width="24"
-              visible={true}
-            /> :
-            <span>
-              Carregar Notas
-            </span>
-          }
-        </Button>
+        </Select>
       </div>
 
-      {/* Tabela de notas */}
-      {alunos.length > 0 ? (
-        <Table>
-          <TableHead>
-            <TableHeadCell>Aluno</TableHeadCell>
-            <TableHeadCell>Nota</TableHeadCell>
-            <TableHeadCell>Ações</TableHeadCell>
-          </TableHead>
-          <TableBody>
-            {notasComAlunos.map(nota => (
-              <TableRow key={nota.alunoId}>
-                <TableCell>{nota.alunoNome}</TableCell>
-                <TableCell>
-                  <input
-                    type="number"
-                    value={nota.valor ?? ""}
-                    className="border rounded p-1 w-20"
-                    onChange={(e) => {
-                      const novoValor = Number(e.target.value);
-
-                      setNotas(prev => {
-                        const existe = prev.find(x => x.alunoId === nota.alunoId);
-
-                        if (existe) {
-                          // Atualiza a nota existente
-                          return prev.map(x =>
-                            x.alunoId === nota.alunoId ? {...x, valor: novoValor} : x
-                          );
-                        } else {
-                          // Cria nova nota para aluno que ainda não tem
-                          return [
-                            ...prev,
-                            {
-                              id: 0, // ou null, dependendo do backend
-                              alunoId: nota.alunoId,
-                              alunoNome: nota.alunoNome,
-                              disciplinaId: disciplina!, // garante que não é null
-                              valor: novoValor,
-                            }
-                          ];
-                        }
-                      });
-                    }}
-
-                  />
-                </TableCell>
-                <TableCell>
-                  <Button size="xs" color="blue" onClick={() => salvarNota(nota)}>
-                    Salvar
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      {isLoading ? (
+        <div className="flex justify-center mt-10">
+          <Spinner size="xl" color="purple"/>
+        </div>
       ) : (
-        <p>Nenhum aluno encontrado para esta disciplina.</p>
+        <div className="w-full">
+          <div
+            className=" overflow-x-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+
+            <Table className="text-sm text-gray-700 dark:text-gray-300">
+              <TableHead className="bg-gray-100 dark:bg-gray-700">
+                <TableHeadCell className="text-center font-semibold">Aluno</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Nota</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Ações</TableHeadCell>
+              </TableHead>
+
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-600">
+                {alunos.length > 0 ? (
+                  notasComAlunos.map(nota => (
+                    <TableRow
+                      key={nota.alunoId}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-150"
+                    >
+                      <TableCell
+                        className="text-center font-medium text-gray-900 dark:text-gray-100">{nota.alunoNome}</TableCell>
+                      <TableCell className="text-center">
+                        <TextInput
+                          type="number"
+                          value={nota.valor ?? ""}
+                          className="p-1 w-20"
+                          onChange={(e) => {
+                            const novoValor = Number(e.target.value);
+
+                            setNotas(prev => {
+                              const existe = prev.find(x => x.alunoId === nota.alunoId);
+
+                              if (existe) {
+                                // Atualiza a nota existente
+                                return prev.map(x =>
+                                  x.alunoId === nota.alunoId ? {...x, valor: novoValor} : x
+                                );
+                              } else {
+                                // Cria nova nota para aluno que ainda não tem
+                                return [
+                                  ...prev,
+                                  {
+                                    id: 0, // ou null, dependendo do backend
+                                    alunoId: nota.alunoId,
+                                    alunoNome: nota.alunoNome,
+                                    disciplinaId: disciplina!, // garante que não é null
+                                    valor: novoValor,
+                                  }
+                                ];
+                              }
+                            });
+                          }}
+
+                        />
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex justify-center gap-2 flex-wrap">
+
+                          <Button
+                          className="cursor-pointer focus:outline-none focus:ring-0"
+                            size="xs"
+                            color="alternative"
+                            onClick={() => salvarNota(nota)}>
+                            Salvar
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-gray-500 py-4">
+                      Nenhum aluno cadastrado.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       )}
     </div>
+
   );
 }
