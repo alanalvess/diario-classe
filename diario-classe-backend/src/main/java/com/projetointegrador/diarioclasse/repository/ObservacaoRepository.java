@@ -9,5 +9,8 @@ import java.util.List;
 @Repository
 public interface ObservacaoRepository extends JpaRepository<Observacao, Long> {
     List<Observacao> findByAlunoId(Long alunoId);
-//    List<Observacao> findByProfessorId(Long professorId);
+
+    List<Observacao> findByTurmaIdAndAlunoId(Long turmaId, Long alunoId);
+
+    List<Observacao> findByTurmaId(Long turmaId);
 }

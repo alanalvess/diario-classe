@@ -1,33 +1,42 @@
 import React, {useEffect, useState} from "react";
-import {Button, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
-import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
+import {
+  Alert,
+  Button,
+  Card,
+  Select,
+  Spinner,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeadCell,
+  TableRow
+} from "flowbite-react";
+import {buscar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
-import type {Aluno, Disciplina, Observacao, Professor, Turma} from "../../../models";
-import {RotatingLines} from "react-loader-spinner";
-import {CategoriaObservacao} from "../../../enums/CategoriaObservacao.ts";
+import type {Aluno, Observacao, Professor, Turma} from "../../../models";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import EditarObservacao from "./editarObservacao/EditarObservacao.tsx";
-import {FaEdit, FaTrashAlt} from "react-icons/fa";
-import {CategoriasAgrupadas} from "../../../utils/CategoriasAgrupadas.ts";
+import {FaEdit, FaPlus, FaTrashAlt} from "react-icons/fa";
+import CadastroObservacao from "./cadastroObservacao/CadastroObservacao.tsx";
+import DeletarObservacao from "./deletarObservacao/DeletarObservacao.tsx";
 
 export default function RegistroObservacoesPage() {
   const {usuario, isHydrated, isAuthenticated} = useAuth();
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
-  const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [observacoes, setObservacoes] = useState<Observacao[]>([]);
 
   const [turmaSelecionada, setTurmaSelecionada] = useState<number | null>(null);
-  const [disciplinaSelecionada, setDisciplinaSelecionada] = useState<number | null>(null);
   const [alunoSelecionado, setAlunoSelecionado] = useState<number | null>(null);
-  const [descricao, setDescricao] = useState("");
-  const [categoria, setCategoria] = useState("");
-  const [data, setData] = useState(new Date().toISOString().split("T")[0]);
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const [modalCadastro, setModalCadastro] = useState(false);
   const [modalEditarObservacao, setModalEditarObservacao] = useState(false);
+  const [modalExclusao, setModalExclusao] = useState(false);
+
   const [observacaoSelecionada, setObservacaoSelecionada] = useState<Observacao | null>(null);
   const [professor, setProfessor] = useState<Professor>();
 
@@ -63,235 +72,256 @@ export default function RegistroObservacoesPage() {
       }
     }
   }
-  // 🔹 Buscar turmas do professor
-  useEffect(() => {
-    if (isHydrated && isAuthenticated) {
-      buscar(`/turmas`, setTurmas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+
+  async function buscarTurmasPorProfessor() {
+    try {
+      await buscar(`/turmas/professor/${professor.id}`, setTurmas,
+        {headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}}
+      )
+      ;
+    } catch (error) {
+      console.error("Erro ao carregar turmas do professor", error);
     }
-  }, [isHydrated, isAuthenticated]);
+  }
 
-  // 🔹 Buscar disciplinas da turmas
   useEffect(() => {
-    if (!turmaSelecionada) return;
-    buscar(`/disciplinas/turma/${turmaSelecionada}`, setDisciplinas, {
-      headers: {Authorization: `Bearer ${usuario.token}`},
-    });
-  }, [turmaSelecionada, isAuthenticated]);
+    if (usuario?.email) {
+      buscarProfessorPorEmail();
+    }
+  }, [usuario?.email]);
 
-  // 🔹 Buscar alunos da disciplina
+  useEffect(() => {
+    if (professor?.id) {
+      buscarTurmasPorProfessor();
+    }
+  }, [professor]);
+
   useEffect(() => {
     if (!turmaSelecionada) return;
     buscar(`/alunos/turma/${turmaSelecionada}`, setAlunos, {
       headers: {Authorization: `Bearer ${usuario.token}`},
     });
-  }, [disciplinaSelecionada, isAuthenticated]);
+  }, [turmaSelecionada, isAuthenticated]);
 
-  // 🔹 Buscar observações da turmas + disciplina (opcional filtro por aluno)
   useEffect(() => {
-    if (!disciplinaSelecionada || !turmaSelecionada) return;
+    if (!isAuthenticated) return;
 
-    let url = `/observacoes`;
-    if (alunoSelecionado) {
-      url = `/observacoes/aluno/${alunoSelecionado}`;
-    }
+    const params = new URLSearchParams();
 
-    buscar(url, setObservacoes, {headers: {Authorization: `Bearer ${usuario.token}`}});
-  }, [turmaSelecionada, disciplinaSelecionada, alunoSelecionado, isAuthenticated]);
+    if (turmaSelecionada) params.append("turmaId", turmaSelecionada.toString());
+    if (alunoSelecionado) params.append("alunoId", alunoSelecionado.toString());
 
-  // 🔹 Salvar nova observação
-  // async function salvarObservacao() {
-  //   if (!alunoSelecionado || !turmaSelecionada || !disciplinaSelecionada) return;
-  //
-  //   const body = {
-  //     alunoId: alunoSelecionado,
-  //     turmaId: turmaSelecionada,
-  //     disciplinaId: disciplinaSelecionada,
-  //     professorId: professor.id,
-  //     descricao,
-  //     categoria,
-  //     data,
-  //   };
+    const url = `/observacoes/obs${params.toString() ? `?${params.toString()}` : ""}`;
 
-  async function salvarObservacao() {
-    if (!alunoSelecionado || !turmaSelecionada || !disciplinaSelecionada) {
-      ToastAlerta("Preencha todos os campos obrigatórios", Toast.Warning);
-      return;
-    }
+    buscar(url, setObservacoes, {
+      headers: { Authorization: `Bearer ${usuario.token}` },
+    });
 
-    if (!professor?.id) {
-      ToastAlerta("Professor ainda não carregado", Toast.Warning);
-      return;
-    }
-
-    const body = {
-      alunoId: alunoSelecionado,
-      turmaId: turmaSelecionada,
-      disciplinaId: disciplinaSelecionada,
-      professorId: professor.id, // ✅ garante que existe
-      descricao,
-      categoria,
-      data,
-    };
-
-    try {
-      await cadastrar("/observacoes", body, (novaObs: Observacao) => {
-        setObservacoes(prev => [...prev, novaObs]);
-        setDescricao("");
-        setCategoria("");
-      }, {
-        headers: {
-          Authorization: `Bearer ${usuario.token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      ToastAlerta("✅ Observação salva", Toast.Success);
-    } catch (error) {
-      if (error instanceof Error) {
-        ToastAlerta("Erro ao salvar observação", Toast.Error);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  // 🔹 Excluir observação
-  async function excluirObservacao(id: number) {
-    try {
-      await deletar(`/observacoes/${id}`, {
-        method: "DELETE",
-        headers: {Authorization: `Bearer ${usuario.token}`},
-      });
-      setObservacoes(prev => prev.filter(observacao => observacao.id !== id));
-      ToastAlerta("✅ Observação excluída", Toast.Success);
-    } catch (error) {
-      if (error instanceof Error) {
-        ToastAlerta("Erro ao excluir observação", Toast.Error);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  }, [turmaSelecionada, alunoSelecionado, isAuthenticated]);
 
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
-      <h1 className="text-2xl font-bold mb-6">Registro de Observações</h1>
-
-      {/* Filtros */}
-      <div className="flex flex-wrap gap-4 mb-6">
-        <select value={turmaSelecionada ?? ""} onChange={e => setTurmaSelecionada(Number(e.target.value))}>
-          <option value="">Selecione a turma</option>
-          {turmas.map(t => <option key={t.id} value={t.id}>{t.nome} ({t.anoLetivo})</option>)}
-        </select>
-
-        <select value={disciplinaSelecionada ?? ""} onChange={e => setDisciplinaSelecionada(Number(e.target.value))}>
-          <option value="">Selecione a disciplina</option>
-          {disciplinas.map(d => <option key={d.id} value={d.id}>{d.nome}</option>)}
-        </select>
-
-        <select value={alunoSelecionado ?? ""} onChange={e => setAlunoSelecionado(Number(e.target.value))}>
-          <option value="">Selecione o aluno</option>
-          {alunos.map(a => <option key={a.id} value={a.id}>{a.nome}</option>)}
-        </select>
-      </div>
-
-      {/* Formulário de observação */}
-      <div className="flex flex-col gap-2 mb-6">
-        <input type="date" value={data} onChange={e => setData(e.target.value)} className="border rounded p-2"/>
-
-        <select
-          id="categoria"
-          value={categoria}
-          onChange={(e) => setCategoria(e.target.value as CategoriaObservacao)}
-          className="border rounded p-2 w-full bg-white dark:bg-gray-800 dark:text-gray-200"
-        >
-          <option value="">Selecione uma categoria</option>
-
-          {Object.entries(CategoriasAgrupadas).map(([grupo, categorias]) => (
-            <optgroup key={grupo} label={grupo}>
-              {categorias.map(({ value, label }) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </optgroup>
-          ))}
-        </select>
-
-
-
-        <textarea placeholder="Descrição" value={descricao} onChange={e => setDescricao(e.target.value)}
-                  className="border rounded p-2"/>
+      <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+          Registro de Observações
+        </h2>
+        <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">
+          Gerencie todas as anotações realizadas durante o ano letivo.
+        </p>
 
         <Button
-          onClick={salvarObservacao}
-          disabled={!professor || isLoading}
+          color="alternative"
+          className="cursor-pointer mt-4 md:mt-0 flex items-center justify-center gap-2 px-6 py-3 rounded-lg shadow hover:shadow-md transition duration-200 focus:outline-none focus:ring-0"
+          onClick={() => setModalCadastro(true)}
         >
-          {isLoading ?
-            <RotatingLines
-              strokeColor="white"
-              strokeWidth="5"
-              animationDuration="0.75"
-              width="24"
-              visible={true}
-            /> :
-            <span>Salvar Observação</span>}
+          <FaPlus className="text-lg"/> Adicionar Observação
         </Button>
+      </Card>
+
+      {/* Filtros */}
+      <div className="flex flex-row gap-4 mb-6">
+        <Select
+          value={turmaSelecionada ?? ""}
+          className="flex-1 w-full"
+          onChange={e => setTurmaSelecionada(Number(e.target.value))}>
+          <option value="">Selecione a turma</option>
+          {turmas.map(t => <option key={t.id} value={t.id}>{t.nome} ({t.anoLetivo})</option>)}
+        </Select>
+
+        <Select
+          value={alunoSelecionado ?? ""}
+          className="flex-1 w-full"
+          onChange={e => setAlunoSelecionado(Number(e.target.value))}>
+          <option value="">Selecione o aluno</option>
+          {alunos.map(a => <option key={a.id} value={a.id}>{a.nome}</option>)}
+        </Select>
       </div>
 
-      {/* Tabela de observações */}
-      {observacoes.length > 0 && (
-        <Table>
-          <TableHead>
-            <TableHeadCell>Aluno</TableHeadCell>
-            <TableHeadCell>Data</TableHeadCell>
-            <TableHeadCell>Categoria</TableHeadCell>
-            <TableHeadCell>Descrição</TableHeadCell>
-            <TableHeadCell>Ações</TableHeadCell>
-          </TableHead>
-          <TableBody>
-            {observacoes.map((obs, i) => (
-              <TableRow key={i}>
-                <TableCell>{alunos.find(a => a.id === obs.alunoId)?.nome || "—"}</TableCell>
-                <TableCell>{obs.data}</TableCell>
-                <TableCell>{obs.categoria}</TableCell>
-                <TableCell>{obs.descricao}</TableCell>
-                <TableCell>
-                  <div className='flex flex-row gap-4'>
+      {!turmaSelecionada ? (
+        <Alert color="info" className="mt-10 text-center">
+          <span className="font-medium">Selecione os filtros:</span> escolha uma turma e/ou um aluno para visualizar as observações dos alunos.
+        </Alert>
+      ) : isLoading ? (
+        <div className="flex justify-center mt-10">
+          <Spinner size="xl" color="purple"/>
+        </div>
+      ) : (
+        <div className="w-full">
+          <div
+            className="hidden md:block overflow-x-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+            <Table className="min-w-[700px] text-sm text-gray-700 dark:text-gray-300">
+              <TableHead className="bg-gray-100 dark:bg-gray-700">
+                <TableHeadCell className="text-center font-semibold">Aluno</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Data</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Categoria</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Descrição</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Ações</TableHeadCell>
+              </TableHead>
+
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-600">
+                {observacoes.length > 0 ? (
+                  observacoes.map((obs, i) => (
+                    <TableRow
+                      key={i}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-150"
+                    >
+                      <TableCell
+                        className="text-center font-medium text-gray-900 dark:text-gray-100">{alunos.find(a => a.id === obs.alunoId)?.nome || "—"}</TableCell>
+                      <TableCell className="text-center">{obs.data}</TableCell>
+                      <TableCell className="text-center">{obs.categoria}</TableCell>
+                      <TableCell className="text-center">{obs.descricao}</TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex justify-center gap-2 flex-wrap">
+                          <Button
+                            className="cursor-pointer text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 focus:outline-none focus:ring-0"
+
+                            color="alternative"
+                            size="xs"
+                            onClick={() => {
+                              setObservacaoSelecionada(obs)
+                              setModalEditarObservacao(true);
+                            }}
+                          >
+                            <FaEdit size={18}/>
+                          </Button>
+
+                          <Button
+                            className="cursor-pointer text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 focus:outline-none focus:ring-0"
+                            color="alternative"
+                            size="xs"
+                            onClick={() => {
+                              setObservacaoSelecionada(obs);
+                              setModalExclusao(true);
+                            }}
+                          >
+                            <FaTrashAlt size={18}/>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center text-gray-500 py-4">
+                      Nenhuma observação cadastrada.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* 📱 Layout mobile */}
+          <div className="md:hidden flex flex-col gap-4 mt-4">
+            {observacoes.length > 0 ? (
+              observacoes.map((observacao, i) => (
+                <div
+                  key={i}
+                  className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700"
+                >
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    {observacao.alunoNome}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="font-semibold">Data da Ocorrência:</span>{" "}
+                    {new Date(observacao.data).toLocaleDateString()}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="font-semibold">Matrícula:</span> {observacao.categoria}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="font-semibold">Turma:</span> {observacao.descricao}
+                  </p>
+
+                  <div className="flex justify-around mt-3 border-t border-gray-200 dark:border-gray-600 pt-3">
+
+
                     <Button
-                      color="warning"
+                      className="cursor-pointer text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 focus:outline-none focus:ring-0"
+                      color="alternative"
                       size="xs"
                       onClick={() => {
-                        // editaAluno(aluno.id);
-                        setObservacaoSelecionada(obs)
+                        setObservacaoSelecionada(observacao);
                         setModalEditarObservacao(true);
                       }}
-                      className='cursor-pointer'
                     >
                       <FaEdit size={20}/>
                     </Button>
 
                     <Button
-                      color="danger"
+                      className="cursor-pointer text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 focus:outline-none focus:ring-0"
+                      color="alternative"
                       size="xs"
-                      onClick={() => excluirObservacao(obs.id)}
+                      onClick={() => {
+                        setObservacaoSelecionada(observacao);
+                        setModalExclusao(true);
+                      }}
                     >
                       <FaTrashAlt size={20}/>
                     </Button>
                   </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                </div>
+              ))
+            ) : (
+              <Card>
+                <div className="text-center text-gray-500 py-4">
+                  Nenhum responsável cadastrado.
+                </div>
+              </Card>
+            )}
+          </div>
+        </div>
       )}
 
-      <EditarObservacao
-        open={modalEditarObservacao}
-        onClose={() => setModalEditarObservacao(false)}
+      <CadastroObservacao
+        open={modalCadastro}
+        onClose={() => {
+          setModalCadastro(false)
+          setObservacaoSelecionada(null)
+        }}
         onSaved={buscarObservacoes}
-        observacaoSelecionada={observacaoSelecionada}
       />
+
+      {observacaoSelecionada && (
+        <EditarObservacao
+          open={modalEditarObservacao}
+          onClose={() => setModalEditarObservacao(false)}
+          onSaved={buscarObservacoes}
+          observacaoSelecionada={observacaoSelecionada}
+        />
+      )}
+
+      {observacaoSelecionada && (
+        <DeletarObservacao
+          isOpen={modalExclusao}
+          onClose={() => {
+            setModalExclusao(false);
+            setObservacaoSelecionada(null);
+          }}
+          observacaoSelecionada={observacaoSelecionada}
+          aoDeletar={() => buscarObservacoes()}
+        />
+      )}
     </div>
   );
 }

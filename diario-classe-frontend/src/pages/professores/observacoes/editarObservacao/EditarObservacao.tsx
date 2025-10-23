@@ -1,15 +1,13 @@
-import {type ChangeEvent, useEffect, useState} from "react";
-import {Button, Modal, ModalBody, ModalHeader, Spinner} from "flowbite-react";
+import React, {type ChangeEvent, useEffect, useState} from "react";
+import {Button, Card, Modal, ModalBody, ModalHeader, Select, Spinner, Textarea, TextInput} from "flowbite-react";
 
 import {atualizarAtributo, buscar} from "../../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta.ts";
 import type {Aluno, Disciplina, Observacao, Professor, Turma} from "../../../../models"
 
-import InputField from "../../../../components/form/InputField.tsx";
 import {useAuth} from "../../../../contexts/UseAuth.ts";
-import SelectField from "../../../../components/form/SelectField.tsx";
 import {CategoriaObservacao} from "../../../../enums/CategoriaObservacao.ts";
-import TextAreaField from "../../../../components/form/TextInputField.tsx";
+import {CategoriasAgrupadas} from "../../../../utils/CategoriasAgrupadas.ts";
 
 interface EditarObservacaoProps {
   open?: boolean;
@@ -19,11 +17,11 @@ interface EditarObservacaoProps {
 }
 
 function EditarObservacao({
-                         open,
-                         onClose,
-                         onSaved,
-                         observacaoSelecionada
-                       }: EditarObservacaoProps) {
+                            open,
+                            onClose,
+                            onSaved,
+                            observacaoSelecionada
+                          }: EditarObservacaoProps) {
 
   const [observacaoAtualizada, setObservacaoAtualizada] = useState<Observacao>(
     {} as Observacao
@@ -47,15 +45,45 @@ function EditarObservacao({
       });
     } catch (err) {
       console.log(err);
-      // ToastAlerta("Você não tem turmas", Toast.Error)
     }
   }
+
+  async function buscarTurmasPorProfessor() {
+    try {
+      await buscar(`/turmas/professor/${professor.id}`, setTurmas,
+        {headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}}
+      );
+    } catch (error) {
+      console.error("Erro ao carregar turmas do professor", error);
+    }
+  }
+
+  useEffect(() => {
+    if (observacaoAtualizada.turmaId) {
+      buscar(`/disciplinas/turma/${observacaoAtualizada.turmaId}`, setDisciplinas, {
+        headers: {Authorization: `Bearer ${usuario.token}`},
+      });
+      buscar(`/alunos/turma/${observacaoAtualizada.turmaId}`, setAlunos, {
+        headers: {Authorization: `Bearer ${usuario.token}`},
+      });
+    } else {
+      setDisciplinas([]);
+      setAlunos([]);
+    }
+  }, [observacaoAtualizada.turmaId]);
+
 
   useEffect(() => {
     if (usuario?.email) {
       buscarProfessorPorEmail();
     }
   }, [usuario?.email]);
+
+  useEffect(() => {
+    if (professor?.id) {
+      buscarTurmasPorProfessor();
+    }
+  }, [professor]);
 
   async function editarObservacao(e: ChangeEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -102,47 +130,6 @@ function EditarObservacao({
     });
   }
 
-  async function buscarTurmas() {
-    try {
-      await buscar("/turmas", setTurmas, {
-        headers: {Authorization: `Bearer ${usuario.token}`},
-      });
-    } catch (error) {
-      console.error("Erro ao buscar turmas", error);
-    }
-  }
-
-  async function buscarDisciplinas() {
-    try {
-      await buscar("/disciplinas", setDisciplinas, {
-        headers: {Authorization: `Bearer ${usuario.token}`},
-      });
-    } catch (error) {
-      console.error("Erro ao buscar disciplinas", error);
-    }
-  }
-
-  async function buscarAlunos() {
-    try {
-      await buscar("/alunos", setAlunos, {
-        headers: {Authorization: `Bearer ${usuario.token}`},
-      });
-    } catch (error) {
-      console.error("Erro ao buscar alunos", error);
-    }
-  }
-
-  useEffect(() => {
-
-    if (open) {
-      buscarTurmas();
-      buscarDisciplinas();
-      buscarAlunos();
-      buscarProfessorPorEmail()
-    }
-  }, [open]);
-
-
   useEffect(() => {
     if (observacaoSelecionada) {
       setObservacaoAtualizada({...observacaoSelecionada});
@@ -154,93 +141,135 @@ function EditarObservacao({
       <Modal show={open} onClose={onClose} size="md" popup>
         <ModalHeader/>
         <ModalBody>
-          <div className="justify-center">
-            <div
-              className="flex justify-center shadow-xl dark:shadow-lg shadow-cinza-300 dark:shadow-preto-600 bg-cinza-100 dark:bg-preto-300 py-[3vh] lg:py-[10vh] rounded-2xl font-bold">
-              <form className="flex max-w-md flex-col gap-4 w-[80%]" onSubmit={editarObservacao}>
-                <h2 className="text-slate-900 dark:text-cinza-100 my-4 text-center text-2xl lg:text-4xl">
-                  Editar Observação
-                </h2>
 
-                <SelectField
-                  label="Turma"
-                  name="turmaId"
-                  value={observacaoAtualizada.turmaId || ""}
-                  options={turmas.map(turma => ({ value: turma.id, label: turma.nome }))}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                    setObservacaoAtualizada({
-                      ...observacaoAtualizada,
-                      turmaId: Number(e.target.value),
-                    })
-                  }
-                />
+          <form className="flex max-w-md flex-col gap-4" onSubmit={editarObservacao}>
+            <Card className="mb-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                Editar Observação
+              </h2>
+            </Card>
 
-                <SelectField
-                  label="Disciplina"
-                  name="disciplinaId"
-                  value={observacaoAtualizada.disciplinaId || ""}
-                  options={disciplinas.map(disciplina => ({ value: disciplina.id, label: disciplina.nome }))}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                    setObservacaoAtualizada({
-                      ...observacaoAtualizada,
-                      disciplinaId: Number(e.target.value),
-                    })
-                  }
-                />
+            <div className="flex flex-row gap-3">
 
-                <SelectField
-                  label="Aluno"
-                  name="alunoId"
-                  value={observacaoAtualizada.alunoId || ""}
-                  options={alunos.map(aluno => ({ value: aluno.id, label: aluno.nome }))}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                    setObservacaoAtualizada({
-                      ...observacaoAtualizada,
-                      alunoId: Number(e.target.value),
-                    })
-                  }
-                />
+              <Select
+                name="turmaId"
+                className="w-full"
+                required
+                value={observacaoAtualizada.turmaId || ""}
+                onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+                  const turmaId = Number(e.target.value);
+                  setObservacaoAtualizada({
+                    ...observacaoAtualizada,
+                    turmaId,
+                    disciplinaId: undefined,
+                    alunoId: undefined,
+                  });
+                }}
+              >
+                <option value="">Selecione a turma</option>
+                {turmas.map(turma => (
+                  <option key={turma.id} value={turma.id}>
+                    {turma.nome}
+                  </option>
+                ))}
+              </Select>
 
-                <InputField
-                  label="Data da Ocorrência"
-                  name="data"
-                  type="date"
-                  required
-                  value={
-                    observacaoAtualizada.data
-                      ? new Date(observacaoAtualizada.data).toISOString().split("T")[0]
-                      : ""
-                  }
-                  onChange={atualizarEstado}
-                />
+              <Select
+                name="disciplinaId"
+                className="w-full"
+                required
+                value={observacaoAtualizada.disciplinaId || ""}
+                onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                  setObservacaoAtualizada({
+                    ...observacaoAtualizada,
+                    disciplinaId: Number(e.target.value),
+                  })
+                }
+              >
+                <option value="">Selecione a disciplina</option>
 
-                <SelectField
-                  label="Categoria"
-                  name="categoria"
-                  value={observacaoAtualizada.categoria || ""}
-                  options={Object.values(CategoriaObservacao).map(categoriaObservacao => ({
-                    value: categoriaObservacao,
-                    label: categoriaObservacao
-                  }))}
-                  onChange={atualizarEstado} // ✅ Mais limpo
-                />
+                {disciplinas.map(disciplina => (
+                  <option key={disciplina.id} value={disciplina.id}>
+                    {disciplina.nome}
+                  </option>
+                ))}
 
-
-
-                <TextAreaField
-                  label="Descrição"
-                  name="descricao"
-                  required
-                  value={observacaoAtualizada.descricao || ""}
-                  onChange={atualizarEstado}
-                />
-
-                <Button type="submit" disabled={!professor}>
-                  {isLoading ? <Spinner aria-label="Carregando"/> : <span>Salvar Alterações</span>}
-                </Button>
-              </form>
+              </Select>
             </div>
-          </div>
+
+            <Select
+              name="alunoId"
+              required
+              value={observacaoAtualizada.alunoId || ""}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                setObservacaoAtualizada({
+                  ...observacaoAtualizada,
+                  alunoId: Number(e.target.value),
+                })
+              }
+            >
+              <option value="">Selecione o aluno</option>
+              {alunos.map(aluno => (
+                <option key={aluno.id} value={aluno.id}>
+                  {aluno.nome}
+                </option>
+              ))}
+            </Select>
+
+            <TextInput
+              name="data"
+              type="date"
+              placeholder="Data da Ocorrência"
+              required
+              value={
+                observacaoAtualizada.data
+                  ? new Date(observacaoAtualizada.data).toISOString().split("T")[0]
+                  : ""
+              }
+              onChange={atualizarEstado}
+            />
+
+            <Select
+              value={observacaoAtualizada.categoria || ""}
+              onChange={e =>
+                setObservacaoAtualizada({
+                  ...observacaoAtualizada,
+                  categoria: e.target.value as CategoriaObservacao,
+                })
+              }
+              className="rounded bg-white dark:bg-gray-700 dark:text-gray-100 w-full"
+              required
+            >
+              <option value="">Selecione uma categoria</option>
+              {Object.entries(CategoriasAgrupadas).map(([grupo, categorias]) => (
+                <optgroup key={grupo} label={grupo}>
+                  {categorias.map(({ value, label }) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </Select>
+
+
+
+            <Textarea
+              name="descricao"
+              required
+              value={observacaoAtualizada.descricao || ""}
+              onChange={atualizarEstado}
+            />
+
+            <Button
+              type="submit"
+              color="green"
+              className="cursor-pointer mt-4 flex items-center justify-center gap-2 focus:outline-none focus:ring-0"
+              disabled={!professor}>
+              {isLoading ? <Spinner size="md" light/> : <span>Salvar Alterações</span>}
+            </Button>
+          </form>
+
         </ModalBody>
       </Modal>
     </>

@@ -2,7 +2,6 @@ package com.projetointegrador.diarioclasse.service;
 
 import com.projetointegrador.diarioclasse.dto.request.ObservacaoRequest;
 import com.projetointegrador.diarioclasse.dto.request.patchrequest.ObservacaoPatchRequest;
-import com.projetointegrador.diarioclasse.dto.response.DisciplinaResponse;
 import com.projetointegrador.diarioclasse.dto.response.ObservacaoResponse;
 import com.projetointegrador.diarioclasse.entity.*;
 import com.projetointegrador.diarioclasse.repository.*;
@@ -165,6 +164,24 @@ public class ObservacaoService {
                 obs.getDisciplina() != null ? obs.getDisciplina().getId() : null,
                 obs.getDisciplina() != null ? obs.getDisciplina().getNome() : null
         );
+    }
+
+    public List<ObservacaoResponse> listarFiltrado(Long turmaId, Long alunoId) {
+        List<Observacao> observacoes;
+
+        if (turmaId != null && alunoId != null) {
+            observacoes = observacaoRepository.findByTurmaIdAndAlunoId(turmaId, alunoId);
+        } else if (turmaId != null) {
+            observacoes = observacaoRepository.findByTurmaId(turmaId);
+        } else if (alunoId != null) {
+            observacoes = observacaoRepository.findByAlunoId(alunoId);
+        } else {
+            observacoes = observacaoRepository.findAll();
+        }
+
+        return observacoes.stream()
+                .map(this::toResponse)
+                .toList();
     }
 
 }

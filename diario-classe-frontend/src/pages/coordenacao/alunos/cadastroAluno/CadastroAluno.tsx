@@ -4,7 +4,6 @@ import {Button, Card, Label, Modal, ModalBody, ModalHeader, Select, Spinner, Tex
 import type {Aluno, Turma} from "../../../../models";
 import {buscar, cadastrar} from "../../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta.ts";
-// import {RotatingLines} from "react-loader-spinner";
 import {useAuth} from "../../../../contexts/UseAuth.ts";
 
 interface CadastroAlunoProps {

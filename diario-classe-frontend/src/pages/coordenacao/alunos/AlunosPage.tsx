@@ -309,7 +309,7 @@ export default function AlunosPage() {
             ) : (
               <Card>
                 <div className="text-center text-gray-500 py-4">
-                  Nenhum responsável cadastrado.
+                  Nenhum aluno cadastrado.
                 </div>
               </Card>
             )}
