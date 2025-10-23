@@ -1,5 +1,5 @@
 import React, {type ChangeEvent, useEffect, useState} from "react";
-import {Button, Card, Modal, ModalBody, ModalHeader, Select, Spinner, Textarea, TextInput} from "flowbite-react";
+import {Button, Card, Label, Modal, ModalBody, ModalHeader, Select, Spinner, Textarea, TextInput} from "flowbite-react";
 
 import {atualizarAtributo, buscar} from "../../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta.ts";
@@ -142,7 +142,7 @@ function EditarObservacao({
         <ModalHeader/>
         <ModalBody>
 
-          <form className="flex max-w-md flex-col gap-4" onSubmit={editarObservacao}>
+          <form className="flex flex-col gap-4" onSubmit={editarObservacao}>
             <Card className="mb-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                 Editar Observação
@@ -265,7 +265,7 @@ function EditarObservacao({
               type="submit"
               color="green"
               className="cursor-pointer mt-4 flex items-center justify-center gap-2 focus:outline-none focus:ring-0"
-              disabled={!professor}>
+            >
               {isLoading ? <Spinner size="md" light/> : <span>Salvar Alterações</span>}
             </Button>
           </form>

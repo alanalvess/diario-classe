@@ -1,68 +1,120 @@
 import React, {useEffect, useState} from "react";
-import {Button, Spinner, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
-import type {Avaliacao, Disciplina, Turma} from "../../../models";
-import {buscar, cadastrar, deletar} from "../../../services/Service.ts";
+import {
+  Alert,
+  Button,
+  Card,
+  Select,
+  Spinner,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeadCell,
+  TableRow
+} from "flowbite-react";
+import type {Avaliacao, Disciplina, Professor, Turma} from "../../../models";
+import {buscar, deletar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import EditarAvaliacao from "./editarAvaliacao/EditarAvaliacao.tsx";
-import {FaEdit, FaTrashAlt} from "react-icons/fa";
-import SelectField from "../../../components/form/SelectField.tsx";
+import {FaEdit, FaPlus, FaTrashAlt} from "react-icons/fa";
+import CadastroAvaliacao from "./cadastroAvaliacao/CadastroAvaliacao.tsx";
+import DeletarObservacao from "../observacoes/deletarObservacao/DeletarObservacao.tsx";
+import DeletarAvaliacao from "./deletarAvaliacao/DeletarAvaliacao.tsx";
 
 export default function AvaliacoesPage() {
-  const {usuario, isHydrated, isAuthenticated, isLoading} = useAuth();
+  const {usuario, isAuthenticated, isLoading} = useAuth();
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
+  const [professor, setProfessor] = useState<Professor>();
 
   const [turmaSelecionada, setTurmaSelecionada] = useState<number | null>(null);
   const [disciplinaSelecionada, setDisciplinaSelecionada] = useState<number | null>(null);
-
-  const [modalEditarAvaliacao, setModalEditarAvaliacao] = useState(false);
   const [avaliacaoSelecionada, setAvaliacaoSelecionada] = useState<Avaliacao | null>(null);
 
-  const [titulo, setTitulo] = useState("");
-  const [data, setData] = useState("");
-  const [peso, setPeso] = useState(1);
-  const [bimestre, setBimestre] = useState(1);
+  const [modalCadastro, setModalCadastro] = useState(false);
+  const [modalEditarAvaliacao, setModalEditarAvaliacao] = useState(false);
+  const [modalExclusao, setModalExclusao] = useState(false);
 
-
-  async function buscarTurmas() {
+  async function buscarProfessorPorEmail() {
     try {
-      await buscar("/turmas", setTurmas, {
-        headers: {Authorization: `Bearer ${usuario.token}`},
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        ToastAlerta("Erro ao carregar turmas", Toast.Error);
-      }
+      await buscar(`/professores/email/${usuario.email}`, setProfessor,
+        {headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}}
+      );
+    } catch (err) {
+      console.log(err);
     }
   }
 
-  async function recarregarAvaliacoes() {
-    if (!disciplinaSelecionada) return;
+  async function buscarTurmasPorProfessor() {
     try {
-      await buscar(`/avaliacoes/disciplina/${disciplinaSelecionada}`, setAvaliacoes, {
+      await buscar(`/turmas/professor/${professor.id}`, setTurmas,
+        {headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}}
+      )
+      ;
+    } catch (error) {
+      console.error("Erro ao carregar turmas do professor", error);
+    }
+  }
+
+  async function buscarDisciplinasPorTurma() {
+    if (!turmaSelecionada) return;
+    await buscar(`/disciplinas/turma/${turmaSelecionada}`, setDisciplinas, {
+      headers: {Authorization: `Bearer ${usuario.token}`},
+    });
+  }
+
+  useEffect(() => {
+    if (usuario?.email) {
+      buscarProfessorPorEmail();
+    }
+  }, [usuario?.email]);
+
+  useEffect(() => {
+    if (professor?.id) {
+      buscarTurmasPorProfessor();
+    }
+  }, [professor]);
+
+  useEffect(() => {
+    if (turmaSelecionada) buscarDisciplinasPorTurma();
+  }, [turmaSelecionada]);
+
+  async function recarregarAvaliacoes() {
+    try {
+      let endpoint = "";
+
+      if (turmaSelecionada && disciplinaSelecionada) {
+        endpoint = `/avaliacoes/turma/${turmaSelecionada}/disciplina/${disciplinaSelecionada}`;
+      } else if (turmaSelecionada) {
+        endpoint = `/avaliacoes/turma/${turmaSelecionada}`;
+      } else if (disciplinaSelecionada) {
+        endpoint = `/avaliacoes/disciplina/${disciplinaSelecionada}`;
+      } else {
+        setAvaliacoes([]);
+        return; // nenhum filtro selecionado → não busca nada
+      }
+
+      await buscar(endpoint, setAvaliacoes, {
         headers: { Authorization: `Bearer ${usuario.token}` },
       });
-    } catch {
+    } catch (error) {
+      console.error("Erro ao carregar avaliações:", error);
       ToastAlerta("Erro ao carregar avaliações", Toast.Error);
     }
   }
 
+// Atualiza a cada mudança de filtro
   useEffect(() => {
-    if (disciplinaSelecionada && isAuthenticated) {
+    if ((turmaSelecionada || disciplinaSelecionada) && isAuthenticated) {
       recarregarAvaliacoes();
+    } else {
+      setAvaliacoes([]);
     }
-  }, [disciplinaSelecionada, isAuthenticated]);
+  }, [turmaSelecionada, disciplinaSelecionada, isAuthenticated]);
 
-
-  // 🔹 Buscar turmas
-  useEffect(() => {
-    if (isHydrated && isAuthenticated) {
-      buscarTurmas();
-    }
-  }, [isAuthenticated, isHydrated]);
 
   // 🔹 Buscar disciplinas da turmas
   useEffect(() => {
@@ -82,60 +134,31 @@ export default function AvaliacoesPage() {
     }
   }, [disciplinaSelecionada, isAuthenticated]);
 
-  // Criar avaliação
-  async function salvarAvaliacao() {
-    if (!disciplinaSelecionada || !turmaSelecionada) {
-      ToastAlerta("Selecione uma turmas e disciplina", Toast.Error);
-      return;
-    }
 
-    const body = {
-      titulo,
-      data,
-      peso,
-      bimestre,
-      turmaId: turmaSelecionada,
-      disciplinaId: disciplinaSelecionada,
-    };
-
-    try {
-      await cadastrar("/avaliacoes", body, () => {
-      }, {
-        headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"},
-      });
-      ToastAlerta("✅ Avaliação cadastrada", Toast.Success);
-      setTitulo("");
-      setData("");
-      setPeso(1);
-      setBimestre(1)
-      buscar(`/avaliacoes/disciplina/${disciplinaSelecionada}`, setAvaliacoes, {
-        headers: {Authorization: `Bearer ${usuario.token}`},
-      });
-    } catch {
-      ToastAlerta("Erro ao salvar avaliação", Toast.Error);
-    }
-  }
-
-  async function excluirAvaliacao(id: number) {
-    try {
-      await deletar(`/avaliacoes/${id}`, {
-        headers: {Authorization: `Bearer ${usuario.token}`},
-      });
-      ToastAlerta("🗑️ Avaliação excluída", Toast.Success);
-      setAvaliacoes((prev) => prev.filter((a) => a.id !== id));
-    } catch {
-      ToastAlerta("Erro ao excluir avaliação", Toast.Error);
-    }
-  }
 
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
-      <h1 className="text-2xl font-bold mb-6">Avaliações</h1>
+      <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+          Registro de Avaliações
+        </h2>
+        <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">
+          Gerencie todos as avaliações por turma e disciplina.
+        </p>
+
+        <Button
+          color="alternative"
+          className="cursor-pointer mt-4 md:mt-0 flex items-center justify-center gap-2 px-6 py-3 rounded-lg shadow hover:shadow-md transition duration-200 focus:outline-none focus:ring-0"
+          onClick={() => setModalCadastro(true)}
+        >
+          <FaPlus className="text-lg"/> Adicionar Avaliação
+        </Button>
+      </Card>
 
       {/* Filtros */}
-      <div className="flex flex-wrap gap-4 mb-6">
-        <select
-          className="border rounded p-2 flex-1"
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <Select
+          className="flex-1"
           value={turmaSelecionada ?? ""}
           onChange={(e) => setTurmaSelecionada(Number(e.target.value))}
         >
@@ -145,10 +168,10 @@ export default function AvaliacoesPage() {
               {turma.nome} ({turma.anoLetivo})
             </option>
           ))}
-        </select>
+        </Select>
 
-        <select
-          className="border rounded p-2 flex-1"
+        <Select
+          className="flex-1"
           value={disciplinaSelecionada ?? ""}
           onChange={(e) => setDisciplinaSelecionada(Number(e.target.value))}
         >
@@ -158,126 +181,165 @@ export default function AvaliacoesPage() {
               {d.nome}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
-      {/* Formulário de Avaliação */}
-      {disciplinaSelecionada && (
-        <div className="bg-gray-100 p-4 rounded-lg mb-6 flex flex-wrap gap-4">
-          <input
-            type="text"
-            placeholder="Título"
-            className="border rounded p-2 flex-1"
-            value={titulo}
-            onChange={(e) => setTitulo(e.target.value)}
-          />
-          <input
-            type="date"
-            className="border rounded p-2"
-            value={data}
-            onChange={(e) => setData(e.target.value)}
-          />
-          <input
-            type="number"
-            className="border rounded p-2 w-24"
-            value={peso}
-            onChange={(e) => setPeso(Number(e.target.value))}
-            min={1}
-          />
+      {/* Lista de Avaliações */}
+      {!turmaSelecionada ? (
+        <Alert color="info" className="mt-10 text-center">
+          <span className="font-medium">Selecione os filtros:</span>
+          escolha uma turma e/ou uma disciplina para visualizar as avaliações.
+        </Alert>
+      ) : isLoading ? (
+        <div className="flex justify-center mt-10">
+          <Spinner size="xl" color="purple"/>
+        </div>
+      ) : (
+        <div className="w-full">
+          <div
+            className="hidden md:block overflow-x-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+            <Table className="min-w-[700px] text-sm text-gray-700 dark:text-gray-300">
+              <TableHead className="bg-gray-100 dark:bg-gray-700">
+                <TableHeadCell className="text-center font-semibold">Título</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Data</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Peso</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Bimestre</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Média</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">Ações</TableHeadCell>
+              </TableHead>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-600">
+                {avaliacoes.length > 0 ? (
+                  avaliacoes.map((a) => (
+                    <TableRow
+                      key={a.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-150"
+                    >
+                      <TableCell className="text-center font-medium text-gray-900 dark:text-gray-100">
+                        {a.titulo}
+                      </TableCell>
+                      <TableCell className="text-center">{a.data}</TableCell>
+                      <TableCell className="text-center">{a.peso}</TableCell>
+                      <TableCell className="text-center">{a.bimestre}</TableCell>
+                      <TableCell className="text-center">{a.media?.toFixed(2)}</TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex justify-center gap-2 flex-wrap">
+                          <Button
+                            color="alternative"
+                            size="xs"
+                            onClick={() => {
+                              setAvaliacaoSelecionada(a);
+                              setModalEditarAvaliacao(true);
+                            }}
+                            className="cursor-pointer text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 focus:outline-none focus:ring-0"
+                          >
+                            <FaEdit size={18}/>
+                          </Button>
+                          <Button
+                            color="alternative"
+                            size="xs"
+                            onClick={() => {
+                              setAvaliacaoSelecionada(a);
+                              setModalExclusao(true);
+                            }}
+                            className="cursor-pointer text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 focus:outline-none focus:ring-0"
+                          >
+                            <FaTrashAlt size={18}/>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-gray-500 py-4">
+                      Nenhuma avaliação cadastrada.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
 
-          <SelectField
-            label="Bimestre"
-            name="bimestre"
-            value={bimestre}
-            options={[
-              { label: "1º Bimestre", value: 1 },
-              { label: "2º Bimestre", value: 2 },
-              { label: "3º Bimestre", value: 3 },
-              { label: "4º Bimestre", value: 4 },
-            ]}
-            onChange={(e) => setBimestre(Number(e.target.value))}
-          />
-
-
-          <Button
-            onClick={salvarAvaliacao}
-            disabled={
-              !titulo.trim() || // título vazio
-              !data ||          // sem data
-              !peso || peso <= 0 || // peso inválido
-              !bimestre || // bimestre não escolhido
-              !turmaSelecionada ||  // turma não escolhida
-              !disciplinaSelecionada // disciplina não escolhida
-            }
-            className={`${
-              !titulo.trim() || !data || !peso || !bimestre || !turmaSelecionada || !disciplinaSelecionada
-                ? "opacity-50 cursor-not-allowed"
-                : ""
-            }`}
-          >
-            {isLoading ?
-              <Spinner aria-label="Default status example" size='md'/> :
-              <span>Salvar Avaliação</span>
-            }
-          </Button>
-
+          {/* 📱 Layout mobile */}
+          <div className="block md:hidden space-y-4">
+            {avaliacoes.length > 0 ? (
+              avaliacoes.map((a) => (
+                <div
+                  key={a.id}
+                  className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm bg-white dark:bg-gray-800"
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      {a.titulo}
+                    </h2>
+                    <span className="text-sm text-gray-500">{a.data}</span>
+                  </div>
+                  <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                    <p><strong>Peso:</strong> {a.peso}</p>
+                    <p><strong>Bimestre:</strong> {a.bimestre}</p>
+                    <p><strong>Média:</strong> {a.media?.toFixed(2) ?? "—"}</p>
+                  </div>
+                  <div className="flex justify-end gap-3 mt-3">
+                    <Button
+                      color="alternative"
+                      size="xs"
+                      onClick={() => {
+                        setAvaliacaoSelecionada(a);
+                        setModalEditarAvaliacao(true);
+                      }}
+                      className="cursor-pointer text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 focus:outline-none focus:ring-0"
+                    >
+                      <FaEdit size={18}/>
+                    </Button>
+                    <Button
+                      color="alternative"
+                      size="xs"
+                      onClick={() => {
+                        setAvaliacaoSelecionada(a);
+                        setModalExclusao(true);
+                      }}
+                      className="cursor-pointer text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 focus:outline-none focus:ring-0"
+                    >
+                      <FaTrashAlt size={18}/>
+                    </Button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-gray-500 dark:text-gray-400">
+                Nenhuma avaliação cadastrada.
+              </p>
+            )}
+          </div>
         </div>
       )}
 
-      {/* Lista de Avaliações */}
-      {avaliacoes.length > 0 && (
-        <Table>
-          <TableHead>
-            <TableHeadCell>Título</TableHeadCell>
-            <TableHeadCell>Data</TableHeadCell>
-            <TableHeadCell>Peso</TableHeadCell>
-            <TableHeadCell>Bimestre</TableHeadCell>
-            <TableHeadCell>Média</TableHeadCell>
-            <TableHeadCell>Ações</TableHeadCell>
-          </TableHead>
-          <TableBody>
-            {avaliacoes.map((a) => (
-              <TableRow key={a.id}>
-                <TableCell>{a.titulo}</TableCell>
-                <TableCell>{a.data}</TableCell>
-                <TableCell>{a.peso}</TableCell>
-                <TableCell>{a.bimestre}</TableCell>
-                <TableCell>{a.media?.toFixed(2)}</TableCell>
-                <TableCell>
-                  <div className='flex flex-row gap-4'>
-                    <Button
-                      color="warning"
-                      size="xs"
-                      onClick={() => {
-                        setAvaliacaoSelecionada(a)
-                        setModalEditarAvaliacao(true);
-                      }}
-                      className='cursor-pointer'
-                    >
-                      <FaEdit size={20}/>
-                    </Button>
+      <CadastroAvaliacao
+        open={modalCadastro}
+        onClose={() => setModalCadastro(false)}
+        onSaved={recarregarAvaliacoes}
+      />
 
-                    <Button
-                      size="xs"
-                      color="failure"
-                      onClick={() => excluirAvaliacao(a.id)}
-                    >
-                      <FaTrashAlt size={20}/>
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
-
+      {avaliacaoSelecionada && (
       <EditarAvaliacao
         open={modalEditarAvaliacao}
         onClose={() => setModalEditarAvaliacao(false)}
         onSaved={recarregarAvaliacoes}
         avaliacaoSelecionada={avaliacaoSelecionada}
       />
+      )}
+
+      {avaliacaoSelecionada && (
+        <DeletarAvaliacao
+          isOpen={modalExclusao}
+          onClose={() => {
+            setModalExclusao(false);
+            setAvaliacaoSelecionada(null);
+          }}
+          avaliacaoSelecionada={avaliacaoSelecionada}
+          aoDeletar={() => recarregarAvaliacoes}
+        />
+      )}
     </div>
   );
 }

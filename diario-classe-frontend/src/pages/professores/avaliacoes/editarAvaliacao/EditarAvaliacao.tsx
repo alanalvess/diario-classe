@@ -1,15 +1,13 @@
-import {type ChangeEvent, useEffect, useState} from "react";
-import {Button, Modal, ModalBody, ModalHeader, Spinner} from "flowbite-react";
+import React, {type ChangeEvent, useEffect, useState} from "react";
+import {Button, Card, Modal, ModalBody, ModalHeader, Select, Spinner} from "flowbite-react";
 
 import {atualizarAtributo, buscar} from "../../../../services/Service";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta";
-import type {Avaliacao, Disciplina, Turma} from "../../../../models"
+import type {Avaliacao, Disciplina, Professor, Turma} from "../../../../models"
 
 import InputField from "../../../../components/form/InputField.tsx";
 import {useAuth} from "../../../../contexts/UseAuth.ts";
 import SelectField from "../../../../components/form/SelectField.tsx";
-import {CategoriaObservacao} from "../../../../enums/CategoriaObservacao.ts";
-import TextAreaField from "../../../../components/form/TextInputField.tsx";
 
 interface EditarAvaliacaoProps {
   open?: boolean;
@@ -19,11 +17,11 @@ interface EditarAvaliacaoProps {
 }
 
 function EditarAvaliacao({
-                         open,
-                         onClose,
-                         onSaved,
-                         avaliacaoSelecionada
-                       }: EditarAvaliacaoProps) {
+                           open,
+                           onClose,
+                           onSaved,
+                           avaliacaoSelecionada
+                         }: EditarAvaliacaoProps) {
 
   const [avaliacaoAtualizada, setAvaliacaoAtualizada] = useState<Avaliacao>(
     {} as Avaliacao
@@ -33,6 +31,54 @@ function EditarAvaliacao({
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
+
+  const [professor, setProfessor] = useState<Professor>();
+
+  async function buscarProfessorPorEmail() {
+    try {
+      await buscar(`/professores/email/${usuario.email}`, setProfessor, {
+        headers: {
+          Authorization: `Bearer ${usuario.token}`,
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async function buscarTurmasPorProfessor() {
+    try {
+      await buscar(`/turmas/professor/${professor.id}`, setTurmas,
+        {headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"}}
+      );
+    } catch (error) {
+      console.error("Erro ao carregar turmas do professor", error);
+    }
+  }
+
+  useEffect(() => {
+    if (avaliacaoAtualizada.turmaId) {
+      buscar(`/disciplinas/turma/${avaliacaoAtualizada.turmaId}`, setDisciplinas, {
+        headers: {Authorization: `Bearer ${usuario.token}`},
+      });
+    } else {
+      setDisciplinas([]);
+    }
+  }, [avaliacaoAtualizada.turmaId]);
+
+
+  useEffect(() => {
+    if (usuario?.email) {
+      buscarProfessorPorEmail();
+    }
+  }, [usuario?.email]);
+
+  useEffect(() => {
+    if (professor?.id) {
+      buscarTurmasPorProfessor();
+    }
+  }, [professor]);
 
   async function editarAvaliacao(e: ChangeEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -79,34 +125,6 @@ function EditarAvaliacao({
     });
   }
 
-  async function buscarTurmas() {
-    try {
-      await buscar("/turmas", setTurmas, {
-        headers: {Authorization: `Bearer ${usuario.token}`},
-      });
-    } catch (error) {
-      console.error("Erro ao buscar turmas", error);
-    }
-  }
-
-  async function buscarDisciplinas() {
-    try {
-      await buscar("/disciplinas", setDisciplinas, {
-        headers: {Authorization: `Bearer ${usuario.token}`},
-      });
-    } catch (error) {
-      console.error("Erro ao buscar disciplinas", error);
-    }
-  }
-
-  useEffect(() => {
-    if (open) {
-      buscarTurmas();
-      buscarDisciplinas();
-    }
-  }, [open]);
-
-
   useEffect(() => {
     if (avaliacaoSelecionada) {
       setAvaliacaoAtualizada({...avaliacaoSelecionada});
@@ -118,93 +136,100 @@ function EditarAvaliacao({
       <Modal show={open} onClose={onClose} size="md" popup>
         <ModalHeader/>
         <ModalBody>
-          <div className="justify-center">
-            <div
-              className="flex justify-center shadow-xl dark:shadow-lg shadow-cinza-300 dark:shadow-preto-600 bg-cinza-100 dark:bg-preto-300 py-[3vh] lg:py-[10vh] rounded-2xl font-bold">
-              <form className="flex max-w-md flex-col gap-4 w-[80%]" onSubmit={editarAvaliacao}>
-                <h2 className="text-slate-900 dark:text-cinza-100 my-4 text-center text-2xl lg:text-4xl">
-                  Editar Avaliação
-                </h2>
+          <form className="flex flex-col gap-4" onSubmit={editarAvaliacao}>
+            <Card className="mb-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                Editar Avaliação
+              </h2>
+            </Card>
 
-                <SelectField
-                  label="Turma"
-                  name="turmaId"
-                  value={avaliacaoAtualizada.turmaId || ""}
-                  options={turmas.map(turma => ({ value: turma.id, label: turma.nome }))}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                    setAvaliacaoAtualizada({
-                      ...avaliacaoAtualizada,
-                      turmaId: Number(e.target.value),
-                    })
-                  }
-                />
 
-                <SelectField
-                  label="Disciplina"
-                  name="disciplinaId"
-                  value={avaliacaoAtualizada.disciplinaId || ""}
-                  options={disciplinas.map(disciplina => ({ value: disciplina.id, label: disciplina.nome }))}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                    setAvaliacaoAtualizada({
-                      ...avaliacaoAtualizada,
-                      disciplinaId: Number(e.target.value),
-                    })
-                  }
-                />
+            <Select
+              name="turmaId"
+              value={avaliacaoAtualizada.turmaId || ""}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                setAvaliacaoAtualizada({
+                  ...avaliacaoAtualizada,
+                  turmaId: Number(e.target.value),
+                })
+              }
+            >
+              <option value="">Selecione a Turma</option>
+              {turmas.map(turma => (
+                <option key={turma.id} value={turma.id}>
+                  {turma.nome}
+                </option>
+              ))}
+            </Select>
 
-                <InputField
-                  label="Título"
-                  name="titulo"
-                  required
-                  value={avaliacaoAtualizada.titulo || ""}
-                  onChange={atualizarEstado}
-                />
+            <SelectField
+              label="Disciplina"
+              name="disciplinaId"
+              value={avaliacaoAtualizada.disciplinaId || ""}
+              options={disciplinas.map(disciplina => ({value: disciplina.id, label: disciplina.nome}))}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                setAvaliacaoAtualizada({
+                  ...avaliacaoAtualizada,
+                  disciplinaId: Number(e.target.value),
+                })
+              }
+            />
 
-                <InputField
-                  label="Data de aplicação"
-                  name="data"
-                  type="date"
-                  required
-                  value={
-                    avaliacaoAtualizada.data
-                      ? new Date(avaliacaoAtualizada.data).toISOString().split("T")[0]
-                      : ""
-                  }
-                  onChange={atualizarEstado}
-                />
+            <InputField
+              label="Título"
+              name="titulo"
+              required
+              value={avaliacaoAtualizada.titulo || ""}
+              onChange={atualizarEstado}
+            />
 
-                <InputField
-                  label="Peso"
-                  name="peso"
-                  required
-                  value={avaliacaoAtualizada.peso || ""}
-                  onChange={atualizarEstado}
-                />
+            <InputField
+              label="Data de aplicação"
+              name="data"
+              type="date"
+              required
+              value={
+                avaliacaoAtualizada.data
+                  ? new Date(avaliacaoAtualizada.data).toISOString().split("T")[0]
+                  : ""
+              }
+              onChange={atualizarEstado}
+            />
 
-                <SelectField
-                  label="Bimestre"
-                  name="bimestre"
-                  value={avaliacaoAtualizada.bimestre || ""}
-                  options={[
-                    { label: "1º Bimestre", value: 1 },
-                    { label: "2º Bimestre", value: 2 },
-                    { label: "3º Bimestre", value: 3 },
-                    { label: "4º Bimestre", value: 4 },
-                  ]}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                    setAvaliacaoAtualizada({
-                      ...avaliacaoAtualizada,
-                      bimestre: Number(e.target.value),
-                    })
-                  }
-                />
+            <InputField
+              label="Peso"
+              name="peso"
+              required
+              value={avaliacaoAtualizada.peso || ""}
+              onChange={atualizarEstado}
+            />
 
-                <Button type="submit">
-                  {isLoading ? <Spinner aria-label="Carregando"/> : <span>Salvar Alterações</span>}
-                </Button>
-              </form>
-            </div>
-          </div>
+            <SelectField
+              label="Bimestre"
+              name="bimestre"
+              value={avaliacaoAtualizada.bimestre || ""}
+              options={[
+                {label: "1º Bimestre", value: 1},
+                {label: "2º Bimestre", value: 2},
+                {label: "3º Bimestre", value: 3},
+                {label: "4º Bimestre", value: 4},
+              ]}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                setAvaliacaoAtualizada({
+                  ...avaliacaoAtualizada,
+                  bimestre: Number(e.target.value),
+                })
+              }
+            />
+
+            <Button
+              type="submit"
+              color="green"
+              className="cursor-pointer mt-4 flex items-center justify-center gap-2 focus:outline-none focus:ring-0"
+            >
+              {isLoading ? <Spinner aria-label="Carregando"/> : <span>Salvar Alterações</span>}
+            </Button>
+          </form>
         </ModalBody>
       </Modal>
     </>
