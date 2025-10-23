@@ -5,64 +5,69 @@ import User from "../../../assets/images/user.png";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 
 function DropdownPerfil() {
-    const navigate = useNavigate();
-    const {usuario, handleLogout} = useAuth();
+  const navigate = useNavigate();
+  const {usuario, handleLogout} = useAuth();
 
-    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
+  const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
 
-    function logout() {
-        handleLogout();
-        ToastAlerta('Usuário deslogado com sucesso', Toast.Success);
-        navigate('/login');
-    }
+  function logout() {
+    handleLogout();
+    ToastAlerta('Usuário deslogado com sucesso', Toast.Success);
+    navigate('/login');
+  }
 
-    return (
-        <>
-            <Dropdown
-                label={<Avatar alt="User settings" className='cursor-pointer border-2 border-gray-400 hover:bg-gray-700'
-                               img={User} rounded/>}
-                arrowIcon={false}
-                inline
-            >
-                <DropdownHeader>
-                    <span className="block text-sm">{usuario.nome}</span>
-                    <span className="block truncate text-sm font-medium">{usuario.email}</span>
+  return (
+    <>
+      <Dropdown
+        label={
+          <Avatar
+            alt="User settings"
+            className='cursor-pointer hover:bg-gray-700 p-2'
+            img={User} rounded
+          />
+        }
+        arrowIcon={false}
+        inline
+      >
+        <DropdownHeader>
+          <span className="block text-sm">{usuario.nome}</span>
+          <span className="block truncate text-sm font-medium">{usuario.email}</span>
 
-                    {usuario.email !== adminEmail ?
-                        '' :
-                        <span className="block truncate text-sm font-medium">
+          {usuario.email !== adminEmail ?
+            '' :
+            <span className="block truncate text-sm font-medium">
                             <Link to='admin'>Administração</Link>
                         </span>
-                    }
-                </DropdownHeader>
+          }
+        </DropdownHeader>
 
-                <DropdownDivider/>
+        <DropdownDivider/>
 
-                <Link to={`/perfil/${usuario.id}`} className="hover:underline">
-                    <DropdownItem>
-                        Meu Perfil
-                    </DropdownItem>
-                </Link>
+        <Link to={`/perfil/${usuario.id}`} className="hover:underline">
+          <DropdownItem>
+            Meu Perfil
+          </DropdownItem>
+        </Link>
 
-                {usuario.email === import.meta.env.VITE_ADMIN_EMAIL
-                    ? (<Link to="/usuarios/all" className="hover:underline">
-                            <DropdownItem>
-                                Demais Usuários
-                            </DropdownItem>
-                        </Link>
-                    ) : ("")
-                }
+        {usuario.email === import.meta.env.VITE_ADMIN_EMAIL
+          ? (<Link to="/usuarios/all" className="hover:underline">
+              <DropdownItem>
+                Demais Usuários
+              </DropdownItem>
+            </Link>
+          ) : ("")
+        }
 
-                <DropdownDivider/>
+        <DropdownDivider/>
 
-                <Link to="/home" onClick={logout} className="hover:underline">
-                    <DropdownItem>
-                        Sair
-                    </DropdownItem>
-                </Link>
-            </Dropdown>
-        </>
-    )
+        <Link to="/home" onClick={logout} className="hover:underline">
+          <DropdownItem>
+            Sair
+          </DropdownItem>
+        </Link>
+      </Dropdown>
+    </>
+  )
 }
 
 export default DropdownPerfil;

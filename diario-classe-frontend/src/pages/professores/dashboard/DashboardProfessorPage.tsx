@@ -1,8 +1,8 @@
 import {useAuth} from "../../../contexts/UseAuth.ts";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import type {Aluno, Nota, Observacao, Presenca, Professor, Turma} from "../../../models";
 import {buscar} from "../../../services/Service.ts";
-import {Card, Select, Spinner} from "flowbite-react";
+import {Alert, Card, Select, Spinner} from "flowbite-react";
 import {Bar, Line} from "react-chartjs-2";
 
 import {
@@ -409,7 +409,12 @@ export default function DashboardProfessorPage() {
         </Select>
       </div>
 
-      {turmaSelecionada && (
+      {!turmaSelecionada ? (
+        <Alert color="info" className="mt-10 text-center">
+          <span className="font-medium">Selecione os filtros:</span> escolha uma turma para visualizar gráficos.
+        </Alert>
+
+      ) : turmaSelecionada && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-3 my-6 gap-4">
             <Card>

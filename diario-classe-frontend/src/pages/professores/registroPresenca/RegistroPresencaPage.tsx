@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {
+  Alert,
   Button,
   Card,
   Checkbox,
@@ -227,7 +228,12 @@ export default function RegistroPresencaPage() {
       </div>
 
 
-      {presencas.length > 0 && (
+      {!turmaSelecionada ? (
+        <Alert color="info" className="mt-10 text-center">
+          <span className="font-medium">Selecione os filtros:</span> escolha uma turma e uma data para registrar a frequência dos alunos.
+        </Alert>
+
+      ) : presencas.length > 0 && (
         <Table className="text-sm text-gray-700 dark:text-gray-300">
           <TableHead className="bg-gray-100 dark:bg-gray-700">
             <TableHeadCell className="text-center font-semibold">Aluno</TableHeadCell>

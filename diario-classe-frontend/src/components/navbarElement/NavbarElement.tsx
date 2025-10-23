@@ -41,29 +41,30 @@ function NavbarElement() {
           ) : (
             <Link to='/login' className='flex items-center justify-center'>
               <Button
-                className='bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none focus:ring-0 cursor-pointer'>
+                color="green"
+                className='focus:outline-none focus:ring-0 cursor-pointer'>
                 <span className='text-xl '>Entrar</span>
               </Button>
             </Link>
           )}
-          <div className="relative flex items-center p-2 rounded-md cursor-pointer hover:bg-gray-700 ">
-            <FaBell className="text-gray-500 text-2xl"/>
-            {notificationsCount > 0 && (
-              <Badge
-                color="failure"
-                size="sm"
-                className="absolute -top-1 -right-2"
-              >
-                {notificationsCount}
-              </Badge>
-            )}
-          </div>
+          {/*<div className="relative flex items-center p-2 rounded-md cursor-pointer hover:bg-gray-700 ">*/}
+          {/*  <FaBell className="text-gray-500 text-2xl"/>*/}
+          {/*  {notificationsCount > 0 && (*/}
+          {/*    <Badge*/}
+          {/*      color="failure"*/}
+          {/*      size="sm"*/}
+          {/*      className="absolute -top-1 -right-2"*/}
+          {/*    >*/}
+          {/*      {notificationsCount}*/}
+          {/*    </Badge>*/}
+          {/*  )}*/}
+          {/*</div>*/}
 
           <DarkThemeToggle className="cursor-pointer hover:bg-gray-700 focus:outline-none focus:ring-0"/>
           {isAuthenticated && (
             <Button
               color="alternative"
-              className='md:hidden text-gray-500 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-0 cursor-pointer'
+              className='md:hidden border-0 border-none text-gray-500 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-0 cursor-pointer'
               onClick={() => setIsOpen(!isOpen)}
             >
               {isOpen ? (

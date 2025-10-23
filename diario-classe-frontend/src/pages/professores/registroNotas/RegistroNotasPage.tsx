@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {
+  Alert,
   Button,
   Card,
   Select,
@@ -268,7 +269,12 @@ export default function RegistroNotasPage() {
         </Select>
       </div>
 
-      {isLoading ? (
+      {!turma || !disciplina || !avaliacao ? (
+        <Alert color="info" className="mt-10 text-center">
+          <span className="font-medium">Selecione os filtros:</span> escolha uma turma, uma disciplina e uma avaliação para visualizar as notas dos alunos.
+        </Alert>
+
+        ) : isLoading ? (
         <div className="flex justify-center mt-10">
           <Spinner size="xl" color="purple"/>
         </div>
@@ -277,7 +283,7 @@ export default function RegistroNotasPage() {
           <div
             className=" overflow-x-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
 
-            <Table className="text-sm text-gray-700 dark:text-gray-300">
+            <Table className="text-sm text-gray-700 dark:text-gray-300 w-full">
               <TableHead className="bg-gray-100 dark:bg-gray-700">
                 <TableHeadCell className="text-center font-semibold">Aluno</TableHeadCell>
                 <TableHeadCell className="text-center font-semibold">Nota</TableHeadCell>
@@ -286,55 +292,59 @@ export default function RegistroNotasPage() {
 
               <TableBody className="divide-y divide-gray-200 dark:divide-gray-600">
                 {alunos.length > 0 ? (
-                  notasComAlunos.map(nota => (
+                  notasComAlunos.map((nota) => (
                     <TableRow
                       key={nota.alunoId}
                       className="hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-150"
                     >
-                      <TableCell
-                        className="text-center font-medium text-gray-900 dark:text-gray-100">{nota.alunoNome}</TableCell>
-                      <TableCell className="text-center">
-                        <TextInput
-                          type="number"
-                          value={nota.valor ?? ""}
-                          className="p-1 w-20"
-                          onChange={(e) => {
-                            const novoValor = Number(e.target.value);
-
-                            setNotas(prev => {
-                              const existe = prev.find(x => x.alunoId === nota.alunoId);
-
-                              if (existe) {
-                                // Atualiza a nota existente
-                                return prev.map(x =>
-                                  x.alunoId === nota.alunoId ? {...x, valor: novoValor} : x
-                                );
-                              } else {
-                                // Cria nova nota para aluno que ainda não tem
-                                return [
-                                  ...prev,
-                                  {
-                                    id: 0, // ou null, dependendo do backend
-                                    alunoId: nota.alunoId,
-                                    alunoNome: nota.alunoNome,
-                                    disciplinaId: disciplina!, // garante que não é null
-                                    valor: novoValor,
-                                  }
-                                ];
-                              }
-                            });
-                          }}
-
-                        />
+                      {/* Nome do aluno */}
+                      <TableCell className="text-center font-medium text-gray-900 dark:text-gray-100">
+                        {nota.alunoNome}
                       </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex justify-center gap-2 flex-wrap">
 
+                      {/* Input de nota */}
+                      <TableCell className="text-center">
+                        <div className="flex justify-center">
+                          <TextInput
+                            type="number"
+                            inputMode="decimal"
+                            value={nota.valor ?? ""}
+                            className="w-20 text-center p-1 sm:p-2"
+                            onChange={(e) => {
+                              const novoValor = Number(e.target.value);
+                              setNotas((prev) => {
+                                const existe = prev.find((x) => x.alunoId === nota.alunoId);
+                                return existe
+                                  ? prev.map((x) =>
+                                    x.alunoId === nota.alunoId
+                                      ? { ...x, valor: novoValor }
+                                      : x
+                                  )
+                                  : [
+                                    ...prev,
+                                    {
+                                      id: 0,
+                                      alunoId: nota.alunoId,
+                                      alunoNome: nota.alunoNome,
+                                      disciplinaId: disciplina!,
+                                      valor: novoValor,
+                                    },
+                                  ];
+                              });
+                            }}
+                          />
+                        </div>
+                      </TableCell>
+
+                      {/* Botão de ação */}
+                      <TableCell className="text-center">
+                        <div className="flex justify-center">
                           <Button
-                          className="cursor-pointer focus:outline-none focus:ring-0"
                             size="xs"
                             color="alternative"
-                            onClick={() => salvarNota(nota)}>
+                            className="focus:outline-none focus:ring-0"
+                            onClick={() => salvarNota(nota)}
+                          >
                             Salvar
                           </Button>
                         </div>
@@ -343,13 +353,14 @@ export default function RegistroNotasPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-gray-500 py-4">
+                    <TableCell colSpan={3} className="text-center text-gray-500 py-4">
                       Nenhum aluno cadastrado.
                     </TableCell>
                   </TableRow>
                 )}
               </TableBody>
             </Table>
+
           </div>
         </div>
       )}

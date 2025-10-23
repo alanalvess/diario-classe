@@ -1,8 +1,18 @@
-import {Card, Spinner, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
-import {FaBookOpen, FaCheckCircle, FaExclamationTriangle} from "react-icons/fa";
+import {
+  Alert,
+  Card,
+  Select,
+  Spinner,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeadCell,
+  TableRow
+} from "flowbite-react";
+import {FaCheckCircle, FaExclamationTriangle} from "react-icons/fa";
 import {useAuth} from "../../../contexts/UseAuth.ts";
-import {useEffect, useState} from "react";
-import SelectField from "../../../components/form/SelectField.tsx";
+import React, {useEffect, useState} from "react";
 import type {Aluno, Nota, Responsavel} from "../../../models";
 import {buscar} from "../../../services/Service.ts";
 
@@ -145,32 +155,47 @@ export default function NotasPage() {
 
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
-      <Card className="p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+      <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
           Boletim Escolar
-        </h1>
+        </h2>
         <p className="text-gray-600 dark:text-gray-400 mt-2">
           Selecione o aluno para visualizar as notas
         </p>
       </Card>
 
-      <div className="mt-8 flex justify-center">
-        <SelectField
-          label="Aluno"
-          name="aluno"
-          required
-          value={alunoSelecionado}
+      {/*<Select*/}
+      {/*  name="aluno"*/}
+      {/*  className="aluno"*/}
+      {/*  required*/}
+      {/*  value={alunoSelecionado}*/}
+      {/*  onChange={(e) => setAlunoSelecionado(e.target.value)}*/}
+      {/*  options={alunos.map((a) => ({*/}
+      {/*    value: a.id.toString(), // garante que o valor é string*/}
+      {/*    label: a.nome,*/}
+      {/*  }))}*/}
+      {/*/>*/}
+      <div className="flex flex-col md:flex-row gap-4 flex-grow w-full">
+        <Select
+          id="aluno"
+          value={alunoSelecionado ?? ""}
           onChange={(e) => setAlunoSelecionado(e.target.value)}
-          options={alunos.map((a) => ({
-            value: a.id.toString(), // garante que o valor é string
-            label: a.nome,
-          }))}
-          // className="w-80"
-        />
+          className="w-full mb-4"
+        >
+          <option value="">Selecione...</option>
+          {alunos.map((aluno: Aluno) => (
+            <option key={aluno.id} value={aluno.id}>
+              {aluno.nome}
+            </option>
+          ))}
+        </Select>
       </div>
 
-
-      {isLoading ? (
+      {!alunoSelecionado ? (
+        <Alert color="info" className="mt-10 text-center">
+          <span className="font-medium">Selecione os filtros:</span> escolha um aluno para visualizar seus boletim escolar.
+        </Alert>
+      ) : isLoading ? (
         <div className="flex justify-center mt-10">
           <Spinner size="xl" color="purple"/>
         </div>
@@ -179,82 +204,135 @@ export default function NotasPage() {
         alunoAtual && (
           <div className="mt-10">
             <Card className="p-4 shadow-md">
+              {/* Cabeçalho */}
               <div className="text-center mb-6">
                 <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-                  Boletim de {alunoAtual.nome}
+                  Boletim de <span className="text-green-600 font-bold">{alunoAtual.nome}</span>
                 </h2>
               </div>
 
-              <div className="flex items-center gap-3 mb-6">
-                <FaBookOpen className="text-3xl text-blue-600"/>
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-                  Desempenho por Disciplina
-                </h2>
+              {/* 🔹 VISUALIZAÇÃO EM TABELA (DESKTOP) */}
+              <div className="hidden md:block overflow-x-auto">
+                <Table hoverable={true}>
+                  <TableHead>
+                    <TableHeadCell>Disciplina</TableHeadCell>
+                    <TableHeadCell>Avaliações</TableHeadCell>
+                    <TableHeadCell>Média Final</TableHeadCell>
+                    <TableHeadCell>Situação</TableHeadCell>
+                  </TableHead>
+                  <TableBody className="divide-y">
+                    {notasAgrupadas.map((item, index: number) => (
+                      <TableRow
+                        key={index}
+                        className="bg-white dark:bg-gray-700 dark:border-gray-600"
+                      >
+                        <TableCell className="font-semibold text-gray-900 dark:text-gray-100">
+                          {item.disciplina}
+                        </TableCell>
+                        <TableCell>
+                          <ul className="list-disc list-inside text-gray-700 dark:text-gray-300">
+                            {item.avaliacoes.map((a, i: number) => (
+                              <li key={i}>
+                                {a.nome}:{" "}
+                                <span className="font-medium text-gray-900 dark:text-gray-100">
+                                  {a.nota.toFixed(1)}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </TableCell>
+                        <TableCell className="font-bold text-gray-900 dark:text-gray-100 text-center">
+                          {item.media.toFixed(1)}
+                        </TableCell>
+                        <TableCell>
+                          {(() => {
+                            const situacao = calcularSituacao(item.avaliacoes);
+                            switch (situacao) {
+                              case "Aprovado":
+                                return (
+                                  <span className="flex items-center gap-2 text-green-600 font-medium">
+                                    <FaCheckCircle/> Aprovado
+                                  </span>
+                                );
+                              case "Em Recuperação":
+                                return (
+                                  <span className="flex items-center gap-2 text-yellow-500 font-medium">
+                                    <FaExclamationTriangle/> Em Recuperação
+                                  </span>
+                                );
+                              case "Reprovado":
+                                return (
+                                  <span className="flex items-center gap-2 text-red-600 font-medium">
+                                    <FaExclamationTriangle/> Reprovado
+                                  </span>
+                                );
+                            }
+                          })()}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
 
-              <Table hoverable={true}>
-                <TableHead>
-                  <TableHeadCell>Disciplina</TableHeadCell>
-                  <TableHeadCell>Avaliações</TableHeadCell>
-                  <TableHeadCell>Média Final</TableHeadCell>
-                  <TableHeadCell>Situação</TableHeadCell>
-                </TableHead>
-                <TableBody className="divide-y">
-                  {notasAgrupadas.map((item, index: number) => (
-                    <TableRow
-                      key={index}
-                      className="bg-white dark:bg-gray-700 dark:border-gray-600"
-                    >
-                      <TableCell className="font-semibold text-gray-900 dark:text-gray-100">
+              {/* 🔹 VISUALIZAÇÃO EM CARDS (MOBILE) */}
+              <div className="flex flex-col gap-4 md:hidden">
+                {notasAgrupadas.map((item, index: number) => (
+                  <div
+                    key={index}
+                    className="bg-white dark:bg-gray-700 rounded-xl shadow-sm p-4 border border-gray-200 dark:border-gray-600"
+                  >
+                    <div className="flex justify-between items-center mb-3">
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                         {item.disciplina}
-                      </TableCell>
-                      <TableCell>
-                        <ul className="list-disc list-inside text-gray-700 dark:text-gray-300">
-                          {item.avaliacoes.map((a, i: number) => (
-                            <li key={i}>
-                              {a.nome}:{" "}
-                              <span className="font-medium text-gray-900 dark:text-gray-100">
-                                {a.nota.toFixed(1)}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      </TableCell>
-                      <TableCell className="font-bold text-gray-900 dark:text-gray-100">
+                      </h3>
+                      <span className="font-bold text-gray-900 dark:text-gray-100">
                         {item.media.toFixed(1)}
-                      </TableCell>
-                      <TableCell>
-                        {(() => {
-                          const situacao = calcularSituacao(item.avaliacoes);
+                      </span>
+                    </div>
 
-                          switch (situacao) {
-                            case "Aprovado":
-                              return (
-                                <span className="flex items-center gap-2 text-green-600 font-medium">
-                                  <FaCheckCircle/> Aprovado
-                                </span>
-                              );
-                            case "Em Recuperação":
-                              return (
-                                <span className="flex items-center gap-2 text-yellow-500 font-medium">
-                                  <FaExclamationTriangle/> Em Recuperação
-                                </span>
-                              );
-                            case "Reprovado":
-                              return (
-                                <span className="flex items-center gap-2 text-red-600 font-medium">
-                                  <FaExclamationTriangle/> Reprovado
-                                </span>
-                              );
-                          }
-                        })()}
-                      </TableCell>
+                    <ul className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                      {item.avaliacoes.map((a, i: number) => (
+                        <li key={i} className="flex justify-between">
+                          <span>{a.nome}</span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">
+                            {a.nota.toFixed(1)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
 
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                    <div className="flex items-center justify-between border-t pt-2 mt-2">
+                      <span className="text-sm text-gray-500">Situação:</span>
+                      {(() => {
+                        const situacao = calcularSituacao(item.avaliacoes);
+                        switch (situacao) {
+                          case "Aprovado":
+                            return (
+                              <span className="flex items-center gap-1 text-green-600 font-medium text-sm">
+                                <FaCheckCircle/> Aprovado
+                              </span>
+                            );
+                          case "Em Recuperação":
+                            return (
+                              <span className="flex items-center gap-1 text-yellow-500 font-medium text-sm">
+                                <FaExclamationTriangle/> Recuperação
+                              </span>
+                            );
+                          case "Reprovado":
+                            return (
+                              <span className="flex items-center gap-1 text-red-600 font-medium text-sm">
+                                <FaExclamationTriangle/> Reprovado
+                              </span>
+                            );
+                        }
+                      })()}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </Card>
+
           </div>
         )
       )}

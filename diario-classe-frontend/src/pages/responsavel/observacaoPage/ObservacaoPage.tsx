@@ -1,11 +1,22 @@
-import {useEffect, useState} from "react";
-import {Badge, Card, Spinner, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
-import {FaStickyNote} from "react-icons/fa";
+import React, {useEffect, useState} from "react";
+import {
+  Alert,
+  Badge,
+  Card,
+  Select,
+  Spinner,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeadCell,
+  TableRow
+} from "flowbite-react";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import {buscar} from "../../../services/Service.ts";
 import type {Aluno, Observacao, Responsavel} from "../../../models";
-import SelectField from "../../../components/form/SelectField.tsx";
 import {CategoriasAgrupadas} from "../../../utils/CategoriasAgrupadas.ts";
+import {FaBookOpen, FaCalendarAlt, FaUserTie} from "react-icons/fa";
 
 export default function ObservacoesPage() {
   const {usuario, isAuthenticated} = useAuth();
@@ -82,107 +93,159 @@ export default function ObservacoesPage() {
 
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
-      <Card className="p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+      <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
           Observações sobre o Aluno
-        </h1>
+        </h2>
         <p className="text-gray-600 dark:text-gray-400 mt-2">
           Veja os registros feitos pelos professores ao longo do período letivo.
         </p>
       </Card>
 
-      <div className="mt-8 flex justify-center">
-        <SelectField
-          label="Aluno"
-          name="aluno"
-          required
-          value={alunoSelecionado}
+      <div className="flex flex-col md:flex-row gap-4 flex-grow w-full">
+        <Select
+          id="aluno"
+          value={alunoSelecionado ?? ""}
           onChange={(e) => setAlunoSelecionado(e.target.value)}
-          options={alunos.map((a) => ({
-            value: a.id.toString(), // garante que o valor é string
-            label: a.nome,
-          }))}
-          // className="w-80"
-        />
+          className="w-full mb-4"
+        >
+          <option value="">Selecione...</option>
+          {alunos.map((aluno: Aluno) => (
+            <option key={aluno.id} value={aluno.id}>
+              {aluno.nome}
+            </option>
+          ))}
+        </Select>
       </div>
 
-      {isLoading ? (
+      {!alunoSelecionado ? (
+        <Alert color="info" className="mt-10 text-center">
+          <span className="font-medium">Selecione os filtros:</span> escolha um aluno para visualizar as anotações
+          realizadas pelos professores.
+        </Alert>
+      ) : isLoading ? (
         <div className="flex justify-center mt-10">
-          <Spinner size="xl"/>
+          <Spinner size="xl" color="purple"/>
         </div>
       ) : (
         alunoSelecionado && (
-          <Card className="p-6 mt-10 shadow-md">
-            <div className="flex items-center gap-3 mb-6">
-              <FaStickyNote className="text-3xl text-blue-600"/>
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-                Anotações Recentes
-              </h2>
+          <>
+            <div
+              className=" overflow-x-auto rounded-lg">
+              {observacoes.length === 0 ? (
+                <p className="text-center text-gray-600 dark:text-gray-400 py-6">
+                  Nenhuma observação registrada até o momento.
+                </p>
+              ) : (
+
+                <div className="w-full">
+                  {/* 💻 Versão Desktop */}
+                  <div className="hidden md:block overflow-x-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+                    {observacoes.length === 0 ? (
+                      <p className="text-center text-gray-600 dark:text-gray-400 py-6">
+                        Nenhuma observação registrada até o momento.
+                      </p>
+                    ) : (
+                      <Table className="min-w-[700px] text-sm text-gray-700 dark:text-gray-300">
+                        <TableHead className="bg-gray-100 dark:bg-gray-700">
+                          <TableHeadCell className="font-semibold">Data</TableHeadCell>
+                          <TableHeadCell className="font-semibold">Disciplina</TableHeadCell>
+                          <TableHeadCell className="font-semibold">Professor</TableHeadCell>
+                          <TableHeadCell className="font-semibold">Categoria</TableHeadCell>
+                          <TableHeadCell className="font-semibold">Descrição</TableHeadCell>
+                        </TableHead>
+                        <TableBody className="divide-y divide-gray-200 dark:divide-gray-600">
+                          {observacoes.map((obs) => (
+                            <TableRow
+                              key={obs.id}
+                              className="hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-150"
+                            >
+                              <TableCell>{new Date(obs.data).toLocaleDateString("pt-BR")}</TableCell>
+                              <TableCell>{obs.disciplinaNome || "-"}</TableCell>
+                              <TableCell>{obs.professorNome || "-"}</TableCell>
+                              <TableCell>
+                                {Object.entries(CategoriasAgrupadas).map(([grupo, categorias]) => {
+                                  const categoria = categorias.find((cat) => cat.value === obs.categoria);
+                                  return (
+                                    categoria && (
+                                      <Badge key={obs.id} color={categoriaCores[grupo]}>
+                                        {categoria.label}
+                                      </Badge>
+                                    )
+                                  );
+                                })}
+                              </TableCell>
+                              <TableCell className="max-w-md">{obs.descricao}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    )}
+                  </div>
+
+                  {/* 📱 Versão Mobile */}
+                  <div className="md:hidden flex flex-col gap-4 mt-4">
+                    {observacoes.length === 0 ? (
+                      <p className="text-center text-gray-600 dark:text-gray-400 py-6">
+                        Nenhuma observação registrada até o momento.
+                      </p>
+                    ) : (
+                      <div className="grid gap-4 mt-6 md:grid-cols-2 lg:grid-cols-3">
+                        {observacoes.map((obs) => (
+                          <Card
+                            key={obs.id}
+                            className="p-5 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-2xl"
+                          >
+                            <div className="flex justify-between items-center mb-3">
+                              <div className="flex items-center gap-2">
+                                <FaCalendarAlt className="text-blue-500" />
+                                <span className="text-sm text-gray-500 dark:text-gray-400">
+                                  {new Date(obs.data).toLocaleDateString("pt-BR")}
+                                </span>
+                              </div>
+                              {Object.entries(CategoriasAgrupadas).map(([grupo, categorias]) => {
+                                const categoria = categorias.find((cat) => cat.value === obs.categoria);
+                                return (
+                                  categoria && (
+                                    <Badge
+                                      key={obs.id}
+                                      color={categoriaCores[grupo]}
+                                      className="text-xs font-semibold px-2 py-1 rounded-md"
+                                    >
+                                      {categoria.label}
+                                    </Badge>
+                                  )
+                                );
+                              })}
+                            </div>
+
+                            <div className="py-2 border-t-2 border-gray-400">
+                              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                                <FaBookOpen className="text-blue-600" />
+                                {obs.disciplinaNome || "Sem disciplina"}
+                              </h3>
+                              <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2 mt-1">
+                                <FaUserTie className="text-purple-500" />
+                                {obs.professorNome || "Professor não informado"}
+                              </p>
+                            </div>
+
+                            <p className="text-gray-700 dark:text-gray-200 text-sm border-t-2 border-gray-500 bg-gray-400 dark:bg-gray-700 p-2 rounded-xl leading-relaxed">
+                              {obs.descricao}
+                            </p>
+                          </Card>
+                        ))}
+                      </div>
+
+                    )}
+                  </div>
+
+                </div>
+              )}
             </div>
-
-            {observacoes.length === 0 ? (
-              <p className="text-center text-gray-600 dark:text-gray-400 py-6">
-                Nenhuma observação registrada até o momento.
-              </p>
-            ) : (
-              <Table hoverable>
-                <TableHead>
-                  <TableHeadCell>Data</TableHeadCell>
-                  <TableHeadCell>Disciplina</TableHeadCell>
-                  <TableHeadCell>Professor</TableHeadCell>
-                  <TableHeadCell>Categoria</TableHeadCell>
-                  <TableHeadCell>Descrição</TableHeadCell>
-                </TableHead>
-                <TableBody className="divide-y">
-                  {observacoes.map((obs) => (
-                    <TableRow
-                      key={obs.id}
-                      className="bg-white dark:bg-gray-700 dark:border-gray-600"
-                    >
-                      {/* 🗓️ Data */}
-                      <TableCell className="text-gray-800 dark:text-gray-100">
-                        {new Date(obs.data).toLocaleDateString("pt-BR")}
-                      </TableCell>
-
-                      {/* 📘 Disciplina */}
-                      <TableCell className="text-gray-800 dark:text-gray-100">
-                        <div className="flex items-center gap-2">
-                          {obs.disciplinaNome || "-"}
-                        </div>
-                      </TableCell>
-
-                      {/* 👔 Professor */}
-                      <TableCell className="text-gray-800 dark:text-gray-100">
-                        <div className="flex items-center gap-2">
-                          {obs.professorNome || "-"}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {Object.entries(CategoriasAgrupadas).map(([grupo, categorias]) => {
-                          const categoria = categorias.find((cat) => cat.value === obs.categoria);
-                          return (
-                            categoria && (
-                              <Badge key={obs.id} color={categoriaCores[grupo]}>
-                                {categoria.label}
-                              </Badge>
-                            )
-                          );
-                        })}
-                      </TableCell>
-
-                      {/* 📝 Descrição */}
-                      <TableCell className="max-w-md text-gray-700 dark:text-gray-200">
-                        {obs.descricao}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </Card>
+          </>
         )
       )}
-
 
     </div>
   );

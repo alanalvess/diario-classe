@@ -1,9 +1,9 @@
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Line} from "react-chartjs-2";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import type {Aluno, Nota, Presenca, Responsavel} from "../../../models";
 import {buscar} from "../../../services/Service.ts";
-import {Card} from "flowbite-react";
+import {Alert, Card, Select, Spinner} from "flowbite-react";
 
 type EvolucaoBimestral = {
   bimestre: number;
@@ -11,16 +11,15 @@ type EvolucaoBimestral = {
 };
 
 export default function DashboardResponsavelPage() {
-  const { usuario } = useAuth();
+  const {usuario} = useAuth();
 
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [responsavel, setResponsavel] = useState<Responsavel>();
-  const [alunoSelecionado, setAlunoSelecionado] = useState<number | null>(null);
+  const [alunoSelecionado, setAlunoSelecionado] = useState<string>("");
   const [presencas, setPresencas] = useState<Presenca[]>([]);
 
   const [isLoading, setIsLoading] = useState(false);
   const [evolucoes, setEvolucoes] = useState<EvolucaoBimestral[]>([]);
-  const [notas, setNotas] = useState<Nota[]>([]);
   const [mediaGeral, setMediaGeral] = useState<number>(0);
   const [frequencia, setFrequencia] = useState<number>(0);
 
@@ -102,14 +101,12 @@ export default function DashboardResponsavelPage() {
   }
 
 
-
-
   async function buscarPresencasDoAluno() {
     if (!alunoSelecionado) return;
     setIsLoading(true);
     try {
       await buscar(`/presencas/aluno/${alunoSelecionado}`, setPresencas, {
-        headers: { Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json" },
+        headers: {Authorization: `Bearer ${usuario.token}`, "Content-Type": "application/json"},
       });
     } catch (err) {
       console.error(err);
@@ -150,8 +147,19 @@ export default function DashboardResponsavelPage() {
 
   useEffect(() => {
     if (!alunoSelecionado) return;
-    buscarPresencasDoAluno();
+    setIsLoading(true);
+
+    // busca presenças e evolução simultaneamente
+    Promise.all([buscarPresencasDoAluno(), buscarEvolucaoNotas()])
+      .catch((error) => console.error("Erro ao carregar dados:", error))
+      .finally(() => setIsLoading(false));
   }, [alunoSelecionado]);
+
+// 🔹 calcula média assim que evolucoes muda
+  useEffect(() => {
+    calcularMediaGeral();
+  }, [evolucoes]);
+
 
   useEffect(() => {
     if (presencas.length > 0) calcularFrequenciaDoMes();
@@ -165,17 +173,6 @@ export default function DashboardResponsavelPage() {
   useEffect(() => {
     if (responsavel?.id) buscarAlunosDoResponsavel();
   }, [responsavel]);
-
-  useEffect(() => {
-    if (!alunoSelecionado) return;
-    setIsLoading(true);
-
-    buscarEvolucaoNotas()
-      .then(() => calcularMediaGeral())
-      .catch((error) => console.error("Erro ao carregar dados:", error))
-      .finally(() => setIsLoading(false));
-  }, [alunoSelecionado]);
-
 
   // 🔹 Dados para o gráfico
   const todasDisciplinas = Array.from(
@@ -224,15 +221,22 @@ export default function DashboardResponsavelPage() {
   };
 
   return (
-    <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10 space-y-6">
-      <h1 className="text-2xl font-bold">🎓 Dashboard do Responsável</h1>
+    <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
+      <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+          Dashboard
+        </h2>
+        <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">
+          Acompanhe os principais indicadores acadêmicos do aluno.
+        </p>
+      </Card>
 
-      <div className="flex items-center gap-4 mb-4">
-        <select
+      <div className="flex flex-col md:flex-row gap-4 flex-grow w-full">
+        <Select
           id="aluno"
           value={alunoSelecionado ?? ""}
-          onChange={(e) => setAlunoSelecionado(Number(e.target.value))}
-          className="rounded-md my-4 w-full p-2 border"
+          onChange={(e) => setAlunoSelecionado(e.target.value)}
+          className="w-full mb-4"
         >
           <option value="">Selecione...</option>
           {alunos.map((aluno: Aluno) => (
@@ -240,35 +244,47 @@ export default function DashboardResponsavelPage() {
               {aluno.nome}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <h2 className="text-lg font-semibold">Média Geral</h2>
-          <p className="text-3xl font-bold text-green-600">
-            {mediaGeral ? mediaGeral.toFixed(1) : "-"}
-          </p>
-          <p className="text-sm text-gray-500">Média das notas</p>
-        </Card>
+      {!alunoSelecionado ? (
+        <Alert color="info" className="mt-10 text-center">
+          <span className="font-medium">Selecione os filtros:</span> escolha um aluno para visualizar seus os indicadores acadêmicos.
+        </Alert>
+      ) : isLoading ? (
+        <div className="flex justify-center mt-10">
+          <Spinner size="xl" color="purple"/>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card>
+              <h2 className="text-lg font-semibold">Média Geral</h2>
+              <p className="text-3xl font-bold text-green-600">
+                {mediaGeral ? mediaGeral.toFixed(1) : "-"}
+              </p>
+              <p className="text-sm text-gray-500">Média das notas</p>
+            </Card>
 
-        <Card>
-          <h2 className="text-lg font-semibold">Frequência</h2>
-          <p className="text-3xl font-bold text-blue-600">
-            {isLoading ? "..." : `${frequencia}%`}
-          </p>
-          <p className="text-sm text-gray-500">Percentual de presença</p>
-        </Card>
-      </div>
+            <Card>
+              <h2 className="text-lg font-semibold">Frequência</h2>
+              <p className="text-3xl font-bold text-blue-600">
+                {isLoading ? "..." : `${frequencia}%`}
+              </p>
+              <p className="text-sm text-gray-500">Percentual de presença</p>
+            </Card>
+          </div>
 
-      <Card className="md:col-span-2">
-        <h2 className="font-bold mb-2">Evolução do Desempenho</h2>
-        {evolucoes.length > 0 ? (
-          <Line data={evolucaoData} options={evolucaoOptions} />
-        ) : (
-          <p className="text-gray-500 italic">Sem evolução de notas disponível</p>
-        )}
-      </Card>
+          <Card className="md:col-span-2 mt-4">
+            <h2 className="font-bold mb-2">Evolução do Desempenho</h2>
+            {evolucoes.length > 0 ? (
+              <Line data={evolucaoData} options={evolucaoOptions}/>
+            ) : (
+              <p className="text-gray-500 italic">Sem evolução de notas disponível</p>
+            )}
+          </Card>
+        </>
+      )}
     </div>
   );
 }

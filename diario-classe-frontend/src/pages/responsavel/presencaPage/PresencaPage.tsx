@@ -1,11 +1,21 @@
-import {type JSX, useEffect, useState} from "react";
-import {Card, Spinner, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
+import React, {type JSX, useEffect, useState} from "react";
+import {
+  Alert,
+  Card,
+  Select,
+  Spinner,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeadCell,
+  TableRow,
+  TextInput
+} from "flowbite-react";
 import {FaCheckCircle, FaMinusCircle, FaTimesCircle} from "react-icons/fa";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import type {Aluno, Presenca, Responsavel} from "../../../models";
 import {buscar} from "../../../services/Service.ts";
-import SelectField from "../../../components/form/SelectField.tsx";
-import InputField from "../../../components/form/InputField.tsx";
 
 interface DiaPresenca {
   data: string;
@@ -163,31 +173,37 @@ export default function PresencaPage() {
 
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
-      <Card className="p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-          Frequência de {usuario?.nome || "Aluno(a)"}
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
+      <Card className="mb-10 p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+          Frequência Escolar
+        </h2>
+        <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">
           Acompanhe as presenças e faltas nas aulas.
         </p>
       </Card>
 
-      <div className="mt-8 flex flex-wrap items-end gap-4 justify-center">
+      <div className="mt-8 flex flex-col md:flex-row gap-4 justify-center">
         {/* Select do aluno */}
-        <div className="flex-1 min-w-[200px]">
-          <SelectField
-            label="Aluno"
-            name="aluno"
-            value={alunoSelecionado}
+        <div className="flex-2 ">
+          <Select
+            id="aluno"
+            value={alunoSelecionado ?? ""}
             onChange={(e) => setAlunoSelecionado(e.target.value)}
-            options={alunos.map((a) => ({ value: a.id.toString(), label: a.nome }))}
-          />
+            className="w-full mb-4"
+          >
+            <option value="">Selecione...</option>
+            {alunos.map((aluno: Aluno) => (
+              <option key={aluno.id} value={aluno.id}>
+                {aluno.nome}
+              </option>
+            ))}
+          </Select>
+
         </div>
 
         {/* Input de período menor */}
-        <div className="w-60">
-          <InputField
-            label="Período"
+        <div className="flex-1 ">
+          <TextInput
             name='data'
             type="Month"
             value={periodo}
@@ -198,7 +214,12 @@ export default function PresencaPage() {
       </div>
 
 
-      {isLoading ? (
+      {!alunoSelecionado ? (
+        <Alert color="info" className="mt-10 text-center">
+          <span className="font-medium">Selecione os filtros:</span> escolha um aluno para visualizar sua frequência
+          escolar.
+        </Alert>
+      ) : isLoading ? (
         <div className="flex justify-center mt-10">
           <Spinner size="xl"/>
         </div>
@@ -227,7 +248,7 @@ export default function PresencaPage() {
 
                   // Preenche dias vazios antes do primeiro dia
                   for (let i = 0; i < primeiroDia; i++) {
-                    elementos.push(<div key={"empty-" + i} className="w-full h-8 sm:h-10" />);
+                    elementos.push(<div key={"empty-" + i} className="w-full h-8 sm:h-10"/>);
                   }
 
                   for (let dia = 1; dia <= ultimoDia; dia++) {
@@ -272,41 +293,92 @@ export default function PresencaPage() {
               </div>
             </Card>
 
-            <Card className="p-6 mt-10 shadow-md">
-              <Table hoverable>
-                <TableHead>
-                  <TableHeadCell>Data</TableHeadCell>
-                  <TableHeadCell>Status</TableHeadCell>
-                  <TableHeadCell>Método</TableHeadCell>
-                </TableHead>
-                <TableBody className="divide-y">
+            <div className=" mt-10 overflow-x-auto ">
+              <div className="overflow-x-auto md:block">
+                {/* 🧩 Visualização em cards no mobile */}
+                <div className="md:hidden flex flex-col gap-3">
                   {presencasCompletas.map((p, i) => (
-                    <TableRow key={i} className="bg-white dark:bg-gray-700 dark:border-gray-600">
-                      <TableCell className="text-gray-800 dark:text-gray-100">
-                        <div>
-                          <span className="font-medium">{toLocalDateString(p.data)} </span>|
-                          <span className="text-sm text-gray-600"> {p.diaSemana}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {p.presente === null ? (
-                          <span
-                            className="flex items-center gap-2 text-gray-500 font-medium">
-                            <FaMinusCircle />
-                            {p.feriado ? "Feriado" : "Fim de Semana"}
-                          </span>
-                        ) : p.presente ? (
-                          <span className="flex items-center gap-2 text-green-600"><FaCheckCircle/> Presente</span>
-                        ) : (
-                          <span className="flex items-center gap-2 text-red-600"><FaTimesCircle/> Falta</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-gray-800 dark:text-gray-100">{p.metodoChamada}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                    <div
+                      key={i}
+                      className="p-3 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700"
+                    >
+                      <div className="flex justify-between text-sm text-gray-500 mb-1">
+                        <span className="font-medium">{toLocalDateString(p.data)}</span>
+                        <span>{p.diaSemana}</span>
+                      </div>
 
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {p.presente === null ? (
+                            <span className="flex items-center gap-1 text-gray-500 font-medium">
+                              <FaMinusCircle/>
+                              {p.feriado ? "Feriado" : "Fim de Semana"}
+                            </span>
+                          ) : p.presente ? (
+                            <span className="flex items-center gap-1 text-green-600 font-medium">
+                              <FaCheckCircle/> Presente
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1 text-red-600 font-medium">
+                              <FaTimesCircle/> Falta
+                            </span>
+                          )}
+                        </div>
+
+                        <span className="text-sm text-gray-600 dark:text-gray-300">
+                          {p.metodoChamada}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* 🧾 Visualização em tabela no desktop */}
+                <Table className="hidden md:table text-sm text-gray-700 dark:text-gray-300">
+                  <TableHead className="bg-gray-100 dark:bg-gray-700">
+                    <TableHeadCell className="text-center font-semibold">Data</TableHeadCell>
+                    <TableHeadCell className="text-center font-semibold">Status</TableHeadCell>
+                    <TableHeadCell className="text-center font-semibold">Método</TableHeadCell>
+                  </TableHead>
+                  <TableBody className="divide-y divide-gray-200 dark:divide-gray-600">
+                    {presencasCompletas.map((p, i) => (
+                      <TableRow
+                        key={i}
+                        className="hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-150"
+                      >
+                        <TableCell className="text-gray-800 dark:text-gray-100 text-center">
+                          <div>
+                            <span className="font-medium">{toLocalDateString(p.data)} </span>|
+                            <span className="text-sm text-gray-600"> {p.diaSemana}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {p.presente === null ? (
+                            <span className="flex justify-center items-center gap-2 text-gray-500 font-medium">
+                              <FaMinusCircle/>
+                              {p.feriado ? "Feriado" : "Fim de Semana"}
+                            </span>
+                          ) : p.presente ? (
+                            <span className="flex justify-center items-center gap-2 text-green-600">
+                              <FaCheckCircle/> Presente
+                            </span>
+                          ) : (
+                            <span className="flex justify-center items-center gap-2 text-red-600">
+                              <FaTimesCircle/> Falta
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-center text-gray-800 dark:text-gray-100">
+                          {p.metodoChamada}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+
+            <Card className="text-gray-700 dark:text-gray-300 mt-6">
               <div className="mt-6 text-center">
                 <p className="text-gray-700 dark:text-gray-300 text-lg">
                   Frequência Total: <span className="font-bold text-green-600">{frequencia}%</span>
