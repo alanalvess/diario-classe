@@ -1,8 +1,7 @@
-import {type ChangeEvent, useEffect, useState} from 'react'
+import React, {type ChangeEvent, useEffect, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 
-import {Button, Spinner} from 'flowbite-react';
-import InputField from '../../components/form/InputField.tsx';
+import {Button, Card, Spinner, TextInput} from 'flowbite-react';
 import type {UsuarioLogin} from "../../models";
 import {useAuth} from "../../contexts/UseAuth.ts";
 
@@ -40,18 +39,24 @@ function Login() {
             className='flex justify-center items-center flex-col w-2/3 gap-3 py-10'
             onSubmit={login}
           >
-            <h2 className='text-gray-900 text-5xl '>Entrar</h2>
+            <Card className="mb-6 bg-gray-100 w-full dark:bg-gray-800 text-center shadow-md">
+              <h2 className="text-5xl font-semibold text-gray-900 dark:text-gray-100">
+                Entrar
+              </h2>
+            </Card>
 
-            <InputField
-              label='E-mail'
+            <TextInput
+              className="w-full"
+              placeholder='E-mail'
               name='email'
               value={usuarioLogin.email}
               onChange={atualizarEstado}
               required
             />
 
-            <InputField
-              label='Senha'
+            <TextInput
+              className="w-full"
+              placeholder='Senha'
               name='senha'
               type='password'
               value={usuarioLogin.senha}
@@ -59,8 +64,9 @@ function Login() {
               required
             />
 
-            <Button type='submit'
-                    className='cursor-pointer rounded bg-green-500 hover:bg-green-600 text-white w-1/2 py-2 flex justify-center focus:outline-none focus:ring-0 dark:bg-green-600 dark:hover:bg-green-700'
+            <Button
+              type='submit'
+              className='w-1/2 mt-6 cursor-pointer rounded bg-green-500 hover:bg-green-600 text-white py-2 flex justify-center focus:outline-none focus:ring-0 dark:bg-green-600 dark:hover:bg-green-700'
             >
               {isLoading ?
                 <Spinner aria-label="Default status example" size='md'/>

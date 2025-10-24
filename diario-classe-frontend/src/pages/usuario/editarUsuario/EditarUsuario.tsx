@@ -1,13 +1,10 @@
-import {type ChangeEvent, useEffect, useState} from "react";
-import {Button, Modal, ModalBody, ModalHeader, Spinner} from "flowbite-react";
+import React, {type ChangeEvent, useEffect, useState} from "react";
+import {Button, Card, Modal, ModalBody, ModalHeader, Select, Spinner, TextInput} from "flowbite-react";
 
 import {atualizarAtributo} from "../../../services/Service";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta";
 import type {Usuario} from "../../../models"
-
-import InputField from "../../../components/form/InputField.tsx";
 import {useAuth} from "../../../contexts/UseAuth.ts";
-import SelectField from "../../../components/form/SelectField.tsx";
 import {Role} from "../../../utils/Role.ts";
 import type {Roles} from "../../../enums/Roles.ts";
 
@@ -93,50 +90,51 @@ function EditarUsuario({
       <Modal show={open} onClose={onClose} size="md" popup>
         <ModalHeader/>
         <ModalBody>
-          <div className="justify-center">
-            <div
-              className="flex justify-center shadow-xl dark:shadow-lg shadow-cinza-300 dark:shadow-preto-600 bg-cinza-100 dark:bg-preto-300 py-[3vh] lg:py-[10vh] rounded-2xl font-bold">
-              <form className="flex max-w-md flex-col gap-4 w-[80%]" onSubmit={editarUsuario}>
-                <h2 className="text-slate-900 dark:text-cinza-100 my-4 text-center text-2xl lg:text-4xl">
-                  Editar Usuário
-                </h2>
+          <form className="flex flex-col gap-4" onSubmit={editarUsuario}>
+            <Card className="mb-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                Editar Usuário
+              </h2>
+            </Card>
 
-                <InputField
-                  label="Nome"
-                  name="nome"
-                  required
-                  value={usuarioAtualizado.nome || ""}
-                  onChange={atualizarEstado}
-                />
+            <TextInput
+              name="nome"
+              required
+              value={usuarioAtualizado.nome || ""}
+              onChange={atualizarEstado}
+            />
 
-                <InputField
-                  label="Email"
-                  name="email"
-                  required
-                  value={usuarioAtualizado.email || ""}
-                  onChange={atualizarEstado}
-                />
+            <TextInput
+              name="email"
+              required
+              value={usuarioAtualizado.email || ""}
+              onChange={atualizarEstado}
+            />
 
-                <SelectField
-                  label="roles"
-                  name="roles"
-                  value={usuarioAtualizado.roles?.[0] || ""}
-                  options={Role.map(r => ({ value: r.value, label: r.label }))}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                    setUsuarioAtualizado({
-                      ...usuarioAtualizado,
-                      roles: [e.target.value as Roles], // mantém como array
-                    })
-                  }
-                />
+            <Select
+              id="roles"
+              name="roles"
+              value={usuarioAtualizado.roles?.[0] || ""}
+              onChange={e =>
+                setUsuarioAtualizado({
+                  ...usuarioAtualizado,
+                  roles: [e.target.value as Roles], // mantém o formato array
+                })
+              }
+              required
+            >
+              <option value="">Selecione uma função</option>
+              {Role.map(r => (
+                <option key={r.value} value={r.value}>
+                  {r.label}
+                </option>
+              ))}
+            </Select>
 
-
-                <Button type="submit">
-                  {isLoading ? <Spinner aria-label="Carregando"/> : <span>Salvar Alterações</span>}
-                </Button>
-              </form>
-            </div>
-          </div>
+            <Button color="green" type="submit" className='cursor-pointer mt-6 focus:outline-none focus:ring-0'>
+              {isLoading ? <Spinner size="sm" light/> : <span>Salvar Alterações</span>}
+            </Button>
+          </form>
         </ModalBody>
       </Modal>
     </>

@@ -16,10 +16,13 @@ export default function Home() {
           </p>
           <div className="flex justify-center gap-4">
             <Link to="/login">
-              <Button className="bg-green-600 hover:bg-green-700 px-6 py-3 text-lg">Entrar</Button>
+              <Button
+                color="green"
+                className="px-6 py-3 text-lg cursor-pointer focus:outline-none focus:ring-0">Entrar</Button>
             </Link>
             <Link to="/sobre">
-              <Button color="light" className="px-6 py-3 text-lg">Saiba Mais</Button>
+              <Button color="light"
+                      className="px-6 py-3 text-lg cursor-pointer focus:outline-none focus:ring-0">Saiba Mais</Button>
             </Link>
           </div>
         </section>
