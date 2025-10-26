@@ -1,6 +1,6 @@
 import type {JSX} from "react";
 import {ListGroup, ListGroupItem} from "flowbite-react";
-import InputField from "../form/InputField.tsx";
+import InputField from "./InputField.tsx";
 
 export default function FiltroList<T extends { id: number; nome: string }>({
                                                                             titulo,

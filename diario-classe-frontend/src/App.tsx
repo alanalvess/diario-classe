@@ -14,12 +14,8 @@ import DisciplinasPage from "./pages/coordenacao/disciplinas/DisciplinasPage.tsx
 import DashboardCoordenacaoPage from "./pages/coordenacao/dashboard/DashboardCoordenacao.tsx";
 import RelatoriosCoordenacao from "./pages/coordenacao/relatorios/RelatoriosCoordenacao.tsx";
 import Login from "./pages/login/Login.tsx";
-// import Cadastro from "./pages/usuario/cadastro/Cadastro.tsx";
-import FormularioUsuario from "./components/usuarios/formularioUsuario/FormularioUsuario.tsx";
 import Perfil from "./pages/usuario/perfil/Perfil.tsx";
-import Usuarios from "./pages/usuarios/Usuarios.tsx";
-import EditarUsuario from "./pages/usuario/editarUsuario/EditarUsuario.tsx";
-import Admin from "./pages/usuario/usuarios/ListarUsuarios.tsx";
+import ListarUsuarios from "./pages/usuario/usuarios/ListarUsuarios.tsx";
 import Sobre from "./pages/sobre/Sobre.tsx";
 import Duvidas from "./pages/duvidas/Duvidas.tsx";
 import Erro500 from "./pages/erros/Erro500.tsx";
@@ -54,44 +50,33 @@ function App() {
                 <Route path='/' element={<Home/>}/>
                 <Route path='/home' element={<Home/>}/>
 
+                <Route path='/dashboard-coordenacao' element={<DashboardCoordenacaoPage/>}/>
+                <Route path='/relatorios-coordenacao' element={<RelatoriosCoordenacao/>}/>
+                <Route path='/gestao-alunos' element={<AlunosPage/>}/>
+                <Route path='/disciplinas' element={<DisciplinasPage/>}/>
+                <Route path='/turmas' element={<TurmasPage/>}/>
+                <Route path='/professores' element={<ProfessoresPage/>}/>
+
                 <Route path='/presenca' element={<RegistroPresencaPage/>}/>
                 <Route path='/notas' element={<RegistroNotasPage/>}/>
                 <Route path='/avaliacoes' element={<AvaliacoesPage/>}/>
                 <Route path='/observacoes' element={<RegistroObservacoesPage/>}/>
-                <Route path='/dashboardProfessor' element={<DashboardProfessorPage/>}/>
+                <Route path='/dashboard-professor' element={<DashboardProfessorPage/>}/>
                 <Route path='/relatoriosProfessor' element={<RelatoriosProfessor/>}/>
 
-                <Route path='/turmas' element={<TurmasPage/>}/>
-                <Route path='/professores' element={<ProfessoresPage/>}/>
-                <Route path='/alunos' element={<AlunosPage/>}/>
-                <Route path='/disciplinas' element={<DisciplinasPage/>}/>
-                <Route path='/dashboardCoordenacao' element={<DashboardCoordenacaoPage/>}/>
-                <Route path='/relatorios' element={<RelatoriosCoordenacao/>}/>
 
-                <Route path='/boletim' element={<NotasPage/>}/>
-                <Route path='/presencaAluno' element={<PresencaPage/>}/>
-                <Route path='/observacoesAluno' element={<ObservacoesPage/>}/>
-                <Route path='/dashboardResponsavel' element={<DashboardResponsavelPage/>}/>
+                <Route path='/boletim-escolar' element={<NotasPage/>}/>
+                <Route path='/frequencia-aluno' element={<PresencaPage/>}/>
+                <Route path='/observacoes-aluno' element={<ObservacoesPage/>}/>
+                <Route path='/dashboard-responsavel' element={<DashboardResponsavelPage/>}/>
+                <Route path='/alertas-academicos' element={<AlertasPage/>}/>
 
-                <Route path='/alertas' element={<AlertasPage/>}/>
                 <Route path='/alertasCoordenacao' element={<AlertasCoordenadorPage/>}/>
-
-
-                <Route path='/login' element={<Login/>}/>
-                {/*<Route path='/cadastro' element={<Cadastro/>}/>*/}
-                <Route path='/cadastroUsuario' element={<FormularioUsuario/>}/>
-
                 <Route path='/presenca' element={<RegistroPresencaPage/>}/>
 
-                <Route path="/perfil" element={<Perfil/>}/>
-                <Route path="/perfil/:id" element={<Perfil/>}/>
-
-                <Route path='/usuarios/all' element={<Usuarios/>}/>
-                <Route path='/cadastroUsuarios' element={<FormularioUsuario/>}/>
-                <Route path='/editarUsuario/:id' element={<FormularioUsuario/>}/>
-                <Route path="/editarUsuarios/:id" element={<EditarUsuario/>}/>
-
-                <Route path="/usuarios" element={<Admin/>}/>
+                <Route path='/login' element={<Login/>}/>
+                <Route path="/meu-perfil" element={<Perfil/>}/>
+                <Route path="/usuarios" element={<ListarUsuarios/>}/>
 
                 <Route path='/sobre' element={<Sobre/>}/>
                 <Route path='/duvidas' element={<Duvidas/>}/>

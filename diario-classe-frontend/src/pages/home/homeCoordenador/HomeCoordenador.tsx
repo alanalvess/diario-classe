@@ -42,7 +42,7 @@ export default function HomeCoordenador() {
         {/* Ações principais */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
           <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
-            <Link to="/alunos">
+            <Link to="/gestao-alunos">
               <FaGraduationCap className="text-4xl text-blue-600 mb-3 mx-auto"/>
               <h2 className="text-lg font-semibold">Alunos</h2>
               <p className="text-sm text-gray-500">Gerencie todos os alunos matriculados.</p>
@@ -90,7 +90,7 @@ export default function HomeCoordenador() {
         {/* Segunda linha de ações */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
           <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
-            <Link to="/dashboardCoordenacao">
+            <Link to="/dashboard-coordenacao">
               <FaChartBar className="text-4xl text-purple-600 mb-3 mx-auto"/>
               <h2 className="text-lg font-semibold">Dashboard</h2>
               <p className="text-sm text-gray-500">Analise indicadores de notas e presença.</p>
@@ -106,7 +106,7 @@ export default function HomeCoordenador() {
           </Card>
 
           <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
-            <Link to="/relatorios">
+            <Link to="/relatorios-coordenacao">
               <FaChartBar className="text-4xl text-purple-600 mb-3 mx-auto"/>
               <h2 className="text-lg font-semibold">Relatórios</h2>
               <p className="text-sm text-gray-500">Gere relatórios detalhados de desempenho.</p>

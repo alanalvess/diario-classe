@@ -1,13 +1,11 @@
 import React, {type ChangeEvent, useEffect, useState} from "react";
-import {Button, Card, Modal, ModalBody, ModalHeader, Select, Spinner} from "flowbite-react";
+import {Button, Card, Modal, ModalBody, ModalHeader, Select, Spinner, TextInput} from "flowbite-react";
 
 import {atualizarAtributo, buscar} from "../../../../services/Service";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta";
 import type {Avaliacao, Disciplina, Professor, Turma} from "../../../../models"
 
-import InputField from "../../../../components/form/InputField.tsx";
 import {useAuth} from "../../../../contexts/UseAuth.ts";
-import SelectField from "../../../../components/form/SelectField.tsx";
 
 interface EditarAvaliacaoProps {
   open?: boolean;
@@ -162,29 +160,34 @@ function EditarAvaliacao({
               ))}
             </Select>
 
-            <SelectField
-              label="Disciplina"
+            <Select
               name="disciplinaId"
               value={avaliacaoAtualizada.disciplinaId || ""}
-              options={disciplinas.map(disciplina => ({value: disciplina.id, label: disciplina.nome}))}
               onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                 setAvaliacaoAtualizada({
                   ...avaliacaoAtualizada,
                   disciplinaId: Number(e.target.value),
                 })
               }
-            />
+            >
+              <option value="">Selecione a Disciplina</option>
+              {disciplinas.map(disciplina => (
+                <option key={disciplina.id} value={disciplina.id}>
+                  {disciplina.nome}
+                </option>
+              ))}
+            </Select>
 
-            <InputField
-              label="Título"
+            <TextInput
+              placeholder="Título"
               name="titulo"
               required
               value={avaliacaoAtualizada.titulo || ""}
               onChange={atualizarEstado}
             />
 
-            <InputField
-              label="Data de aplicação"
+            <TextInput
+              placeholder="Data de aplicação"
               name="data"
               type="date"
               required
@@ -196,31 +199,30 @@ function EditarAvaliacao({
               onChange={atualizarEstado}
             />
 
-            <InputField
-              label="Peso"
+            <TextInput
+              placeholder="Peso"
               name="peso"
               required
               value={avaliacaoAtualizada.peso || ""}
               onChange={atualizarEstado}
             />
 
-            <SelectField
-              label="Bimestre"
+            <Select
               name="bimestre"
               value={avaliacaoAtualizada.bimestre || ""}
-              options={[
-                {label: "1º Bimestre", value: 1},
-                {label: "2º Bimestre", value: 2},
-                {label: "3º Bimestre", value: 3},
-                {label: "4º Bimestre", value: 4},
-              ]}
               onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                 setAvaliacaoAtualizada({
                   ...avaliacaoAtualizada,
                   bimestre: Number(e.target.value),
                 })
               }
-            />
+            >
+              <option value="">Selecione a Bimestre</option>
+              <option value={1}>{"1º Bimestre"}</option>
+              <option value={2}>{"2º Bimestre"}</option>
+              <option value={3}>{"3º Bimestre"}</option>
+              <option value={4}>{"4º Bimestre"}</option>
+            </Select>
 
             <Button
               type="submit"

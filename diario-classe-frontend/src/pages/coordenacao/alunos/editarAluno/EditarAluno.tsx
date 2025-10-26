@@ -1,13 +1,11 @@
 import {type ChangeEvent, useEffect, useState} from "react";
-import {Button, Card, Modal, ModalBody, ModalHeader, Spinner} from "flowbite-react";
+import {Button, Card, Label, Modal, ModalBody, ModalHeader, Select, Spinner, TextInput} from "flowbite-react";
 
 import {atualizarAtributo, buscar} from "../../../../services/Service";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta";
 import type {Aluno, Turma} from "../../../../models"
 
-import InputField from "../../../../components/form/InputField.tsx";
 import {useAuth} from "../../../../contexts/UseAuth.ts";
-import SelectField from "../../../../components/form/SelectField.tsx";
 
 interface EditarAlunoProps {
   open?: boolean;
@@ -113,47 +111,54 @@ function EditarAluno({
               </h2>
             </Card>
 
-            <InputField
-              label="Nome"
+            <TextInput
+              placeholder="Nome"
               name="nome"
               required
               value={alunoAtualizado.nome || ""}
               onChange={atualizarEstado}
             />
 
-            <InputField
-              label="Matrícula"
+            <TextInput
+              placeholder="Matrícula"
               name="matricula"
               required
               value={alunoAtualizado.matricula || ""}
               onChange={atualizarEstado}
             />
 
-            <InputField
-              label="Data de Nascimento"
-              name="dataNascimento"
-              type="date"
-              required
-              value={
-                alunoAtualizado.dataNascimento
-                  ? new Date(alunoAtualizado.dataNascimento).toISOString().split("T")[0]
-                  : ""
-              }
-              onChange={atualizarEstado}
-            />
+            <div className="flex flex-col">
+              <Label>Data de Nascimento</Label>
+              <TextInput
+                name="dataNascimento"
+                type="date"
+                required
+                value={
+                  alunoAtualizado.dataNascimento
+                    ? new Date(alunoAtualizado.dataNascimento).toISOString().split("T")[0]
+                    : ""
+                }
+                onChange={atualizarEstado}
+              />
+            </div>
 
-            <SelectField
-              label="Turma"
+            <Select
               name="turmaId"
               value={alunoAtualizado.turmaId || ""}
-              options={turmas.map(t => ({value: t.id, label: t.nome}))}
               onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                 setAlunoAtualizado({
                   ...alunoAtualizado,
                   turmaId: Number(e.target.value),
                 })
               }
-            />
+            >
+              <option value="">Selecionar Turma</option>
+              {turmas.map(t => (
+                <option key={t.id} value={t.id}>
+                  {t.nome}
+                </option>
+              ))}
+            </Select>
 
             <Button
               type="submit"

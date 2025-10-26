@@ -13,7 +13,7 @@ import {FaKey, FaUserEdit} from "react-icons/fa";
 export default function Perfil() {
 
   const {usuario, isHydrated} = useAuth();
-  const id = useParams<{ id: string }>();
+  // const id = useParams<{ id: string }>();
 
   const [isLoading, setIsLoading] = useState(true);
   const [dadosUsuario, setDadosUsuario] = useState<Usuario | null>(null);
@@ -24,7 +24,7 @@ export default function Perfil() {
   async function buscarUsuario() {
     try {
       setIsLoading(true);
-      await buscar(`/usuarios/${id?.id}`, setDadosUsuario, {
+      await buscar(`/usuarios/${usuario.id}`, setDadosUsuario, {
         headers: {Authorization: `Bearer ${usuario?.token}`},
       });
     } catch (error) {
@@ -36,10 +36,10 @@ export default function Perfil() {
   }
 
   useEffect(() => {
-    if (isHydrated && usuario && id?.id) {
+    if (isHydrated && usuario.id) {
       buscarUsuario();
     }
-  }, [isHydrated, usuario, id]);
+  }, [isHydrated]);
 
   // 🔹 Evita erro ao acessar `usuario` antes de carregar
   if (!isHydrated || !usuario) {

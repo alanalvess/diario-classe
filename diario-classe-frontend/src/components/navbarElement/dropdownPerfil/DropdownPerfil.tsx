@@ -33,17 +33,16 @@ function DropdownPerfil() {
           <span className="block text-sm">{usuario.nome}</span>
           <span className="block truncate text-sm font-medium">{usuario.email}</span>
 
-          {usuario.email !== adminEmail ?
-            '' :
+          {usuario.email !== adminEmail ? '' :
             <span className="block truncate text-sm font-medium">
-                            <Link to='admin'>Administração</Link>
-                        </span>
+              <Link to='admin'>Administração</Link>
+            </span>
           }
         </DropdownHeader>
 
         <DropdownDivider/>
 
-        <Link to={`/perfil/${usuario.id}`} className="hover:underline">
+        <Link to={`/meu-perfil`} className="hover:underline">
           <DropdownItem>
             Meu Perfil
           </DropdownItem>

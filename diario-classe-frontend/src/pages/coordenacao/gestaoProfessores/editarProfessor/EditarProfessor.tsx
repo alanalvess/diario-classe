@@ -5,7 +5,6 @@ import {atualizarAtributo, buscar} from "../../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta.ts";
 import type {Disciplina, Professor, Turma} from "../../../../models"
 
-import InputField from "../../../../components/form/InputField.tsx";
 import {useAuth} from "../../../../contexts/UseAuth.ts";
 import MultiSelectDropdown from "../../../../components/form/MultipleSelectDropdown.tsx";
 

@@ -26,14 +26,14 @@ export default function HomeResponsavel() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mt-10">
 
           <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
-            <Link to='/boletim'>
+            <Link to='/boletim-escolar'>
               <FaMedal className="text-4xl text-green-600 mb-3 mx-auto"/>
               <h2 className="text-lg font-semibold">Notas e Avaliações</h2>
               <p className="text-sm text-gray-500">Acompanhe as notas e progresso das disciplinas.</p>
             </Link>
           </Card>
           <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
-            <Link to='/presencaAluno'>
+            <Link to='/frequencia-aluno'>
               <FaClipboardCheck className="text-4xl text-green-600 mb-3 mx-auto"/>
               <h2 className="text-lg font-semibold">Presenças</h2>
               <p className="text-sm text-gray-500">Confira as presenças e faltas registradas.</p>
@@ -54,7 +54,7 @@ export default function HomeResponsavel() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
           <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
-            <Link to="/dashboardResponsavel">
+            <Link to="/dashboard-responsavel">
               <FaChartBar className="text-4xl text-purple-600 mb-3 mx-auto"/>
               <h2 className="text-lg font-semibold">Desempenho Escolar</h2>
               <p className="text-sm text-gray-500">Analise indicadores de notas e presença.</p>
@@ -62,7 +62,7 @@ export default function HomeResponsavel() {
           </Card>
 
           <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
-            <Link to='/observacoesAluno'>
+            <Link to='/observacoes-aluno'>
               <FaNoteSticky className="text-4xl text-purple-600 mb-3 mx-auto"/>
               <h2 className="text-lg font-semibold">Observações</h2>
               <p className="text-sm text-gray-500">Acompanhe anotações dos professores sobre a vida acadêmica do

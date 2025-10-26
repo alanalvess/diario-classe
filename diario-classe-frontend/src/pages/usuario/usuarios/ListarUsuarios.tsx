@@ -90,7 +90,7 @@ function ListarUsuarios() {
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && buscarPorNome()}
-            className="w-full" // espaço para o ícone à direita
+            className="w-full"
           />
 
           <button
@@ -132,7 +132,7 @@ function ListarUsuarios() {
                         <TableCell className="text-center">{u.email}</TableCell>
                         <TableCell className="text-center">
                           {u.roles.map((role) => (
-                            <Badge key={role} color="info" className="mr-1">
+                            <Badge key={role} color="info" className="mr-1 flex justify-center">
                               {role}
                             </Badge>
                           ))}
