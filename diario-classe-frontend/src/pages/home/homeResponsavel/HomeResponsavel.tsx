@@ -11,6 +11,7 @@ export default function HomeResponsavel() {
   return (
     <>
       <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
+
         {/* Saudação */}
         <Card className="p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">

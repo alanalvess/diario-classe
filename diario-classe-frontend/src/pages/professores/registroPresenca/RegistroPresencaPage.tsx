@@ -192,7 +192,7 @@ export default function RegistroPresencaPage() {
         </p>
       </Card>
 
-      <div className="flex flex-col-reverse md:flex-row md:items-center md:justify-between mb-6 gap-4 md:gap-6">
+      <div className="flex flex-col-reverse md:flex-row md:items-center md:justify-between mt-8 mb-6 gap-4 md:gap-6">
         {/* lado esquerdo: selects */}
         <div className="flex flex-col md:flex-row gap-4 flex-grow md:max-w-[60%] w-full">
           <Select

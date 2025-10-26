@@ -231,12 +231,12 @@ export default function DashboardResponsavelPage() {
         </p>
       </Card>
 
-      <div className="flex flex-col md:flex-row gap-4 flex-grow w-full">
+      <div className="flex flex-col md:flex-row gap-4 mt-8 mb-4 flex-grow w-full">
         <Select
           id="aluno"
           value={alunoSelecionado ?? ""}
           onChange={(e) => setAlunoSelecionado(e.target.value)}
-          className="w-full mb-4"
+          className="w-full"
         >
           <option value="">Selecione...</option>
           {alunos.map((aluno: Aluno) => (

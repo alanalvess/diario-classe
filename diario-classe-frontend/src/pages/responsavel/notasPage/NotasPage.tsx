@@ -164,23 +164,12 @@ export default function NotasPage() {
         </p>
       </Card>
 
-      {/*<Select*/}
-      {/*  name="aluno"*/}
-      {/*  className="aluno"*/}
-      {/*  required*/}
-      {/*  value={alunoSelecionado}*/}
-      {/*  onChange={(e) => setAlunoSelecionado(e.target.value)}*/}
-      {/*  options={alunos.map((a) => ({*/}
-      {/*    value: a.id.toString(), // garante que o valor é string*/}
-      {/*    label: a.nome,*/}
-      {/*  }))}*/}
-      {/*/>*/}
-      <div className="flex flex-col md:flex-row gap-4 flex-grow w-full">
+      <div className="flex flex-col md:flex-row gap-4 mt-8 mb-4 flex-grow w-full">
         <Select
           id="aluno"
           value={alunoSelecionado ?? ""}
           onChange={(e) => setAlunoSelecionado(e.target.value)}
-          className="w-full mb-4"
+          className="w-full"
         >
           <option value="">Selecione...</option>
           {alunos.map((aluno: Aluno) => (
@@ -202,7 +191,7 @@ export default function NotasPage() {
       ) : (
         alunoSelecionado &&
         alunoAtual && (
-          <div className="mt-10">
+          <div className="mt-4">
             <Card className="p-4 shadow-md">
               {/* Cabeçalho */}
               <div className="text-center mb-6">

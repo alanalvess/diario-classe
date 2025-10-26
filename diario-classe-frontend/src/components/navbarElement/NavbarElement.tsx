@@ -3,19 +3,18 @@ import {Link} from 'react-router-dom'
 
 import Logo from '../../assets/images/dia.png'
 
-import {Badge, Button, DarkThemeToggle, Navbar, NavbarBrand} from 'flowbite-react'
+import {Button, DarkThemeToggle, Navbar, NavbarBrand} from 'flowbite-react'
 import DropdownPerfil from "./dropdownPerfil/DropdownPerfil.tsx";
-import {FaBell, FaTimes} from "react-icons/fa";
+import {FaTimes} from "react-icons/fa";
 import SidebarMenu from "./sidebarMenu/SidebarMenu.tsx";
 import {GiHamburgerMenu} from "react-icons/gi";
 import DrawerMenu from "./drawerMenu/DrawerMenu.tsx";
 import {useAuth} from "../../contexts/UseAuth.ts";
+import {Roles} from "../../enums/Roles.ts";
 
 function NavbarElement() {
 
-  let notificationsCount: number;
-
-  const {isAuthenticated} = useAuth();
+  const {usuario, isAuthenticated} = useAuth();
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
@@ -25,7 +24,7 @@ function NavbarElement() {
     <>
       <Navbar
         fluid
-        className='bg-gray-800 fixed top-0 py-3 z-50 w-full justify-between'
+        className='bg-gray-800 fixed top-0 py-3 z-50 w-full justify-between h-[10vh]'
       >
         <NavbarBrand>
           <Link to='/home' className='text-2xl font-bold uppercase'>
@@ -47,18 +46,6 @@ function NavbarElement() {
               </Button>
             </Link>
           )}
-          {/*<div className="relative flex items-center p-2 rounded-md cursor-pointer hover:bg-gray-700 ">*/}
-          {/*  <FaBell className="text-gray-500 text-2xl"/>*/}
-          {/*  {notificationsCount > 0 && (*/}
-          {/*    <Badge*/}
-          {/*      color="failure"*/}
-          {/*      size="sm"*/}
-          {/*      className="absolute -top-1 -right-2"*/}
-          {/*    >*/}
-          {/*      {notificationsCount}*/}
-          {/*    </Badge>*/}
-          {/*  )}*/}
-          {/*</div>*/}
 
           <DarkThemeToggle className="cursor-pointer hover:bg-gray-700 focus:outline-none focus:ring-0"/>
           {isAuthenticated && (
@@ -87,7 +74,7 @@ function NavbarElement() {
         )}
       </div>
 
-      <div className='hidden md:flex fixed z-40 text-white rounded-none shadow-lg'>
+      <div className='hidden md:flex fixed z-40 text-white shadow-lg mt-32 rounded-r-2xl'>
         {isAuthenticated && (
           <SidebarMenu/>
         )}

@@ -1,15 +1,15 @@
 import {useState} from 'react';
-import {Button, Drawer, DrawerHeader, DrawerItems} from 'flowbite-react';
-import InputField from "../form/InputField.tsx";
+import {Button, Drawer, DrawerHeader, DrawerItems, Label, TextInput} from 'flowbite-react';
+import {FaCalculator} from "react-icons/fa6";
 
 export function Calculadora({open, onClose}) {
-  const [notas, setNotas] = useState([{ valor: "", peso: "" }]);
-  const [mediaMinima, setMediaMinima] = useState(7);
+  const [notas, setNotas] = useState([{valor: "", peso: ""}]);
+  const [mediaMinima, setMediaMinima] = useState(6);
   const [pesoRestante, setPesoRestante] = useState("");
   const [resultado, setResultado] = useState<null | { media: number; falta: number }>(null);
 
   function adicionarNota() {
-    setNotas([...notas, { valor: "", peso: "" }]);
+    setNotas([...notas, {valor: "", peso: ""}]);
   }
 
   function atualizarNota(index: number, campo: "valor" | "peso", valor: string) {
@@ -30,73 +30,87 @@ export function Calculadora({open, onClose}) {
       ? ((mediaMinima * (somaPesos + pesoRest)) - somaNotas) / pesoRest
       : 0;
 
-    setResultado({ media, falta: notaNecessaria });
+    setResultado({media, falta: notaNecessaria});
   }
 
   function novoCalculo() {
-    setNotas([{ valor: "", peso: "" }]);
-    setMediaMinima(7);
+    setNotas([{valor: "", peso: ""}]);
+    setMediaMinima(6);
     setPesoRestante("");
     setResultado(null);
   }
 
   return (
-    <Drawer open={open} onClose={onClose} position="right">
-      <DrawerHeader title="Calculadora de Notas" />
+
+    <Drawer open={open} onClose={onClose} position="right" className="mt-[10vh]">
+      <DrawerHeader title="Calculadora de Notas" titleIcon={FaCalculator}/>
       <DrawerItems>
-        <div className="flex flex-col gap-4 p-4 pt-20">
+        <div className="max-h-[80vh] overflow-y-auto p-4 flex flex-col gap-4">
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Insira suas notas e pesos para ver sua média atual e quanto falta para atingir a média mínima.
           </p>
 
           {notas.map((nota, index) => (
             <div key={index} className="flex gap-2 items-center">
-              <InputField
-                name="valor"
-                label={`Nota ${index + 1}`}
-                type="number"
-                value={nota.valor}
-                onChange={(e) => atualizarNota(index, "valor", e.target.value)}
-                placeholder="Ex: 8.5"
-              />
-              <InputField
-                name="peso"
-                label="Peso"
-                type="number"
-                value={nota.peso}
-                onChange={(e) => atualizarNota(index, "peso", e.target.value)}
-                placeholder="Ex: 2"
-              />
+              <div className="flex flex-col">
+                <Label>{`Nota ${index + 1}`}</Label>
+
+                <TextInput
+                  name="valor"
+                  type="number"
+                  value={nota.valor}
+                  onChange={(e) => atualizarNota(index, "valor", e.target.value)}
+                  placeholder="Ex: 8.5"
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <Label>{`Peso ${index + 1}`}</Label>
+
+                <TextInput
+                  name="peso"
+                  type="number"
+                  value={nota.peso}
+                  onChange={(e) => atualizarNota(index, "peso", e.target.value)}
+                  placeholder="Ex: 2"
+                />
+              </div>
             </div>
           ))}
 
           <Button
-            className="bg-blue-500 hover:bg-blue-600 text-white w-fit"
+            className="cursor-pointer focus:outline-none focus:ring-0"
+            color="light"
             onClick={adicionarNota}
           >
             + Adicionar Nota
           </Button>
 
-          <InputField
-            name="mediaMinima"
-            label="Média mínima para aprovação"
-            type="number"
-            value={mediaMinima}
-            onChange={(e) => setMediaMinima(parseFloat(e.target.value))}
-            placeholder="Ex: 7.0"
-          />
+          <div className="flex flex-col mt-5">
+            <Label>Média mínima para aprovação</Label>
+            <TextInput
+              name="mediaMinima"
+              type="number"
+              value={mediaMinima}
+              onChange={(e) => setMediaMinima(parseFloat(e.target.value))}
+              placeholder="Ex: 7.0"
+            />
+          </div>
 
-          <InputField
-            name="pesoRestante"
-            label="Peso restante (próxima avaliação)"
-            type="number"
-            value={pesoRestante}
-            onChange={(e) => setPesoRestante(e.target.value)}
-            placeholder="Ex: 2"
-          />
+          <div className="flex flex-col mt-5">
+            <Label>Peso restante</Label>
+            <TextInput
+              name="pesoRestante"
+              type="number"
+              value={pesoRestante}
+              onChange={(e) => setPesoRestante(e.target.value)}
+              placeholder="Ex: 2"
+            />
+          </div>
 
           <Button
-            className="bg-green-600 hover:bg-green-700 text-white focus:outline-none focus:ring-0 cursor-pointer"
+            color="green"
+            className="focus:outline-none focus:ring-0 cursor-pointer"
             onClick={calcular}
           >
             Calcular
@@ -108,7 +122,8 @@ export function Calculadora({open, onClose}) {
               <p>🎯 Nota necessária para atingir {mediaMinima}: <strong>{resultado.falta.toFixed(2)}</strong></p>
 
               <Button
-                className="mt-3 bg-yellow-500 hover:bg-yellow-600 text-white focus:outline-none focus:ring-0 cursor-pointer"
+                color="yellow"
+                className="mt-3 focus:outline-none focus:ring-0 cursor-pointer"
                 onClick={novoCalculo}
               >
                 Novo Cálculo
@@ -117,7 +132,8 @@ export function Calculadora({open, onClose}) {
           )}
 
           <Button
-            className="bg-gray-500 hover:bg-gray-600 text-white focus:outline-none focus:ring-0 cursor-pointer"
+            color="gray"
+            className="focus:outline-none focus:ring-0 cursor-pointer"
             onClick={onClose}
           >
             Fechar

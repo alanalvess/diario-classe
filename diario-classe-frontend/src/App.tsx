@@ -91,7 +91,7 @@ function App() {
                 <Route path='/editarUsuario/:id' element={<FormularioUsuario/>}/>
                 <Route path="/editarUsuarios/:id" element={<EditarUsuario/>}/>
 
-                <Route path="/admin" element={<Admin/>}/>
+                <Route path="/usuarios" element={<Admin/>}/>
 
                 <Route path='/sobre' element={<Sobre/>}/>
                 <Route path='/duvidas' element={<Duvidas/>}/>

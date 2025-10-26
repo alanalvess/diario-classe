@@ -1,20 +1,21 @@
-import {Sidebar, SidebarItem, SidebarItemGroup, SidebarItems, TextInput} from "flowbite-react";
+import {Sidebar, SidebarItem, SidebarItemGroup, SidebarItems} from "flowbite-react";
 import {
   FaBell,
   FaBook,
   FaChalkboardTeacher,
   FaChartBar,
-  FaChartLine, FaClipboardCheck,
+  FaClipboardCheck,
   FaClipboardList,
   FaFileAlt,
-  FaGraduationCap, FaMedal, FaRegClipboard, FaTachometerAlt,
+  FaGraduationCap,
+  FaMedal,
   FaUsers
 } from "react-icons/fa";
 import {Roles} from "../../../enums/Roles.ts";
-import {HiSearch} from "react-icons/hi";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import {FaNoteSticky} from "react-icons/fa6";
 import {Link} from "react-router-dom";
+import {MdManageAccounts} from "react-icons/md";
 
 export default function SidebarMenu() {
   const {usuario} = useAuth();
@@ -23,12 +24,13 @@ export default function SidebarMenu() {
 
   return (
     <>
-      <Sidebar aria-label="MENU" className=" flex flex-col bg-gray-100 dark:bg-gray-800 mt-32">
+      <Sidebar
+        aria-label="MENU"
+        className=" flex flex-col "
+        theme={{"root": {"inner": "rounded-r-2xl rounded-l-none bg-gray-100"}}}
+      >
         <div className="flex flex-col justify-between ">
           <SidebarItems className="overflow-y-auto h-full ">
-            <form className="pb-3">
-              <TextInput icon={HiSearch} type="search" placeholder="Search" required size={32}/>
-            </form>
 
             <SidebarItemGroup>
               {/* PROFESSOR */}
@@ -41,7 +43,7 @@ export default function SidebarMenu() {
                     <SidebarItem icon={FaClipboardCheck}>Presença / QR</SidebarItem>
                   </Link>
                   <Link to="/notas">
-                    <SidebarItem icon={FaClipboardList }>Notas</SidebarItem>
+                    <SidebarItem icon={FaClipboardList}>Notas</SidebarItem>
                   </Link>
                   <Link to="/observacoes">
                     <SidebarItem icon={FaNoteSticky}>Observações</SidebarItem>
@@ -58,6 +60,12 @@ export default function SidebarMenu() {
               {/* COORDENADOR */}
               {usuario.roles.includes(Roles.COORDENADOR) && (
                 <>
+                  <Link to="/dashboardCoordenacao">
+                    <SidebarItem icon={FaChartBar}>Dashboard</SidebarItem>
+                  </Link>
+                  <Link to="/relatorios">
+                    <SidebarItem icon={FaChartBar}>Relatórios</SidebarItem>
+                  </Link>
                   <Link to="/alunos">
                     <SidebarItem icon={FaGraduationCap}>Alunos</SidebarItem>
                   </Link>
@@ -69,12 +77,6 @@ export default function SidebarMenu() {
                   </Link>
                   <Link to="/disciplinas">
                     <SidebarItem icon={FaBook}>Disciplinas</SidebarItem>
-                  </Link>
-                  <Link to="/dashboardCoordenacao">
-                    <SidebarItem icon={FaChartBar}>Dashboard</SidebarItem>
-                  </Link>
-                  <Link to="/relatorios">
-                    <SidebarItem icon={FaChartBar}>Relatórios</SidebarItem>
                   </Link>
                   <Link to="/alertasCoordenacao">
                     <SidebarItem icon={FaBell}>Alertas</SidebarItem>
@@ -99,6 +101,15 @@ export default function SidebarMenu() {
                   </Link>
                   <Link to='/alertas'>
                     <SidebarItem icon={FaBell}>Alertas</SidebarItem>
+                  </Link>
+                </>
+              )}
+
+              {/* ADMIN */}
+              {usuario.roles.includes(Roles.ADMIN) && (
+                <>
+                  <Link to='/usuarios'>
+                    <SidebarItem icon={MdManageAccounts}>Usuários</SidebarItem>
                   </Link>
                 </>
               )}

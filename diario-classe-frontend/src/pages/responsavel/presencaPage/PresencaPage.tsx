@@ -182,14 +182,14 @@ export default function PresencaPage() {
         </p>
       </Card>
 
-      <div className="mt-8 flex flex-col md:flex-row gap-4 justify-center">
+      <div className="flex flex-col md:flex-row gap-4 mt-8 mb-4 justify-center">
         {/* Select do aluno */}
         <div className="flex-2 ">
           <Select
             id="aluno"
             value={alunoSelecionado ?? ""}
             onChange={(e) => setAlunoSelecionado(e.target.value)}
-            className="w-full mb-4"
+            className="w-full"
           >
             <option value="">Selecione...</option>
             {alunos.map((aluno: Aluno) => (
@@ -227,7 +227,7 @@ export default function PresencaPage() {
         alunoSelecionado &&
         alunoAtual && (
           <>
-            <Card className="p-4 mt-6 shadow-md">
+            <Card className="p-4 mt-4 shadow-md">
               <h3 className="text-lg font-semibold mb-2 text-center">Calendário de Presenças</h3>
 
               {/* Cabeçalho dos dias da semana */}

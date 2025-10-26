@@ -140,7 +140,7 @@ export default function RelatoriosCoordenacao() {
 
 
         {/* Cards dos relatórios */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
           {/* Relatório de Risco Acadêmico */}
           <Card className="p-5 shadow-md hover:shadow-lg transition">
             <div className="flex items-center gap-3 mb-3">

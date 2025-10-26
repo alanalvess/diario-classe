@@ -28,7 +28,7 @@ export default function HomeCoordenador() {
 
   return (
     <>
-      <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
+      <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10 space-y-6">
         {/* Saudação */}
         <Card className="p-6 bg-gray-100 dark:bg-gray-800 text-center shadow-md">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
@@ -91,32 +91,23 @@ export default function HomeCoordenador() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
           <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
             <Link to="/dashboardCoordenacao">
-              <FaChartPie className="text-4xl text-purple-600 mb-3 mx-auto"/>
-              <h2 className="text-lg font-semibold">Desempenho Escolar</h2>
+              <FaChartBar className="text-4xl text-purple-600 mb-3 mx-auto"/>
+              <h2 className="text-lg font-semibold">Dashboard</h2>
               <p className="text-sm text-gray-500">Analise indicadores de notas e presença.</p>
             </Link>
           </Card>
 
           <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
-            <Link to="/admin">
+            <Link to="/usuarios">
               <MdManageAccounts className="text-4xl text-gray-600 mb-3 mx-auto"/>
               <h2 className="text-lg font-semibold">Usuários</h2>
               <p className="text-sm text-gray-500">Gerencie todos os usuários, professores, responsáveis por aluno e outros.</p>
             </Link>
           </Card>
 
-          {/*<Card className="hover:shadow-lg transition-all cursor-pointer text-center">*/}
-          {/*  <Link to="/alertas">*/}
-          {/*    <FaFileAlt className="text-4xl text-orange-500 mb-3 mx-auto"/>*/}
-          {/*    <h2 className="text-lg font-semibold">Comunicados</h2>*/}
-          {/*    <p className="text-sm text-gray-500">Envie avisos e mensagens para professores.</p>*/}
-          {/*  </Link>*/}
-          {/*</Card>*/}
-
-
           <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
             <Link to="/relatorios">
-              <FaChartBar className="text-4xl text-yellow-600 mb-3 mx-auto"/>
+              <FaChartBar className="text-4xl text-purple-600 mb-3 mx-auto"/>
               <h2 className="text-lg font-semibold">Relatórios</h2>
               <p className="text-sm text-gray-500">Gere relatórios detalhados de desempenho.</p>
             </Link>

@@ -5,7 +5,8 @@ import {FaChartBar, FaClipboardList, FaSchool} from "react-icons/fa";
 export default function Home() {
   return (
     <>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-24 md:px-60 px-5">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-700 pt-24 md:px-80 px-5">
+
         <section className="bg-gray-100 dark:bg-gray-900 text-center py-20 mt-16">
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">
             O Diário de Classe Digital da sua escola 🏫

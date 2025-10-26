@@ -12,7 +12,6 @@ export default function Home() {
     return <HomePublica/>
   }
 
-  // ✅ A partir daqui, temos certeza de que usuario existe
   if (usuario.roles.includes(Roles.COORDENADOR)) {
     return <HomeCoordenador/>
   }

@@ -103,12 +103,12 @@ export default function RelatoriosProfessor() {
           </p>
         </Card>
 
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-center gap-4 mt-8 mb-4">
           <Select
             id="turma"
             value={turmaSelecionada}
             onChange={(e) => setTurmaSelecionada(e.target.value)}
-            className=" rounded-md my-4 w-full"
+            className=" rounded-md w-full"
           >
             <option value="">Selecione a turma...</option>
             {turmas.map((t: Turma) => (

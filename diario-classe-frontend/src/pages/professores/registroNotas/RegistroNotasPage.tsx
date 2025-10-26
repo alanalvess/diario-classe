@@ -228,9 +228,9 @@ export default function RegistroNotasPage() {
       </Card>
 
       {/* Filtros */}
-      <div className="flex flex-col md:flex-row gap-2 md:gap-4 mb-6">
+      <div className="flex flex-col md:flex-row gap-2 md:gap-4 mt-8 mb-6">
         <Select
-          className="py-2 w-full md:flex-1"
+          className="w-full md:flex-1"
           value={turma ?? ""}
           onChange={(e) => setTurma(Number(e.target.value))}
         >
@@ -243,7 +243,7 @@ export default function RegistroNotasPage() {
         </Select>
 
         <Select
-          className="py-2 w-full md:flex-1"
+          className="w-full md:flex-1"
           value={disciplina ?? ""}
           onChange={(e) => setDisciplina(Number(e.target.value))}
         >
@@ -256,7 +256,7 @@ export default function RegistroNotasPage() {
         </Select>
 
         <Select
-          className="py-2 w-full md:flex-1"
+          className="w-full md:flex-1"
           value={avaliacao ?? ""}
           onChange={(e) => setAvaliacao(Number(e.target.value))}
         >
