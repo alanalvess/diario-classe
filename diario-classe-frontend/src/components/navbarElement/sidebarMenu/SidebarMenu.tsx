@@ -60,7 +60,7 @@ export default function SidebarMenu() {
                     Relatórios
                   </SidebarLink>
                   <SidebarLink to="/presenca" icon={FaClipboardCheck}>
-                    Presença
+                    Chamada
                   </SidebarLink>
                   <SidebarLink to="/notas" icon={FaClipboardList}>
                     Notas

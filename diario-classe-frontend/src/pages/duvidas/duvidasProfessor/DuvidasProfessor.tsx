@@ -24,7 +24,7 @@ function DuvidasProfessor({usuarioTipo}: DuvidasProfessorProps) {
     <>
       {usuarioTipo === Roles.PROFESSOR && (
         <div className="max-w-4xl mx-auto mt-6 space-y-4">
-          <h3 className='bg-gray-700 text-gray-100 p-2 text-2xl rounded-lg'>Sessão de Presença</h3>
+          <h3 className='bg-gray-700 text-gray-100 p-2 text-2xl rounded-lg'>Sessão de Chamada</h3>
           <Accordion collapseAll>
             <AccordionPanel>
               <AccordionTitle theme={{flush: {off: "focus:ring-0"}}}>

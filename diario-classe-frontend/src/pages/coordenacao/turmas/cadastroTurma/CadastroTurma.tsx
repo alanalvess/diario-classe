@@ -165,7 +165,7 @@ function CadastroTurma({
             />
 
             <MultiSelectDropdown
-              titulo="Turmas"
+              titulo="Professores"
               opcoes={professores}
               selecionados={professorIdsSelecionados}
               setSelecionados={setProfessorIdsSelecionados}

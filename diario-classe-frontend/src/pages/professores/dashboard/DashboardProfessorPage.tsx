@@ -171,13 +171,16 @@ export default function DashboardProfessorPage() {
         buscarObservacoesPorTurma(),
         buscarPresencasPorTurma(),
         buscarMediasPorTurma(),
-        buscarEvolucaoNotas()
-          .then(() => calcularMediaGeral()),
+        buscarEvolucaoNotas(),
       ]
     )
       .catch((error) => console.error("Erro ao carregar dados da turma:", error))
       .finally(() => setIsLoading(false));
   }, [turmaSelecionada]);
+
+  useEffect(() => {
+    calcularMediaGeral();
+  }, [evolucaoNotas])
 
   const totalObservacoes = observacoes.length;
   const totalAlunos = alunos.length;
