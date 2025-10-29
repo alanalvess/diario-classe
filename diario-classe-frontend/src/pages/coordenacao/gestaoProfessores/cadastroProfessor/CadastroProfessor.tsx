@@ -152,12 +152,12 @@ function CadastroProfessor({
               onChange={e => setProfessorCadastro({...professorCadastro, email: e.target.value})}
             />
 
-            <MultiSelectDropdown
-              titulo="Disciplinas *"
-              opcoes={disciplinas}
-              selecionados={disciplinaIdsSelecionadas}
-              setSelecionados={setDisciplinaIdsSelecionadas}
-            />
+            {/*<MultiSelectDropdown*/}
+            {/*  titulo="Disciplinas *"*/}
+            {/*  opcoes={disciplinas}*/}
+            {/*  selecionados={disciplinaIdsSelecionadas}*/}
+            {/*  setSelecionados={setDisciplinaIdsSelecionadas}*/}
+            {/*/>*/}
 
             <MultiSelectDropdown
               titulo="Turmas (opcional)"

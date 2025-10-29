@@ -114,7 +114,7 @@ export default function ProfessoresPage() {
               <TableHead className="bg-gray-100 dark:bg-gray-700">
                 <TableHeadCell className="text-center font-semibold">Nome</TableHeadCell>
                 <TableHeadCell className="text-center font-semibold">Email</TableHeadCell>
-                <TableHeadCell className="text-center font-semibold">Disciplinas</TableHeadCell>
+                {/*<TableHeadCell className="text-center font-semibold">Disciplinas</TableHeadCell>*/}
                 <TableHeadCell className="text-center font-semibold">Turmas</TableHeadCell>
                 <TableHeadCell className="text-center font-semibold">Ações</TableHeadCell>
               </TableHead>
@@ -129,11 +129,11 @@ export default function ProfessoresPage() {
                       <TableCell
                         className="text-center font-medium text-gray-900 dark:text-gray-100">{professor.nome}</TableCell>
                       <TableCell className="text-center">{professor.email}</TableCell>
-                      <TableCell className="text-center">
-                        {professor.disciplinaNomes.map((nome, index) => (
-                          <div key={index}>{nome}</div>
-                        ))}
-                      </TableCell>
+                      {/*<TableCell className="text-center">*/}
+                      {/*  {professor.disciplinaNomes.map((nome, index) => (*/}
+                      {/*    <div key={index}>{nome}</div>*/}
+                      {/*  ))}*/}
+                      {/*</TableCell>*/}
                       <TableCell className="text-center">
                         {professor.turmaNomes.map((nome, index) => (
                           <div key={index}>{nome}</div>
@@ -193,12 +193,12 @@ export default function ProfessoresPage() {
                     <span className="font-semibold">E-Mail:</span> {professor.email}
                   </p>
 
-                  <p className="text-sm text-gray-600 dark:text-gray-400py-2">
-                    <span className="font-semibold">Disciplinas:</span>
-                    {professor.disciplinaNomes.map((nome, index) => (
-                      <div key={index}><span>-</span>{nome}</div>
-                    ))}
-                  </p>
+                  {/*<p className="text-sm text-gray-600 dark:text-gray-400py-2">*/}
+                  {/*  <span className="font-semibold">Disciplinas:</span>*/}
+                  {/*  {professor.disciplinaNomes.map((nome, index) => (*/}
+                  {/*    <div key={index}><span>-</span>{nome}</div>*/}
+                  {/*  ))}*/}
+                  {/*</p>*/}
 
                   <p className="text-sm text-gray-600 dark:text-gray-400 py-2">
                     <span className="font-semibold">Turmas:</span>

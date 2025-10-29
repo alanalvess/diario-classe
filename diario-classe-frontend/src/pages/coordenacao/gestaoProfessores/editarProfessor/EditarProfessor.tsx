@@ -141,12 +141,12 @@ function EditarProfessor({
               onChange={atualizarEstado}
             />
 
-            <MultiSelectDropdown
-              titulo="Disciplinas *"
-              opcoes={disciplinas}
-              selecionados={disciplinaIdsSelecionadas}
-              setSelecionados={setDisciplinaIdsSelecionadas}
-            />
+            {/*<MultiSelectDropdown*/}
+            {/*  titulo="Disciplinas *"*/}
+            {/*  opcoes={disciplinas}*/}
+            {/*  selecionados={disciplinaIdsSelecionadas}*/}
+            {/*  setSelecionados={setDisciplinaIdsSelecionadas}*/}
+            {/*/>*/}
 
             <MultiSelectDropdown
               titulo="Turmas (opcional)"

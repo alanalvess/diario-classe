@@ -26,14 +26,14 @@ public class Disciplina {
     private Double mediaTurma;
     private Double frequenciaMedia;
 
-    @ManyToMany(mappedBy = "disciplinas")
-    private List<Professor> professores = new ArrayList<>();
+//    @ManyToMany(mappedBy = "disciplinas")
+//    private List<Professor> professores = new ArrayList<>();
 
     @ManyToMany(mappedBy = "disciplinas")
     private List<Turma> turmas = new ArrayList<>();
-
-    @ManyToMany(mappedBy = "disciplinas")
-    private List<Aluno> alunos = new ArrayList<>();
+//
+//    @ManyToMany(mappedBy = "disciplinas")
+//    private List<Aluno> alunos = new ArrayList<>();
 
     @OneToMany(mappedBy = "disciplina")
     private List<Avaliacao> avaliacoes = new ArrayList<>();

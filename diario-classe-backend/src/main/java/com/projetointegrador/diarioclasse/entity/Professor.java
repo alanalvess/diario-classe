@@ -21,13 +21,13 @@ public class Professor {
     private String nome;
     private String email;
 
-    @ManyToMany
-    @JoinTable(
-            name = "professor_disciplina",
-            joinColumns = @JoinColumn(name = "professor_id"),
-            inverseJoinColumns = @JoinColumn(name = "disciplina_id")
-    )
-    private List<Disciplina> disciplinas = new ArrayList<>();
+//    @ManyToMany
+//    @JoinTable(
+//            name = "professor_disciplina",
+//            joinColumns = @JoinColumn(name = "professor_id"),
+//            inverseJoinColumns = @JoinColumn(name = "disciplina_id")
+//    )
+//    private List<Disciplina> disciplinas = new ArrayList<>();
 
     @ManyToMany(mappedBy = "professores")
     private List<Turma> turmas = new ArrayList<>();

@@ -42,13 +42,13 @@ public class Aluno {
     @ManyToMany(mappedBy = "alunos")
     private List<Responsavel> responsaveis = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "aluno_disciplina",
-            joinColumns = @JoinColumn(name = "aluno_id"),
-            inverseJoinColumns = @JoinColumn(name = "disciplina_id")
-    )
-    private List<Disciplina> disciplinas = new ArrayList<>();
+//    @ManyToMany
+//    @JoinTable(
+//            name = "aluno_disciplina",
+//            joinColumns = @JoinColumn(name = "aluno_id"),
+//            inverseJoinColumns = @JoinColumn(name = "disciplina_id")
+//    )
+//    private List<Disciplina> disciplinas = new ArrayList<>();
 
     @OneToMany(mappedBy = "aluno")
     private List<Presenca> presencas = new ArrayList<>();

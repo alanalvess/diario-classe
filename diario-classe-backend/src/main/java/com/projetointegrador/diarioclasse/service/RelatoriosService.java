@@ -435,17 +435,61 @@ public class RelatoriosService {
     }
 
 
-    // ---------------- PROFESSORES ----------------
+//    // ---------------- PROFESSORES ----------------
+//    public byte[] gerarRelatorioProfessoresPdf() {
+//        try {
+//            List<Professor> professores = professorRepository.findAll();
+//
+//            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//            Document document = new Document();
+//            PdfWriter.getInstance(document, outputStream);
+//
+//            document.open();
+//            document.add(new Paragraph("Relatório de Professores e Disciplinas"));
+//            document.add(new Paragraph(" "));
+//
+//            PdfPTable table = new PdfPTable(3);
+//            table.setWidthPercentage(100);
+//            table.addCell("Professor");
+//            table.addCell("Disciplina");
+//            table.addCell("Turma");
+//
+//            for (Professor prof : professores) {
+//                for (Disciplina d : prof.getDisciplinas()) {
+//                    if (d.getTurmas() != null && !d.getTurmas().isEmpty()) {
+//                        // Para cada turma da disciplina, adiciona uma linha
+//                        for (Turma t : d.getTurmas()) {
+//                            table.addCell(prof.getNome());
+//                            table.addCell(d.getNome());
+//                            table.addCell(t.getNome());
+//                        }
+//                    } else {
+//                        // Caso não tenha turma, adiciona apenas professor e disciplina
+//                        table.addCell(prof.getNome());
+//                        table.addCell(d.getNome());
+//                        table.addCell("-");
+//                    }
+//                }
+//            }
+//
+//            document.add(table);
+//            document.close();
+//            return outputStream.toByteArray();
+//        } catch (DocumentException e) {
+//            throw new RuntimeException("Erro ao gerar PDF de professores", e);
+//        }
+//    }
+
     public byte[] gerarRelatorioProfessoresPdf() {
         try {
-            List<Professor> professores = professorRepository.findAll();
+            List<Turma> turmas = turmaRepository.findAll(); // agora busca turmas, não professores
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             Document document = new Document();
             PdfWriter.getInstance(document, outputStream);
 
             document.open();
-            document.add(new Paragraph("Relatório de Professores e Disciplinas"));
+            document.add(new Paragraph("Relatório de Professores, Disciplinas e Turmas"));
             document.add(new Paragraph(" "));
 
             PdfPTable table = new PdfPTable(3);
@@ -454,20 +498,39 @@ public class RelatoriosService {
             table.addCell("Disciplina");
             table.addCell("Turma");
 
-            for (Professor prof : professores) {
-                for (Disciplina d : prof.getDisciplinas()) {
-                    if (d.getTurmas() != null && !d.getTurmas().isEmpty()) {
-                        // Para cada turma da disciplina, adiciona uma linha
-                        for (Turma t : d.getTurmas()) {
+            for (Turma turma : turmas) {
+                String nomeTurma = turma.getNome();
+
+                List<Professor> professores = turma.getProfessores();
+                List<Disciplina> disciplinas = turma.getDisciplinas();
+
+                if (professores != null && !professores.isEmpty()) {
+                    for (Professor prof : professores) {
+                        if (disciplinas != null && !disciplinas.isEmpty()) {
+                            for (Disciplina d : disciplinas) {
+                                table.addCell(prof.getNome());
+                                table.addCell(d.getNome());
+                                table.addCell(nomeTurma);
+                            }
+                        } else {
                             table.addCell(prof.getNome());
+                            table.addCell("-");
+                            table.addCell(nomeTurma);
+                        }
+                    }
+                } else {
+                    // Caso a turma não tenha professores
+                    if (disciplinas != null && !disciplinas.isEmpty()) {
+                        for (Disciplina d : disciplinas) {
+                            table.addCell("-");
                             table.addCell(d.getNome());
-                            table.addCell(t.getNome());
+                            table.addCell(nomeTurma);
                         }
                     } else {
-                        // Caso não tenha turma, adiciona apenas professor e disciplina
-                        table.addCell(prof.getNome());
-                        table.addCell(d.getNome());
+                        // Caso não tenha nem professores nem disciplinas
                         table.addCell("-");
+                        table.addCell("-");
+                        table.addCell(nomeTurma);
                     }
                 }
             }
@@ -480,37 +543,99 @@ public class RelatoriosService {
         }
     }
 
+
+//    public byte[] gerarRelatorioProfessoresExcel() throws IOException {
+//        List<Professor> professores = professorRepository.findAll();
+//
+//        Workbook workbook = new XSSFWorkbook();
+//        Sheet sheet = workbook.createSheet("Professores e Disciplinas");
+//
+//        Row header = sheet.createRow(0);
+//        header.createCell(0).setCellValue("Professor");
+//        header.createCell(1).setCellValue("Disciplina");
+//        header.createCell(2).setCellValue("Turma");
+//
+//        int rowNum = 1;
+//        for (Professor prof : professores) {
+//            for (Disciplina d : prof.getDisciplinas()) {
+//                if (d.getTurmas() != null && !d.getTurmas().isEmpty()) {
+//                    for (Turma t : d.getTurmas()) {
+//                        Row row = sheet.createRow(rowNum++);
+//                        row.createCell(0).setCellValue(prof.getNome());
+//                        row.createCell(1).setCellValue(d.getNome());
+//                        row.createCell(2).setCellValue(t.getNome());
+//                    }
+//                } else {
+//                    Row row = sheet.createRow(rowNum++);
+//                    row.createCell(0).setCellValue(prof.getNome());
+//                    row.createCell(1).setCellValue(d.getNome());
+//                    row.createCell(2).setCellValue("-");
+//                }
+//            }
+//        }
+//
+//        // Ajusta largura das colunas
+//        for (int i = 0; i <= 2; i++) {
+//            sheet.autoSizeColumn(i);
+//        }
+//
+//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//        workbook.write(outputStream);
+//        workbook.close();
+//        return outputStream.toByteArray();
+//    }
+
     public byte[] gerarRelatorioProfessoresExcel() throws IOException {
-        List<Professor> professores = professorRepository.findAll();
+        List<Turma> turmas = turmaRepository.findAll(); // agora busca turmas, não professores
 
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Professores e Disciplinas");
+        Sheet sheet = workbook.createSheet("Professores, Disciplinas e Turmas");
 
+        // Cabeçalho
         Row header = sheet.createRow(0);
         header.createCell(0).setCellValue("Professor");
         header.createCell(1).setCellValue("Disciplina");
         header.createCell(2).setCellValue("Turma");
 
         int rowNum = 1;
-        for (Professor prof : professores) {
-            for (Disciplina d : prof.getDisciplinas()) {
-                if (d.getTurmas() != null && !d.getTurmas().isEmpty()) {
-                    for (Turma t : d.getTurmas()) {
+
+        for (Turma turma : turmas) {
+            String nomeTurma = turma.getNome();
+            List<Professor> professores = turma.getProfessores();
+            List<Disciplina> disciplinas = turma.getDisciplinas();
+
+            if (professores != null && !professores.isEmpty()) {
+                for (Professor prof : professores) {
+                    if (disciplinas != null && !disciplinas.isEmpty()) {
+                        for (Disciplina d : disciplinas) {
+                            Row row = sheet.createRow(rowNum++);
+                            row.createCell(0).setCellValue(prof.getNome());
+                            row.createCell(1).setCellValue(d.getNome());
+                            row.createCell(2).setCellValue(nomeTurma);
+                        }
+                    } else {
                         Row row = sheet.createRow(rowNum++);
                         row.createCell(0).setCellValue(prof.getNome());
-                        row.createCell(1).setCellValue(d.getNome());
-                        row.createCell(2).setCellValue(t.getNome());
+                        row.createCell(1).setCellValue("-");
+                        row.createCell(2).setCellValue(nomeTurma);
                     }
-                } else {
-                    Row row = sheet.createRow(rowNum++);
-                    row.createCell(0).setCellValue(prof.getNome());
-                    row.createCell(1).setCellValue(d.getNome());
-                    row.createCell(2).setCellValue("-");
                 }
+            } else if (disciplinas != null && !disciplinas.isEmpty()) {
+                for (Disciplina d : disciplinas) {
+                    Row row = sheet.createRow(rowNum++);
+                    row.createCell(0).setCellValue("-");
+                    row.createCell(1).setCellValue(d.getNome());
+                    row.createCell(2).setCellValue(nomeTurma);
+                }
+            } else {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue("-");
+                row.createCell(1).setCellValue("-");
+                row.createCell(2).setCellValue(nomeTurma);
             }
         }
 
-        // Ajusta largura das colunas
+        // Ajusta largura automática das colunas
         for (int i = 0; i <= 2; i++) {
             sheet.autoSizeColumn(i);
         }
@@ -518,9 +643,9 @@ public class RelatoriosService {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         workbook.write(outputStream);
         workbook.close();
+
         return outputStream.toByteArray();
     }
-
 
     // ---------------- INDICADORES ----------------
     public byte[] gerarRelatorioIndicadoresPdf() {
