@@ -23,6 +23,8 @@ public class Responsavel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nome;
+
+    @Column(unique = true)
     private String email;
     private String telefone;
     private Filiacao filiacao;

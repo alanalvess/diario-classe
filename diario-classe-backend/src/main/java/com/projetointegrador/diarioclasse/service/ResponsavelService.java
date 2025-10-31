@@ -6,6 +6,7 @@ import com.projetointegrador.diarioclasse.dto.response.AlunoResponse;
 import com.projetointegrador.diarioclasse.dto.response.ResponsavelResponse;
 import com.projetointegrador.diarioclasse.entity.Aluno;
 import com.projetointegrador.diarioclasse.entity.Responsavel;
+import com.projetointegrador.diarioclasse.exeption.UsuarioNaoEncontradoException;
 import com.projetointegrador.diarioclasse.repository.AlunoRepository;
 import com.projetointegrador.diarioclasse.repository.ResponsavelRepository;
 import lombok.RequiredArgsConstructor;
@@ -45,34 +46,61 @@ public class ResponsavelService {
         return toResponse(responsavel);
     }
 
+//    public ResponsavelResponse criarParaAluno(Long alunoId, ResponsavelRequest request) {
+//        // 🔹 Busca o aluno
+//        Aluno aluno = alunoRepository.findById(alunoId)
+//                .orElseThrow(() -> new RuntimeException("Aluno não encontrado: " + alunoId));
+//
+//        // 🔹 Cria o responsável
+//        Responsavel responsavel = Responsavel.builder()
+//                .nome(request.nome())
+//                .email(request.email())
+//                .telefone(request.telefone())
+//                .filiacao(request.filiacao())
+//                .alunos(new ArrayList<>()) // sempre lista mutável
+//                .build();
+//
+//        // 🔹 Salva o responsável (gera ID)
+//        responsavelRepository.save(responsavel);
+//
+//        // 🔹 Faz o vínculo bidirecional
+//        responsavel.getAlunos().add(aluno);
+//        aluno.getResponsaveis().add(responsavel);
+//
+//        // 🔹 Salva ambos para garantir sincronização no banco
+//        responsavelRepository.save(responsavel);
+//        alunoRepository.save(aluno);
+//
+//        return toResponse(responsavel);
+//    }
+
     public ResponsavelResponse criarParaAluno(Long alunoId, ResponsavelRequest request) {
-        // 🔹 Busca o aluno
         Aluno aluno = alunoRepository.findById(alunoId)
                 .orElseThrow(() -> new RuntimeException("Aluno não encontrado: " + alunoId));
 
-        // 🔹 Cria o responsável
-        Responsavel responsavel = Responsavel.builder()
-                .nome(request.nome())
-                .email(request.email())
-                .telefone(request.telefone())
-                .filiacao(request.filiacao())
-                .alunos(new ArrayList<>()) // sempre lista mutável
-                .build();
+        // 🔹 Busca responsável pelo e-mail (identificador único)
+        Responsavel responsavel = responsavelRepository.findByEmail(request.email())
+                .orElseGet(() -> {
+                    Responsavel novo = Responsavel.builder()
+                            .nome(request.nome())
+                            .email(request.email())
+                            .telefone(request.telefone())
+                            .filiacao(request.filiacao())
+                            .alunos(new ArrayList<>())
+                            .build();
+                    return responsavelRepository.save(novo);
+                });
 
-        // 🔹 Salva o responsável (gera ID)
-        responsavelRepository.save(responsavel);
-
-        // 🔹 Faz o vínculo bidirecional
-        responsavel.getAlunos().add(aluno);
-        aluno.getResponsaveis().add(responsavel);
-
-        // 🔹 Salva ambos para garantir sincronização no banco
-        responsavelRepository.save(responsavel);
-        alunoRepository.save(aluno);
+        // 🔹 Faz o vínculo se ainda não estiver associado
+        if (!responsavel.getAlunos().contains(aluno)) {
+            responsavel.getAlunos().add(aluno);
+            aluno.getResponsaveis().add(responsavel);
+            alunoRepository.save(aluno);
+            responsavelRepository.save(responsavel);
+        }
 
         return toResponse(responsavel);
     }
-
 
 
     public ResponsavelResponse atualizar(Long id, ResponsavelRequest request) {
@@ -121,7 +149,7 @@ public class ResponsavelService {
 
     public ResponsavelResponse buscarPorEmail(String email) {
         Responsavel responsavel = responsavelRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o email informado."));
+                .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado com o email informado."));
 
         return toResponse(responsavel);
     }
