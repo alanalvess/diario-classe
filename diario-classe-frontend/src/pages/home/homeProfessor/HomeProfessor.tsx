@@ -1,15 +1,20 @@
 import {Card} from "flowbite-react";
-import {FaChalkboardTeacher, FaChartLine, FaClipboardCheck, FaClipboardList, FaFileAlt} from "react-icons/fa";
+import {FaChalkboardTeacher, FaClipboardCheck, FaClipboardList, FaFileAlt} from "react-icons/fa";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import {useEffect, useState} from "react";
 import type {Turma} from "../../../models";
 import {buscar} from "../../../services/Service.ts";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {FaNoteSticky} from "react-icons/fa6";
+import {Roles} from "../../../enums/Roles.ts";
+import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 
 export default function HomeProfessor() {
 
-  const {usuario} = useAuth();
+  const {usuario, isHydrated, isAuthenticated} = useAuth();
+
+  const navigate = useNavigate();
+
   const [turmas, setTurmas] = useState<Turma[]>([]);
 
   const totalTurmas = turmas.filter(turma =>
@@ -47,6 +52,15 @@ export default function HomeProfessor() {
     if (usuario) carregarTurmas();
   }, [usuario]);
 
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.PROFESSOR)) {
+      ToastAlerta("Você precisa estar autenticado como Professor", Toast.Info);
+      navigate("/login");
+    }
+  }, [isHydrated, isAuthenticated, usuario]);
+
   return (
     <>
       <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10 space-y-6">
@@ -62,7 +76,7 @@ export default function HomeProfessor() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
           <Card className="hover:shadow-lg transition-all cursor-pointer">
-            <Link to='/presenca'>
+            <Link to='/gestao-frequencia'>
               <FaClipboardCheck className="text-4xl text-green-600 mb-3"/>
               <h2 className="text-lg font-semibold">Chamada Diária</h2>
               <p className="text-sm text-gray-500">Registre presença dos alunos rapidamente.</p>
@@ -70,7 +84,7 @@ export default function HomeProfessor() {
           </Card>
 
           <Card className="hover:shadow-lg transition-all cursor-pointer">
-            <Link to='/notas'>
+            <Link to='/gestao-notas'>
               <FaClipboardList className="text-4xl text-blue-600 mb-3"/>
               <h2 className="text-lg font-semibold">Lançar Notas</h2>
               <p className="text-sm text-gray-500">Gerencie o desempenho dos alunos.</p>
@@ -78,7 +92,7 @@ export default function HomeProfessor() {
           </Card>
 
           <Card className="hover:shadow-lg transition-all cursor-pointer">
-            <Link to='/observacoes'>
+            <Link to='/gestao-observacoes'>
               <FaNoteSticky className="text-4xl text-purple-600 mb-3"/>
               <h2 className="text-lg font-semibold">Observações</h2>
               <p className="text-sm text-gray-500">Adicione anotações sobre a vida acadêmica dos alunos.</p>
@@ -86,7 +100,7 @@ export default function HomeProfessor() {
           </Card>
 
           <Card className="hover:shadow-lg transition-all cursor-pointer">
-            <Link to='/avaliacoes'>
+            <Link to='/gestao-avaliacoes'>
               <FaFileAlt className="text-4xl text-yellow-600 mb-3"/>
               <h2 className="text-lg font-semibold">Avaliações</h2>
               <p className="text-sm text-gray-500">Gerencie atividades e avaliações.</p>

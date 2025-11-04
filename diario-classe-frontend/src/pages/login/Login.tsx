@@ -69,7 +69,7 @@ function Login() {
               className='w-1/2 mt-6 cursor-pointer rounded bg-green-500 hover:bg-green-600 text-white py-2 flex justify-center focus:outline-none focus:ring-0 dark:bg-green-600 dark:hover:bg-green-700'
             >
               {isLoading ?
-                <Spinner aria-label="Default status example" size='md'/>
+                <Spinner size='md' light/>
                 : <span>Entrar</span>
               }
             </Button>

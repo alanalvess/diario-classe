@@ -20,9 +20,12 @@ import EditarObservacao from "./editarObservacao/EditarObservacao.tsx";
 import {FaEdit, FaPlus, FaTrashAlt} from "react-icons/fa";
 import CadastroObservacao from "./cadastroObservacao/CadastroObservacao.tsx";
 import DeletarObservacao from "./deletarObservacao/DeletarObservacao.tsx";
+import {useNavigate} from "react-router-dom";
+import {Roles} from "../../../enums/Roles.ts";
 
 export default function RegistroObservacoesPage() {
   const {usuario, isHydrated, isAuthenticated} = useAuth();
+  const navigate = useNavigate();
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [alunos, setAlunos] = useState<Aluno[]>([]);
@@ -118,6 +121,15 @@ export default function RegistroObservacoesPage() {
     });
 
   }, [turmaSelecionada, alunoSelecionado, isAuthenticated]);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.PROFESSOR)) {
+      ToastAlerta("Você precisa estar autenticado como Professor", Toast.Info);
+      navigate("/login");
+    }
+  }, [isHydrated, isAuthenticated, usuario]);
 
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">

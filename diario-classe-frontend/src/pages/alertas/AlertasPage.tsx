@@ -16,12 +16,16 @@ import type {Alerta} from "../../models/Alerta.ts";
 import {useAuth} from "../../contexts/UseAuth.ts";
 import type {Aluno, Responsavel} from "../../models";
 import {buscar} from "../../services/Service.ts";
+import {Roles} from "../../enums/Roles.ts";
+import {Toast, ToastAlerta} from "../../utils/ToastAlerta.ts";
+import {useNavigate} from "react-router-dom";
 
 export default function AlertasPage() {
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const {usuario, isAuthenticated} = useAuth();
+  const {usuario, isAuthenticated, isHydrated} = useAuth();
+  const navigate = useNavigate();
 
   const [responsavel, setResponsavel] = useState<Responsavel>();
   const [alunos, setAlunos] = useState<Aluno[]>([]);
@@ -83,6 +87,15 @@ export default function AlertasPage() {
     if (!alunoSelecionado) return;
     buscarAlertas();
   }, [alunoSelecionado, isAuthenticated]);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.RESPONSAVEL)) {
+      ToastAlerta("Você precisa estar autenticado como responsável de um aluno.", Toast.Info);
+      navigate("/login");
+    }
+  }, [isHydrated, isAuthenticated, usuario]);
 
   function corDoScore(score: number) {
     if (score < 0.3) return "text-green-600 font-semibold";

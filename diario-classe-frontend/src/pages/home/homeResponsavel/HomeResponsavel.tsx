@@ -1,12 +1,26 @@
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import {Card} from "flowbite-react";
 import {FaBell, FaChartBar, FaClipboardCheck, FaMedal} from "react-icons/fa";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {FaNoteSticky} from "react-icons/fa6";
+import {useEffect} from "react";
+import {Roles} from "../../../enums/Roles.ts";
+import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 
 export default function HomeResponsavel() {
 
-  const {usuario} = useAuth();
+  const {usuario, isAuthenticated, isHydrated} = useAuth();
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.RESPONSAVEL)) {
+      ToastAlerta("Você precisa estar autenticado como Coordenador", Toast.Info);
+      navigate("/login");
+    }
+  }, [isHydrated, isAuthenticated, usuario]);
 
   return (
     <>

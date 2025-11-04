@@ -17,14 +17,28 @@ import {buscar} from "../../../services/Service.ts";
 import type {Aluno, Observacao, Responsavel} from "../../../models";
 import {CategoriasAgrupadas} from "../../../utils/CategoriasAgrupadas.ts";
 import {FaBookOpen, FaCalendarAlt, FaUserTie} from "react-icons/fa";
+import {Roles} from "../../../enums/Roles.ts";
+import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
+import {useNavigate} from "react-router-dom";
 
 export default function ObservacoesPage() {
-  const {usuario, isAuthenticated} = useAuth();
+  const {usuario, isAuthenticated, isHydrated} = useAuth();
+  const navigate = useNavigate();
+
   const [observacoes, setObservacoes] = useState<Observacao[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [responsavel, setResponsavel] = useState<Responsavel>();
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [alunoSelecionado, setAlunoSelecionado] = useState<string>("");
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.RESPONSAVEL)) {
+      ToastAlerta("Você precisa estar autenticado como Responsável por Aluno", Toast.Info);
+      navigate("/login");
+    }
+  }, [isHydrated, isAuthenticated, usuario]);
 
   const categoriaCores: Record<string, "success" | "failure" | "info" | "secondary"> = {
     Acadêmicas: "info",

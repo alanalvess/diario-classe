@@ -16,12 +16,15 @@ import {useAuth} from "../../../contexts/UseAuth.ts";
 import type {Aluno} from "../../../models";
 import {atualizarAtributo, buscar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
+import {Roles} from "../../../enums/Roles.ts";
+import {useNavigate} from "react-router-dom";
 
 export default function AlertasCoordenadorPage() {
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const {usuario, isAuthenticated} = useAuth();
+  const {usuario, isAuthenticated, isHydrated} = useAuth();
+  const navigate = useNavigate();
 
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [alunoSelecionado, setAlunoSelecionado] = useState<string>("");
@@ -92,6 +95,15 @@ export default function AlertasCoordenadorPage() {
     buscarAlertas();
     buscarAlunos();
   }, [isAuthenticated, alunoSelecionado]);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.COORDENADOR)) {
+      ToastAlerta("Você precisa estar autenticado como Coordenador", Toast.Info);
+      navigate("/login");
+    }
+  }, [isHydrated, isAuthenticated, usuario]);
 
 
   function corDoScore(score: number) {

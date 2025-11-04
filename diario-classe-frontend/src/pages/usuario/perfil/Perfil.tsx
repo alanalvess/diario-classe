@@ -2,17 +2,18 @@ import React, {useEffect, useState} from 'react';
 import {Avatar, Button, Card, Spinner} from 'flowbite-react';
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import UserImg from "../../../assets/images/user.png"
-import {useParams} from "react-router-dom";
 import {buscar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import type {Usuario} from "../../../models";
 import EditarMeuUsuario from "./editarMeuUsuario/EditarMeuUsuario.tsx";
 import AlterarSenha from "./alterarSenha/alterarSenha.tsx";
 import {FaKey, FaUserEdit} from "react-icons/fa";
+import {useNavigate} from "react-router-dom";
 
 export default function Perfil() {
 
-  const {usuario, isHydrated} = useAuth();
+  const {usuario, isHydrated, isAuthenticated} = useAuth();
+  const navigate = useNavigate();
   // const id = useParams<{ id: string }>();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -20,6 +21,29 @@ export default function Perfil() {
 
   const [openEditar, setOpenEditar] = useState(false);
   const [openSenha, setOpenSenha] = useState(false);
+
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (!isAuthenticated) {
+      ToastAlerta("Você precisa estar autenticado", Toast.Info);
+      navigate("/login");
+    }
+  }, [isHydrated, isAuthenticated]);
+
+  if (!isHydrated) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Spinner size="xl" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
 
   async function buscarUsuario() {
     try {
@@ -35,20 +59,20 @@ export default function Perfil() {
     }
   }
 
-  useEffect(() => {
-    if (isHydrated && usuario.id) {
-      buscarUsuario();
-    }
-  }, [isHydrated]);
+  // useEffect(() => {
+  //   if (isHydrated && usuario.id) {
+  //     buscarUsuario();
+  //   }
+  // }, [isHydrated]);
 
   // 🔹 Evita erro ao acessar `usuario` antes de carregar
-  if (!isHydrated || !usuario) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Spinner size="xl"/>
-      </div>
-    );
-  }
+  // if (!isHydrated || !usuario) {
+  //   return (
+  //     <div className="flex justify-center items-center min-h-screen">
+  //       <Spinner size="xl"/>
+  //     </div>
+  //   );
+  // }
 
   const user = dadosUsuario ?? usuario;
 

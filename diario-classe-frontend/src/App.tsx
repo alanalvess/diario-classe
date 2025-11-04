@@ -53,33 +53,31 @@ function App() {
                 <Route path='/dashboard-coordenacao' element={<DashboardCoordenacaoPage/>}/>
                 <Route path='/relatorios-coordenacao' element={<RelatoriosCoordenacao/>}/>
                 <Route path='/gestao-alunos' element={<AlunosPage/>}/>
-                <Route path='/disciplinas' element={<DisciplinasPage/>}/>
-                <Route path='/turmas' element={<TurmasPage/>}/>
-                <Route path='/professores' element={<ProfessoresPage/>}/>
+                <Route path='/gestao-disciplinas' element={<DisciplinasPage/>}/>
+                <Route path='/gestao-turmas' element={<TurmasPage/>}/>
+                <Route path='/gestao-professores' element={<ProfessoresPage/>}/>
+                <Route path='/alertas-coordenacao' element={<AlertasCoordenadorPage/>}/>
 
-                <Route path='/presenca' element={<RegistroPresencaPage/>}/>
-                <Route path='/notas' element={<RegistroNotasPage/>}/>
-                <Route path='/avaliacoes' element={<AvaliacoesPage/>}/>
-                <Route path='/observacoes' element={<RegistroObservacoesPage/>}/>
                 <Route path='/dashboard-professor' element={<DashboardProfessorPage/>}/>
-                <Route path='/relatoriosProfessor' element={<RelatoriosProfessor/>}/>
+                <Route path='/relatorios-professor' element={<RelatoriosProfessor/>}/>
+                <Route path='/gestao-frequencia' element={<RegistroPresencaPage/>}/>
+                <Route path='/gestao-notas' element={<RegistroNotasPage/>}/>
+                <Route path='/gestao-observacoes' element={<RegistroObservacoesPage/>}/>
+                <Route path='/gestao-avaliacoes' element={<AvaliacoesPage/>}/>
 
-
+                <Route path='/dashboard-responsavel' element={<DashboardResponsavelPage/>}/>
                 <Route path='/boletim-escolar' element={<NotasPage/>}/>
                 <Route path='/frequencia-aluno' element={<PresencaPage/>}/>
                 <Route path='/observacoes-aluno' element={<ObservacoesPage/>}/>
-                <Route path='/dashboard-responsavel' element={<DashboardResponsavelPage/>}/>
                 <Route path='/alertas-academicos' element={<AlertasPage/>}/>
-
-                <Route path='/alertasCoordenacao' element={<AlertasCoordenadorPage/>}/>
-                <Route path='/presenca' element={<RegistroPresencaPage/>}/>
-
-                <Route path='/login' element={<Login/>}/>
-                <Route path="/meu-perfil" element={<Perfil/>}/>
-                <Route path="/usuarios" element={<ListarUsuarios/>}/>
 
                 <Route path='/sobre' element={<Sobre/>}/>
                 <Route path='/duvidas' element={<Duvidas/>}/>
+
+                <Route path='/login' element={<Login/>}/>
+
+                <Route path="/meu-perfil" element={<Perfil/>}/>
+                <Route path="/usuarios" element={<ListarUsuarios/>}/>
 
                 <Route path='/erro' element={<Erro500/>}/>
                 <Route path='*' element={<Erro404/>}/>

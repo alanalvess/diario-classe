@@ -4,6 +4,9 @@ import {useAuth} from "../../../contexts/UseAuth.ts";
 import type {Aluno, Nota, Presenca, Responsavel} from "../../../models";
 import {buscar} from "../../../services/Service.ts";
 import {Alert, Card, Select, Spinner} from "flowbite-react";
+import {Roles} from "../../../enums/Roles.ts";
+import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
+import {useNavigate} from "react-router-dom";
 
 type EvolucaoBimestral = {
   bimestre: number;
@@ -11,7 +14,8 @@ type EvolucaoBimestral = {
 };
 
 export default function DashboardResponsavelPage() {
-  const {usuario} = useAuth();
+  const {usuario, isAuthenticated, isHydrated} = useAuth();
+  const navigate = useNavigate();
 
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [responsavel, setResponsavel] = useState<Responsavel>();
@@ -26,6 +30,16 @@ export default function DashboardResponsavelPage() {
   const cores = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#A78BFA"];
 
   const feriados: string[] = ["2025-01-01"];
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.RESPONSAVEL)) {
+      ToastAlerta("Você precisa estar autenticado como Responsavel por Aluno", Toast.Info);
+      navigate("/login");
+    }
+  }, [isHydrated, isAuthenticated, usuario]);
+
 
   // 🔹 Buscar responsável
   async function buscarResponsavelPorEmail() {

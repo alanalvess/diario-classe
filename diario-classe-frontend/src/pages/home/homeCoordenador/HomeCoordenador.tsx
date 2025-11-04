@@ -1,14 +1,19 @@
 import {Card} from "flowbite-react";
-import {FaBook, FaChalkboardTeacher, FaChartBar, FaChartPie, FaFileAlt, FaGraduationCap, FaUsers} from "react-icons/fa";
+import {FaBook, FaChalkboardTeacher, FaChartBar, FaGraduationCap, FaUsers} from "react-icons/fa";
 import {useAuth} from "../../../contexts/UseAuth.ts";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {useEffect, useState} from "react";
 import {buscar} from "../../../services/Service.ts";
 import type {Professor, Turma} from "../../../models";
 import {MdManageAccounts} from "react-icons/md";
+import {Roles} from "../../../enums/Roles.ts";
+import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 
 export default function HomeCoordenador() {
   const {usuario, isAuthenticated, isHydrated} = useAuth();
+
+  const navigate = useNavigate();
+
   const [professores, setProfessores] = useState<Professor[]>([]);
   const [turmas, setTurmas] = useState<Turma[]>([]);
 
@@ -25,6 +30,15 @@ export default function HomeCoordenador() {
   function totalTurmas() {
     return turmas.length;
   }
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.COORDENADOR)) {
+      ToastAlerta("Você precisa estar autenticado como Coordenador", Toast.Info);
+      navigate("/login");
+    }
+  }, [isHydrated, isAuthenticated, usuario]);
 
   return (
     <>
@@ -50,7 +64,7 @@ export default function HomeCoordenador() {
           </Card>
 
           <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
-            <Link to="/professores">
+            <Link to="/gestao-professores">
               <FaChalkboardTeacher className="text-4xl text-blue-600 mb-3 mx-auto"/>
               <h2 className="text-lg font-semibold">Professores</h2>
               <p className="text-sm text-gray-500">Gerencie e acompanhe os professores cadastrados.</p>
@@ -58,7 +72,7 @@ export default function HomeCoordenador() {
           </Card>
 
           <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
-            <Link to="/turmas">
+            <Link to="/gestao-turmas">
               <FaUsers className="text-4xl text-green-600 mb-3 mx-auto"/>
               <h2 className="text-lg font-semibold">Turmas</h2>
               <p className="text-sm text-gray-500">Crie e organize turmas e disciplinas.</p>
@@ -66,7 +80,7 @@ export default function HomeCoordenador() {
           </Card>
 
           <Card className="hover:shadow-lg transition-all cursor-pointer text-center">
-            <Link to="/disciplinas">
+            <Link to="/gestao-disciplinas">
               <FaBook className="text-4xl text-green-600 mb-3 mx-auto"/>
               <h2 className="text-lg font-semibold">Disciplinas</h2>
               <p className="text-sm text-gray-500">Gerencie as matérias oferecidas pela escola.</p>

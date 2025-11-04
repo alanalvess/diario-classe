@@ -20,8 +20,12 @@ import {FaEdit, FaPlus, FaSearch, FaTrashAlt} from "react-icons/fa";
 import Cadastro from "../cadastro/Cadastro.tsx";
 import EditarUsuario from "../editarUsuario/EditarUsuario.tsx";
 import DeletarUsuario from "../deletarUsuario/DeletarUsuario.tsx";
+import {Roles} from "../../../enums/Roles.ts";
+import {useNavigate} from "react-router-dom";
 
 function ListarUsuarios() {
+
+  const navigate = useNavigate();
 
   const {usuario, isAuthenticated, isHydrated} = useAuth();
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
@@ -61,6 +65,19 @@ function ListarUsuarios() {
     if (!isHydrated || !isAuthenticated) return;
     listarUsuarios();
   }, [isHydrated, isAuthenticated]);
+
+  const temPermissao = usuario?.roles.some(
+    (role) => role === Roles.COORDENADOR || role === Roles.ADMIN
+  );
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (!isAuthenticated || !temPermissao) {
+      ToastAlerta("Você precisa estar autenticado como Coordenador ou Admin", Toast.Info);
+      navigate("/login");
+    }
+  }, [isHydrated, isAuthenticated, usuario]);
 
   return (
     <>
@@ -195,9 +212,6 @@ function ListarUsuarios() {
 
                     {/* Funções */}
                     <div className="mb-4">
-                      {/*<p className="text-sm text-gray-700 dark:text-gray-300 font-medium">*/}
-                      {/*  Funções:*/}
-                      {/*</p>*/}
                       <div className="flex flex-wrap gap-1 mt-1">
                         {u.roles.map((role) => (
                           <Badge key={role} color="info" className="text-xs">

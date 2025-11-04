@@ -1,4 +1,4 @@
-import React, {type ChangeEvent, type FormEvent, useState} from "react";
+import React, {type ChangeEvent, type FormEvent, useEffect, useState} from "react";
 import {Button, Card, Modal, ModalBody, ModalHeader, Select, Spinner, TextInput} from "flowbite-react";
 
 import type {Usuario} from "../../../models";
@@ -33,6 +33,20 @@ function Cadastro({
       roles: [] as Roles[],
     }
   )
+
+  useEffect(() => {
+    if (open) {
+      setUsuarioCadastro({
+        id: 0,
+        nome: "",
+        email: "",
+        senha: "",
+        roles: [] as Roles[],
+      });
+      setConfirmarSenha("");
+    }
+  }, [open]);
+
 
   async function cadastrarNovoUsuario(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();

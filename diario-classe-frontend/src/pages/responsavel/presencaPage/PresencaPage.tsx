@@ -16,6 +16,9 @@ import {FaCheckCircle, FaMinusCircle, FaTimesCircle} from "react-icons/fa";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import type {Aluno, Presenca, Responsavel} from "../../../models";
 import {buscar} from "../../../services/Service.ts";
+import {Roles} from "../../../enums/Roles.ts";
+import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
+import {useNavigate} from "react-router-dom";
 
 interface DiaPresenca {
   data: string;
@@ -27,7 +30,8 @@ interface DiaPresenca {
 }
 
 export default function PresencaPage() {
-  const {usuario} = useAuth();
+  const {usuario, isHydrated, isAuthenticated} = useAuth();
+  const navigate = useNavigate();
 
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [alunoSelecionado, setAlunoSelecionado] = useState<string>("");
@@ -41,6 +45,15 @@ export default function PresencaPage() {
   const feriados: string[] = ["2025-01-01"];
 
   const hoje = new Date();
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.RESPONSAVEL)) {
+      ToastAlerta("Você precisa estar autenticado como Responsável por Aluno", Toast.Info);
+      navigate("/login");
+    }
+  }, [isHydrated, isAuthenticated, usuario]);
 
   function toLocalDateString(isoYMD: string) {
     const [y, m, d] = isoYMD.split("-").map(Number);

@@ -1,8 +1,24 @@
 import {Link} from 'react-router-dom';
 import {Button, Card} from "flowbite-react";
 import {FaChartBar, FaClipboardList, FaSchool} from "react-icons/fa";
+import {useAuth} from "../../../contexts/UseAuth.ts";
 
 export default function Home() {
+
+  const {isAuthenticated, isHydrated} = useAuth();
+
+  function buttonLogin() {
+    if (!isHydrated) return;
+    if (!isAuthenticated) {
+      return <Link to="/login">
+        <Button
+          color="green"
+          className="px-6 py-3 text-lg cursor-pointer focus:outline-none focus:ring-0"
+        >Entrar</Button>
+      </Link>
+    }
+  }
+
   return (
     <>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-700 pt-24 md:px-80 px-5">
@@ -16,14 +32,11 @@ export default function Home() {
             Um sistema moderno para professores e gestores escolares.
           </p>
           <div className="flex justify-center gap-4">
-            <Link to="/login">
-              <Button
-                color="green"
-                className="px-6 py-3 text-lg cursor-pointer focus:outline-none focus:ring-0">Entrar</Button>
-            </Link>
+            {buttonLogin()}
             <Link to="/sobre">
               <Button color="light"
-                      className="px-6 py-3 text-lg cursor-pointer focus:outline-none focus:ring-0">Saiba Mais</Button>
+                      className="px-6 py-3 text-lg cursor-pointer focus:outline-none focus:ring-0"
+              >Saiba Mais</Button>
             </Link>
           </div>
         </section>

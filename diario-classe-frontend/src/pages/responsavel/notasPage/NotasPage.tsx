@@ -15,6 +15,9 @@ import {useAuth} from "../../../contexts/UseAuth.ts";
 import React, {useEffect, useState} from "react";
 import type {Aluno, Nota, Responsavel} from "../../../models";
 import {buscar} from "../../../services/Service.ts";
+import {Roles} from "../../../enums/Roles.ts";
+import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
+import {useNavigate} from "react-router-dom";
 
 interface AvaliacaoAgrupada {
   nome: string;
@@ -28,13 +31,23 @@ interface DisciplinaAgrupada {
 }
 
 export default function NotasPage() {
-  const {usuario} = useAuth();
+  const {usuario, isHydrated, isAuthenticated} = useAuth();
+  const navigate = useNavigate();
 
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [alunoSelecionado, setAlunoSelecionado] = useState<string>("");
   const [notas, setNotas] = useState<Nota[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [responsavel, setResponsavel] = useState<Responsavel>();
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.RESPONSAVEL)) {
+      ToastAlerta("Você precisa estar autenticado como Responsável por Aluno", Toast.Info);
+      navigate("/login");
+    }
+  }, [isHydrated, isAuthenticated, usuario]);
 
   async function buscarResponsavelPorEmail() {
     try {

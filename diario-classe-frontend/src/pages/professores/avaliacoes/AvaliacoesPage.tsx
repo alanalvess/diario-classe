@@ -21,9 +21,13 @@ import {FaEdit, FaPlus, FaTrashAlt} from "react-icons/fa";
 import CadastroAvaliacao from "./cadastroAvaliacao/CadastroAvaliacao.tsx";
 import DeletarObservacao from "../observacoes/deletarObservacao/DeletarObservacao.tsx";
 import DeletarAvaliacao from "./deletarAvaliacao/DeletarAvaliacao.tsx";
+import {Roles} from "../../../enums/Roles.ts";
+import {useNavigate} from "react-router-dom";
 
 export default function AvaliacoesPage() {
-  const {usuario, isAuthenticated, isLoading} = useAuth();
+  const {usuario, isAuthenticated, isLoading, isHydrated} = useAuth();
+
+  const navigate = useNavigate();
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
@@ -134,7 +138,14 @@ export default function AvaliacoesPage() {
     }
   }, [disciplinaSelecionada, isAuthenticated]);
 
+  useEffect(() => {
+    if (!isHydrated) return;
 
+    if (!isAuthenticated || !usuario?.roles.includes(Roles.PROFESSOR)) {
+      ToastAlerta("Você precisa estar autenticado como Professor", Toast.Info);
+      navigate("/login");
+    }
+  }, [isHydrated, isAuthenticated, usuario]);
 
   return (
     <div className="pt-32 md:pl-80 md:pr-20 pb-10 px-10">
