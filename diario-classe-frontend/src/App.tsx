@@ -30,6 +30,7 @@ import DashboardResponsavelPage from "./pages/responsavel/dashboardResponsavel/D
 import AlertasPage from "./pages/alertas/AlertasPage.tsx";
 import AlertasCoordenadorPage from "./pages/alertas/alertasCoordenador/AlertasCoordenadorPage.tsx";
 import RelatoriosProfessor from "./pages/professores/relatorios/RelatoriosProfessor.tsx";
+import HomePublica from "./pages/home/homePublica/HomePublica.tsx";
 
 function App() {
 
@@ -47,7 +48,7 @@ function App() {
 
               <Routes>
 
-                <Route path='/' element={<Home/>}/>
+                <Route path='/' element={<HomePublica/>}/>
                 <Route path='/home' element={<Home/>}/>
 
                 <Route path='/dashboard-coordenacao' element={<DashboardCoordenacaoPage/>}/>

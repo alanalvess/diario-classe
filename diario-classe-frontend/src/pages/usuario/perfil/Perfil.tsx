@@ -30,7 +30,14 @@ export default function Perfil() {
       ToastAlerta("Você precisa estar autenticado", Toast.Info);
       navigate("/login");
     }
-  }, [isHydrated, isAuthenticated]);
+  }, [isHydrated, isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (isHydrated && isAuthenticated && usuario?.id) {
+      buscarUsuario().then();
+    }
+  }, [isHydrated, isAuthenticated, usuario?.id]);
+
 
   if (!isHydrated) {
     return (
@@ -58,21 +65,6 @@ export default function Perfil() {
       setIsLoading(false);
     }
   }
-
-  // useEffect(() => {
-  //   if (isHydrated && usuario.id) {
-  //     buscarUsuario();
-  //   }
-  // }, [isHydrated]);
-
-  // 🔹 Evita erro ao acessar `usuario` antes de carregar
-  // if (!isHydrated || !usuario) {
-  //   return (
-  //     <div className="flex justify-center items-center min-h-screen">
-  //       <Spinner size="xl"/>
-  //     </div>
-  //   );
-  // }
 
   const user = dadosUsuario ?? usuario;
 

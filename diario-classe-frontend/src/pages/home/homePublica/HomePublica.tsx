@@ -3,7 +3,7 @@ import {Button, Card} from "flowbite-react";
 import {FaChartBar, FaClipboardList, FaSchool} from "react-icons/fa";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 
-export default function Home() {
+export default function HomePublica() {
 
   const {isAuthenticated, isHydrated} = useAuth();
 

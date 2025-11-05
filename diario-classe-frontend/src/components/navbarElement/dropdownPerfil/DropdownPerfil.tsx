@@ -8,7 +8,7 @@ function DropdownPerfil() {
   const navigate = useNavigate();
   const {usuario, handleLogout} = useAuth();
 
-  const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
+  const adminEmail = import.meta.env.ADMIN_EMAIL;
 
   function logout() {
     handleLogout();
@@ -48,7 +48,7 @@ function DropdownPerfil() {
           </DropdownItem>
         </Link>
 
-        {usuario.email === import.meta.env.VITE_ADMIN_EMAIL
+        {usuario.email === adminEmail
           ? (<Link to="/usuarios/all" className="hover:underline">
               <DropdownItem>
                 Demais Usuários
@@ -59,7 +59,7 @@ function DropdownPerfil() {
 
         <DropdownDivider/>
 
-        <Link to="/home" onClick={logout} className="hover:underline">
+        <Link to="/" onClick={logout} className="hover:underline">
           <DropdownItem>
             Sair
           </DropdownItem>
