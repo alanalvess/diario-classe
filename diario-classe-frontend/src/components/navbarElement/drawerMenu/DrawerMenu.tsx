@@ -1,4 +1,4 @@
-import {Drawer, DrawerHeader, DrawerItems} from 'flowbite-react'
+import {Drawer, DrawerItems} from 'flowbite-react'
 
 import SidebarMenu from "../sidebarMenu/SidebarMenu.tsx";
 

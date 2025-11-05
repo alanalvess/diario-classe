@@ -10,7 +10,6 @@ import SidebarMenu from "./sidebarMenu/SidebarMenu.tsx";
 import {GiHamburgerMenu} from "react-icons/gi";
 import DrawerMenu from "./drawerMenu/DrawerMenu.tsx";
 import {useAuth} from "../../contexts/UseAuth.ts";
-import {Roles} from "../../enums/Roles.ts";
 
 function NavbarElement() {
 

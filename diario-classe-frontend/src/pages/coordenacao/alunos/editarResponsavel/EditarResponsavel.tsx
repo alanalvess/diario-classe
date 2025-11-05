@@ -5,7 +5,6 @@ import {atualizarAtributo} from "../../../../services/Service";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta";
 import type {Responsavel} from "../../../../models"
 import {useAuth} from "../../../../contexts/UseAuth.ts";
-import type {Filiacao} from "../../../../enums/Filiacao.ts";
 import {FiliacaoText} from "../../../../utils/FiliacaoText.ts";
 
 interface EditarResponsavelProps {

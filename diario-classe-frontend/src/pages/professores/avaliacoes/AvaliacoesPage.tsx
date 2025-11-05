@@ -13,13 +13,12 @@ import {
   TableRow
 } from "flowbite-react";
 import type {Avaliacao, Disciplina, Professor, Turma} from "../../../models";
-import {buscar, deletar} from "../../../services/Service.ts";
+import {buscar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import EditarAvaliacao from "./editarAvaliacao/EditarAvaliacao.tsx";
 import {FaEdit, FaPlus, FaTrashAlt} from "react-icons/fa";
 import CadastroAvaliacao from "./cadastroAvaliacao/CadastroAvaliacao.tsx";
-import DeletarObservacao from "../observacoes/deletarObservacao/DeletarObservacao.tsx";
 import DeletarAvaliacao from "./deletarAvaliacao/DeletarAvaliacao.tsx";
 import {Roles} from "../../../enums/Roles.ts";
 import {useNavigate} from "react-router-dom";

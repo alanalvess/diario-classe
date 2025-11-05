@@ -2,7 +2,7 @@ import {useAuth} from "../../../contexts/UseAuth.ts";
 import React, {useEffect, useState} from "react";
 import type {Aluno, Nota, Observacao, Presenca, Professor, Turma} from "../../../models";
 import {buscar} from "../../../services/Service.ts";
-import {Alert, Card, Select, Spinner} from "flowbite-react";
+import {Alert, Card, Select} from "flowbite-react";
 import {Bar, Line} from "react-chartjs-2";
 
 import {

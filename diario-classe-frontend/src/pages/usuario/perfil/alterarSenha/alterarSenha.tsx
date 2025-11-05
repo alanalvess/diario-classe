@@ -1,5 +1,5 @@
-import React, {useState, type ChangeEvent} from "react";
-import {Modal, Button, Label, TextInput, ModalHeader, ModalBody, Card} from "flowbite-react";
+import React, {type ChangeEvent, useState} from "react";
+import {Button, Card, Label, Modal, ModalBody, ModalHeader, TextInput} from "flowbite-react";
 
 import {useAuth} from "../../../../contexts/UseAuth.ts";
 import {Toast, ToastAlerta} from "../../../../utils/ToastAlerta.ts";

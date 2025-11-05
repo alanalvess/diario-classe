@@ -4,7 +4,7 @@ import {deletar} from '../../../../services/Service'
 
 import {Button, Card, Modal, ModalBody, ModalHeader, Spinner} from 'flowbite-react';
 import DeleteImg from "../../../../assets/images/delete.png";
-import type {Avaliacao, Observacao} from "../../../../models";
+import type {Avaliacao} from "../../../../models";
 import {useAuth} from "../../../../contexts/UseAuth.ts";
 
 interface DeletarAvaliacaoProps {

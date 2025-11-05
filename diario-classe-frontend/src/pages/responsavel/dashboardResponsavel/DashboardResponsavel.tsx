@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Line} from "react-chartjs-2";
 import {useAuth} from "../../../contexts/UseAuth.ts";
-import type {Aluno, Nota, Presenca, Responsavel} from "../../../models";
+import type {Aluno, Presenca, Responsavel} from "../../../models";
 import {buscar} from "../../../services/Service.ts";
 import {Alert, Card, Select, Spinner} from "flowbite-react";
 import {Roles} from "../../../enums/Roles.ts";

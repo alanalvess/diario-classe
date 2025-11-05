@@ -10,7 +10,8 @@ import {
   TableCell,
   TableHead,
   TableHeadCell,
-  TableRow, TextInput
+  TableRow,
+  TextInput
 } from "flowbite-react";
 import {buscar, cadastrar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
