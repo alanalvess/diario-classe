@@ -341,14 +341,36 @@ export default function DashboardProfessorPage() {
     }]
   };
 
+// 🔹 Calcula a média geral de cada disciplina
+  const mediasPorDisciplina = notas.reduce((acc, n) => {
+    if (!acc[n.disciplinaNome]) acc[n.disciplinaNome] = [];
+    acc[n.disciplinaNome].push(Number(n.mediaTurma));
+    return acc;
+  }, {} as Record<string, number[]>);
+
+// 🔹 Converte em array no mesmo formato de “alunosPorTurma”
+  const disciplinasPorTurma = Object.entries(mediasPorDisciplina).map(
+    ([disciplina, medias]) => ({
+      disciplina,
+      media: Number(
+        (medias.reduce((soma, v) => soma + v, 0) / medias.length).toFixed(2)
+      ),
+    })
+  );
+
+// 🔹 Monta os dados para o gráfico (idêntico ao padrão anterior)
   const notasData = {
-    labels: notas.map(n => n.disciplinaNome),
-    datasets: [{
-      label: "Média por Disciplina",
-      data: notas.map(n => n.mediaTurma),
-      backgroundColor: "#36A2EB",
-      borderRadius: 6,
-    }]
+    labels: disciplinasPorTurma.map(d => d.disciplina),
+    datasets: [
+      {
+        label: "Média por Disciplina",
+        data: disciplinasPorTurma.map(d => d.media),
+        backgroundColor: disciplinasPorTurma.map(
+          (_, i) => cores[i % cores.length]
+        ),
+        borderRadius: 6,
+      },
+    ],
   };
 
   const frequenciasPorAluno = calcularFrequenciaPorAluno(presencas);
@@ -461,7 +483,16 @@ export default function DashboardProfessorPage() {
 
             <Card>
               <h2 className="font-bold mb-2">Média de Notas por Disciplina</h2>
-              <Bar data={notasData} options={{ indexAxis: "x" }} />
+              <Bar
+                data={notasData}
+                // options={{ indexAxis: "x" }}
+                options={{
+                  plugins: {legend: {display: false}},
+                  scales: {
+                    y: {beginAtZero: true, ticks: {stepSize: 1}}
+                  }
+                }}
+              />
             </Card>
 
             <Card>

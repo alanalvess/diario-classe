@@ -45,7 +45,7 @@ export default function DashboardCoordenacaoPage() {
     count: alunos.filter(a => a.turmaId === t.id).length
   }));
 
- const dataAlunosPorTurma = {
+  const dataAlunosPorTurma = {
     labels: alunosPorTurma.map(a => a.turma),
     datasets: [{
       label: "Alunos por Turma",
