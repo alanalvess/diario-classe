@@ -129,13 +129,13 @@ export default function AvaliacoesPage() {
   }, [turmaSelecionada, isAuthenticated]);
 
   // 🔹 Buscar avaliações da disciplina
-  useEffect(() => {
-    if (disciplinaSelecionada && isAuthenticated) {
-      buscar(`/avaliacoes/disciplina/${disciplinaSelecionada}`, setAvaliacoes, {
-        headers: {Authorization: `Bearer ${usuario.token}`},
-      });
-    }
-  }, [disciplinaSelecionada, isAuthenticated]);
+  // useEffect(() => {
+  //   if (disciplinaSelecionada && isAuthenticated) {
+  //     buscar(`/avaliacoes/disciplina/${disciplinaSelecionada}`, setAvaliacoes, {
+  //       headers: {Authorization: `Bearer ${usuario.token}`},
+  //     });
+  //   }
+  // }, [disciplinaSelecionada, isAuthenticated]);
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -227,7 +227,11 @@ export default function AvaliacoesPage() {
                       <TableCell className="text-center font-medium text-gray-900 dark:text-gray-100">
                         {a.titulo}
                       </TableCell>
-                      <TableCell className="text-center">{a.data}</TableCell>
+                      <TableCell className="text-center">
+                        {new Date(a.data).toLocaleDateString()}
+
+                        {/*{a.data}*/}
+                      </TableCell>
                       <TableCell className="text-center">{a.peso}</TableCell>
                       <TableCell className="text-center">{a.bimestre}</TableCell>
                       <TableCell className="text-center">{a.media?.toFixed(2)}</TableCell>
@@ -282,7 +286,10 @@ export default function AvaliacoesPage() {
                     <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                       {a.titulo}
                     </h2>
-                    <span className="text-sm text-gray-500">{a.data}</span>
+                    <span className="text-sm text-gray-500">
+                      {new Date(a.data).toLocaleDateString()}
+                      {/*{a.data}*/}
+                    </span>
                   </div>
                   <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
                     <p><strong>Peso:</strong> {a.peso}</p>
