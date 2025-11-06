@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import {Bar, Pie} from "react-chartjs-2";
 import {ArcElement, BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip} from "chart.js";
 import {buscar} from "../../../services/Service.ts";
-import {Card} from "flowbite-react";
+import {Card, Spinner} from "flowbite-react";
 import type {Aluno, Disciplina, Observacao, Professor, Turma} from "../../../models";
 import {useAuth} from "../../../contexts/UseAuth.ts";
 import {Roles} from "../../../enums/Roles.ts";
@@ -23,6 +23,8 @@ export default function DashboardCoordenacaoPage() {
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [observacoes, setObservacoes] = useState<Observacao[]>([]);
 
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
   const cores = [
     "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#A78BFA", // base original
 
@@ -37,11 +39,21 @@ export default function DashboardCoordenacaoPage() {
 
   useEffect(() => {
     if (!isHydrated || !isAuthenticated) return;
-    buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${usuario.token}`}});
-    buscar("/professores", setProfessores, {headers: {Authorization: `Bearer ${usuario.token}`}});
-    buscar("/alunos", setAlunos, {headers: {Authorization: `Bearer ${usuario.token}`}});
-    buscar("/disciplinas", setDisciplinas, {headers: {Authorization: `Bearer ${usuario.token}`}});
-    buscar("/observacoes", setObservacoes, {headers: {Authorization: `Bearer ${usuario.token}`}});
+    setIsLoading(true)
+    try {
+
+      buscar("/turmas", setTurmas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+      buscar("/professores", setProfessores, {headers: {Authorization: `Bearer ${usuario.token}`}});
+      buscar("/alunos", setAlunos, {headers: {Authorization: `Bearer ${usuario.token}`}});
+      buscar("/disciplinas", setDisciplinas, {headers: {Authorization: `Bearer ${usuario.token}`}});
+      buscar("/observacoes", setObservacoes, {headers: {Authorization: `Bearer ${usuario.token}`}});
+    } catch (error) {
+      if (error instanceof Error) {
+        ToastAlerta("Erro ao carregar dados", Toast.Error);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   }, [isHydrated, isAuthenticated]);
 
   // 🔹 Alunos por turma
@@ -122,75 +134,84 @@ export default function DashboardCoordenacaoPage() {
         </p>
       </Card>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <Card className="p-4 border rounded shadow">
-          <h2 className="text-lg font-semibold">Turmas</h2>
-          <p className="text-3xl font-bold text-blue-600">{turmas.length}</p>
-          <p className="text-sm text-gray-500">turmas no total</p>
-        </Card>
+      {isLoading ? (
+        <div className="flex justify-center mt-10">
+          <Spinner size="xl" color="purple"/>
+        </div>
+      ) : (
+        <>
 
-        <Card>
-          <h2 className="text-lg font-semibold">Professores</h2>
-          <p className="text-3xl font-bold text-blue-600">{professores.length}</p>
-          <p className="text-sm text-gray-500">professores no total</p>
-        </Card>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <Card className="p-4 border rounded shadow">
+              <h2 className="text-lg font-semibold">Turmas</h2>
+              <p className="text-3xl font-bold text-blue-600">{turmas.length}</p>
+              <p className="text-sm text-gray-500">turmas no total</p>
+            </Card>
 
-        <Card>
-          <h2 className="text-lg font-semibold">Alunos</h2>
-          <p className="text-3xl font-bold text-blue-600">{alunos.length}</p>
-          <p className="text-sm text-gray-500">alunos no total</p>
-        </Card>
+            <Card>
+              <h2 className="text-lg font-semibold">Professores</h2>
+              <p className="text-3xl font-bold text-blue-600">{professores.length}</p>
+              <p className="text-sm text-gray-500">professores no total</p>
+            </Card>
 
-        <Card>
-          <h2 className="text-lg font-semibold">Disciplinas</h2>
-          <p className="text-3xl font-bold text-blue-600">{disciplinas.length}</p>
-          <p className="text-sm text-gray-500">disciplinas no total</p>
-        </Card>
-      </div>
+            <Card>
+              <h2 className="text-lg font-semibold">Alunos</h2>
+              <p className="text-3xl font-bold text-blue-600">{alunos.length}</p>
+              <p className="text-sm text-gray-500">alunos no total</p>
+            </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        <Card className="p-4">
-          <h2 className="font-bold mb-2">Alunos por Turma</h2>
-          <Bar
-            data={dataAlunosPorTurma}
-            options={{
-              plugins: {legend: {display: false}},
-              scales: {
-                y: {beginAtZero: true, ticks: {stepSize: 1}}
-              }
-            }}
-          />
-        </Card>
+            <Card>
+              <h2 className="text-lg font-semibold">Disciplinas</h2>
+              <p className="text-3xl font-bold text-blue-600">{disciplinas.length}</p>
+              <p className="text-sm text-gray-500">disciplinas no total</p>
+            </Card>
+          </div>
 
-        <Card>
-          <h2 className="font-bold mb-2">Disciplinas por Turma</h2>
-          <Bar
-            data={dataDisciplinasPorTurma}
-            options={{
-              plugins: {legend: {display: false}},
-              scales: {
-                y: {beginAtZero: true, ticks: {stepSize: 1}}
-              }
-            }}
-          />
-        </Card>
-        <Card>
-          <h2 className="font-bold mb-2">Professores por Turma</h2>
-          <Bar
-            data={dataProfessoresPorTurma}
-            options={{
-              plugins: {legend: {display: false}},
-              scales: {
-                y: {beginAtZero: true, ticks: {stepSize: 1}}
-              }
-            }}
-          />
-        </Card>
-        <Card>
-          <h2 className="font-bold mb-2">Observações por Categoria</h2>
-          <Pie data={dataObservacoes}/>
-        </Card>
-      </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <Card className="p-4">
+              <h2 className="font-bold mb-2">Alunos por Turma</h2>
+              <Bar
+                data={dataAlunosPorTurma}
+                options={{
+                  plugins: {legend: {display: false}},
+                  scales: {
+                    y: {beginAtZero: true, ticks: {stepSize: 1}}
+                  }
+                }}
+              />
+            </Card>
+
+            <Card>
+              <h2 className="font-bold mb-2">Disciplinas por Turma</h2>
+              <Bar
+                data={dataDisciplinasPorTurma}
+                options={{
+                  plugins: {legend: {display: false}},
+                  scales: {
+                    y: {beginAtZero: true, ticks: {stepSize: 1}}
+                  }
+                }}
+              />
+            </Card>
+            <Card>
+              <h2 className="font-bold mb-2">Professores por Turma</h2>
+              <Bar
+                data={dataProfessoresPorTurma}
+                options={{
+                  plugins: {legend: {display: false}},
+                  scales: {
+                    y: {beginAtZero: true, ticks: {stepSize: 1}}
+                  }
+                }}
+              />
+            </Card>
+            <Card>
+              <h2 className="font-bold mb-2">Observações por Categoria</h2>
+              <Pie data={dataObservacoes}/>
+            </Card>
+          </div>
+        </>
+      )}
     </div>
   );
 }

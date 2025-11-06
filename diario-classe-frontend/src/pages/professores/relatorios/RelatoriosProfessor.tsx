@@ -15,9 +15,10 @@ export default function RelatoriosProfessor() {
 
   const [turmas, setTurmas] = useState([]);
   const [turmaSelecionada, setTurmaSelecionada] = useState("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [periodoSelecionado, setPeriodoSelecionado] = useState("");
   const [professor, setProfessor] = useState<Professor>();
+
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -29,6 +30,7 @@ export default function RelatoriosProfessor() {
   }, [isHydrated, isAuthenticated, usuario]);
 
   async function buscarProfessorPorEmail() {
+    setIsLoading(true);
     try {
       await buscar(`/professores/email/${usuario.email}`, setProfessor, {
         headers: {
@@ -39,6 +41,8 @@ export default function RelatoriosProfessor() {
     } catch (err) {
       console.log(err);
       // ToastAlerta("Você não tem turmas", Toast.Error)
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -55,12 +59,15 @@ export default function RelatoriosProfessor() {
   }, [professor]);
 
   async function buscarTurmasPorProfessor() {
+    setIsLoading(true);
     try {
       await buscar(`/turmas/professor/${professor.id}`, setTurmas, {
         headers: {Authorization: `Bearer ${usuario.token}`},
       });
     } catch (error) {
       console.error("Erro ao carregar turmas do professor", error);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -119,9 +126,15 @@ export default function RelatoriosProfessor() {
           </Select>
         </div>
 
-        {!turmaSelecionada ? (
+
+        {isLoading ? (
+          <div className="flex justify-center mt-10">
+            <Spinner size="xl" color="purple"/>
+          </div>
+        ) : (!turmaSelecionada ? (
           <Alert color="info" className="mt-10 text-center">
-            <span className="font-medium">Selecione os filtros:</span> escolha uma turma para baixar os relatórios acadêmicos.
+            <span className="font-medium">Selecione os filtros:</span> escolha uma turma para baixar os relatórios
+            acadêmicos.
           </Alert>
 
         ) : turmaSelecionada && (
@@ -211,7 +224,7 @@ export default function RelatoriosProfessor() {
               </div>
             </Card>
           </>
-        )}
+        ))}
       </div>
     </>
   )
