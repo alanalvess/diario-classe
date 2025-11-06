@@ -56,8 +56,17 @@ export default function DashboardProfessorPage() {
   const [mediaGeral, setMediaGeral] = useState<number>(0);
 
 
-  const cores = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#A78BFA"];
+  const cores = [
+    "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#A78BFA", // base original
 
+    "#FF9AA2", "#FFB7B2", "#FFDAC1", "#E2F0CB", "#B5EAD7", // tons suaves
+    "#C7CEEA", "#A0E7E5", "#B4F8C8", "#FBE7C6", "#FFAEBC", // tons candy
+
+    "#6EC6FF", "#5AD1B4", "#FFD93D", "#FFB26B", "#D291BC", // tons médios
+    "#9AD0EC", "#F6D6AD", "#C1A3A3", "#E4B7E5", "#A1C6EA", // intermediários
+
+    "#FF82A9", "#7BDFF2", "#B2F7EF", "#EFF7F6", "#F7D6E0"  // tons claros finais
+  ];
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -379,7 +388,7 @@ export default function DashboardProfessorPage() {
     datasets: [{
       label: "Frequência(%)",
       data: alunos.map(a => frequenciasPorAluno.get(a.id) ?? 0),
-      backgroundColor: "#FFCE56",
+      backgroundColor: alunos.map((_, i) => cores[i % cores.length]),
       borderRadius: 6,
     }]
   };
@@ -487,6 +496,7 @@ export default function DashboardProfessorPage() {
                 data={notasData}
                 // options={{ indexAxis: "x" }}
                 options={{
+                  indexAxis: "x",
                   plugins: {legend: {display: false}},
                   scales: {
                     y: {beginAtZero: true, ticks: {stepSize: 1}}
@@ -496,8 +506,18 @@ export default function DashboardProfessorPage() {
             </Card>
 
             <Card>
-              <h2 className="font-bold mb-2">Frequência de Presença por Aluno</h2>
-              <Bar data={frequenciaData} options={{ indexAxis: "y" }} />
+              <h2 className="font-bold mb-2">Frequência por Aluno</h2>
+              <Bar
+                data={frequenciaData}
+                options={{
+                  indexAxis: "y",
+                  plugins: {legend: {display: false}},
+                  scales: {
+                    y: {beginAtZero: true, ticks: {stepSize: 1}}
+                  }
+
+              }}
+              />
             </Card>
 
             <Card>

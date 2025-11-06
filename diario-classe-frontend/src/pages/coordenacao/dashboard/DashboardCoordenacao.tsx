@@ -24,10 +24,15 @@ export default function DashboardCoordenacaoPage() {
   const [observacoes, setObservacoes] = useState<Observacao[]>([]);
 
   const cores = [
-    // "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0",
-    // "#9966FF", "#FF9F40", "#66FF66", "#FF66B2",
-    // "#00CED1", "#C71585"
-    "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#A78BFA"
+    "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#A78BFA", // base original
+
+    "#FF9AA2", "#FFB7B2", "#FFDAC1", "#E2F0CB", "#B5EAD7", // tons suaves
+    "#C7CEEA", "#A0E7E5", "#B4F8C8", "#FBE7C6", "#FFAEBC", // tons candy
+
+    "#6EC6FF", "#5AD1B4", "#FFD93D", "#FFB26B", "#D291BC", // tons médios
+    "#9AD0EC", "#F6D6AD", "#C1A3A3", "#E4B7E5", "#A1C6EA", // intermediários
+
+    "#FF82A9", "#7BDFF2", "#B2F7EF", "#EFF7F6", "#F7D6E0"  // tons claros finais
   ];
 
   useEffect(() => {
