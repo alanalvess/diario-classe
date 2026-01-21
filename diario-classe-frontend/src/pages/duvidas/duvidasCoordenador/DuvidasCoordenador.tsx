@@ -1,7 +1,10 @@
 import {Accordion, AccordionContent, AccordionPanel, AccordionTitle} from "flowbite-react";
 import {Roles} from "../../../enums/Roles.ts";
-import AdicionaAluno from '../../../assets/images/duvidas/coordenador/adiciona-aluno.png'
-import VisualizaAluno from '../../../assets/images/duvidas/coordenador/visualiza-aluno.png'
+
+import AdicionaAluno1 from '../../../assets/images/duvidas/coordenador/adiciona-aluno-1.png'
+import AdicionaAluno2 from '../../../assets/images/duvidas/coordenador/adiciona-aluno-2.png'
+import VisualizaAluno1 from '../../../assets/images/duvidas/coordenador/visualiza-aluno-1.png'
+import VisualizaAluno2 from '../../../assets/images/duvidas/coordenador/visualiza-aluno-2.png'
 import GeraQRCoceAluno from '../../../assets/images/duvidas/coordenador/gera-qrcode-aluno.png'
 import QRCoceAluno from '../../../assets/images/duvidas/coordenador/qrcode-aluno.png'
 import AdicionaProfessor from '../../../assets/images/duvidas/coordenador/adiciona-professor.png'
@@ -40,24 +43,37 @@ function DuvidasCoordenador({usuarioTipo}: DuvidasCoordenadorProps) {
 
                 <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
                   <li>Acesse o menu lateral e clique em{" "}
-                    <span className="font-semibold text-green-600 dark:text-green-400">“Alunos”</span>.
+                    <span className="font-semibold text-orange-600 dark:text-orange-400">“Alunos”</span>.
                   </li>
+                  <li>No topo da página, clique em{" "}
+                    <span className="font-semibold text-purple-600 dark:text-purple-400">“Adicionar Aluno”</span>.
+                  </li>
+
+                  <div className="mt-4 flex justify-center">
+                    <img
+                      src={AdicionaAluno1}
+                      alt="Página de gestão de alunos, com destaque para o botão 'Adicionar Aluno"
+                      className="rounded-xl shadow-md border border-gray-200 dark:border-gray-700 max-w-full lg:max-w-2xl"
+                    />
+                  </div>
+
                   <li>Preencha o formulário com os{" "}
-                    <span className="font-semibold">dados obrigatórios</span> do aluno.
+                    <span className="font-semibold text-green-600">dados obrigatórios</span> do aluno.
                   </li>
                   <li>Clique no botão{" "}
-                    <span className="font-semibold text-green-600 dark:text-green-400">“Adicionar Aluno”</span>
+                    <span className="font-semibold text-blue-600 dark:text-blue-400">“Cadastrar”</span>
                     {" "} para salvar as informações.
                   </li>
+
+                  <div className="mt-4 flex justify-center">
+                    <img
+                      src={AdicionaAluno2}
+                      alt="Modal de cadastro de aluno"
+                      className="rounded-xl shadow-md border border-gray-200 dark:border-gray-700 max-w-full lg:max-w-2xl"
+                    />
+                  </div>
                 </ol>
 
-                <div className="mt-4 flex justify-center">
-                  <img
-                    src={AdicionaAluno}
-                    alt="Exemplo de formulário de adição de aluno"
-                    className="rounded-xl shadow-md border border-gray-200 dark:border-gray-700 max-w-full lg:max-w-2xl"
-                  />
-                </div>
               </AccordionContent>
             </AccordionPanel>
 
@@ -73,20 +89,33 @@ function DuvidasCoordenador({usuarioTipo}: DuvidasCoordenadorProps) {
 
                 <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
                   <li>Acesse o menu lateral e clique em{" "}
-                    <span className="font-semibold text-green-600 dark:text-green-400">“Alunos”</span>.
+                    <span className="font-semibold text-orange-600 dark:text-orange-400">“Alunos”</span>.
                   </li>
-                  <li>A relação de alunos cadastrados localiza-se logo abaixo do {" "}
-                    <span className="font-semibold text-green-600 dark:text-green-400">“Formulário de Cadastro”</span>.
+                  <li>A relação de alunos matriculados localiza-se na {" "}
+                    <span className="font-semibold text-purple-600 dark:text-purple-400">“Tabela de Alunos”</span>.
                   </li>
+                  <div className="mt-4 flex justify-center">
+                    <img
+                      src={VisualizaAluno1}
+                      alt="Exemplo de visualização de alunos cadastrados"
+                      className="rounded-xl shadow-md border border-gray-200 dark:border-gray-700 max-w-full lg:max-w-2xl"
+                    />
+                  </div>
+
+                  <p>
+                    <br/>
+                    💡 Inicialmente todos os alunos matriculados são listados na tabela. Porém é possível filtrar os alunos por{" "}
+                    <span className="font-semibold text-blue-600 dark:text-blue-400">“Turma”</span>.
+                  </p>
+                  <div className="mt-4 flex justify-center">
+                    <img
+                      src={VisualizaAluno2}
+                      alt="Exemplo de visualização de alunos cadastrados"
+                      className="rounded-xl shadow-md border border-gray-200 dark:border-gray-700 max-w-full lg:max-w-2xl"
+                    />
+                  </div>
                 </ol>
 
-                <div className="mt-4 flex justify-center">
-                  <img
-                    src={VisualizaAluno}
-                    alt="Exemplo de visualização de alunos cadastrados"
-                    className="rounded-xl shadow-md border border-gray-200 dark:border-gray-700 max-w-full lg:max-w-2xl"
-                  />
-                </div>
               </AccordionContent>
             </AccordionPanel>
 
@@ -547,7 +576,8 @@ function DuvidasCoordenador({usuarioTipo}: DuvidasCoordenadorProps) {
                   </li>
                   <li>Salve ou imprima o arquivo gerado.</li>
                   <p>
-                    💡 Os relatórios devem ser previamente solicitados ao setor de TI. No exemplo, está a relação de alunos por turma.
+                    💡 Os relatórios devem ser previamente solicitados ao setor de TI. No exemplo, está a relação de
+                    alunos por turma.
                   </p>
                 </ol>
 
