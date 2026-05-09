@@ -19,4 +19,5 @@ public interface AlunoRepository extends JpaRepository<Aluno, Long> {
     List<Aluno> findAllWithResponsaveis();
 
 
+    Optional<Object> findByEmailIgnoreCase(String email);
 }

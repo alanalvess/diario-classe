@@ -11,10 +11,10 @@ import com.projetointegrador.diarioclasse.repository.TurmaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,24 +27,6 @@ public class PresencaService {
     private final PresencaRepository presencaRepository;
     private final AlunoRepository alunoRepository;
     private final TurmaRepository turmaRepository;
-
-//    public PresencaResponse registrar(PresencaRequest request) {
-//        Aluno aluno = alunoRepository.findById(request.alunoId())
-//                .orElseThrow(() -> new EntityNotFoundException("Aluno não encontrado"));
-//
-//        Turma turma = turmaRepository.findById(request.turmaId())
-//                .orElseThrow(() -> new EntityNotFoundException("Turma não encontrada"));
-//
-//        Presenca presenca = Presenca.builder()
-//                .data(request.data())
-//                .presente(request.presente())
-//                .aluno(aluno)
-//                .turma(turma)
-//                .metodoChamada(request.metodoChamada())
-//                .build();
-//
-//        return toResponse(presencaRepository.save(presenca));
-//    }
 
     public PresencaResponse registrar(PresencaRequest request) {
         Aluno aluno = alunoRepository.findById(request.alunoId())
@@ -78,6 +60,63 @@ public class PresencaService {
         return toResponse(presencaRepository.save(presenca));
     }
 
+//    public void registrarPresencaRFID(Aluno aluno, Instant timestamp) {
+//
+//        Turma turma = aluno.getTurma();
+//        if (turma == null) {
+//            throw new RuntimeException("Aluno não está vinculado a uma turma");
+//        }
+//
+//        LocalDate data = timestamp.atZone(ZoneId.systemDefault()).toLocalDate();
+//
+//        Optional<Presenca> existente =
+//                presencaRepository.findByAlunoIdAndTurmaIdAndData(
+//                        aluno.getId(), turma.getId(), data
+//                );
+//
+//        // 🔥 REGRA NOVA: só registra se NÃO existir
+//        if (existente.isPresent()) {
+//            return; // 👈 IGNORA completamente
+//        }
+//
+//        Presenca presenca = Presenca.builder()
+//                .data(data)
+//                .presente(true)
+//                .aluno(aluno)
+//                .turma(turma)
+//                .metodoChamada("RFID")
+//                .build();
+//
+//        presencaRepository.save(presenca);
+//    }
+
+    public void registrarPresencaRFID(Aluno aluno, Instant timestamp) {
+        Turma turma = aluno.getTurma();
+        if (turma == null) return; // Ou logar erro: Aluno sem turma não ganha presença
+
+        LocalDate data = timestamp.atZone(ZoneId.systemDefault()).toLocalDate();
+
+        // Busca se já existe presença deste aluno nesta turma hoje
+        Optional<Presenca> existente = presencaRepository.findByAlunoIdAndTurmaIdAndData(
+                aluno.getId(), turma.getId(), data
+        );
+
+        // Se já existir, sai do método sem fazer nada (não dá erro, apenas ignora)
+        if (existente.isPresent()) {
+            return;
+        }
+
+        Presenca presenca = Presenca.builder()
+                .data(data)
+                .presente(true)
+                .aluno(aluno)
+                .turma(turma)
+                .metodoChamada("RFID")
+                .build();
+
+        presencaRepository.save(presenca);
+    }
+
     public PresencaResponse buscarPorId(Long id) {
         return presencaRepository.findById(id)
                 .map(this::toResponse)
@@ -102,41 +141,6 @@ public class PresencaService {
         }
         presencaRepository.deleteById(id);
     }
-
-//    public List<PresencaResponse> listarChamada(Long turmaId, LocalDate data) {
-//        Turma turma = turmaRepository.findById(turmaId)
-//                .orElseThrow(() -> new EntityNotFoundException("Turma não encontrada"));
-//
-//        List<Aluno> alunos = alunoRepository.findByTurmaId(turmaId);
-//        List<Presenca> presencas = presencaRepository.findByTurmaIdAndData(turmaId, data);
-//
-//        // cria um map de presenças já existentes
-//        Map<Long, Presenca> mapPresencas = presencas.stream()
-//                .collect(Collectors.toMap(p -> p.getAluno().getId(), p -> p));
-//
-//        return alunos.stream().map(aluno -> {
-//            Presenca presenca = mapPresencas.get(aluno.getId());
-//            if (presenca == null) {
-//                presenca = new Presenca();
-//                presenca.setAluno(aluno);
-//                presenca.setTurma(turma); // ✅ agora é entidade, não ID
-//                presenca.setData(data);
-//                presenca.setPresente(false);
-//                presenca.setMetodoChamada("MANUAL");
-//                presencaRepository.save(presenca);
-//            }
-//
-//            return new PresencaResponse(
-//                    presenca.getId(),
-//                    presenca.getData(),
-//                    presenca.getPresente(),
-//                    presenca.getAluno().getId(),
-//                    presenca.getAluno().getNome(),
-//                    presenca.getTurma().getId(),
-//                    presenca.getMetodoChamada()
-//            );
-//        }).toList();
-//    }
 
     public List<PresencaResponse> listarChamada(Long turmaId, LocalDate data) {
         Turma turma = turmaRepository.findById(turmaId)

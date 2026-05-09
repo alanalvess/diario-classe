@@ -11,7 +11,9 @@ import java.util.List;
 
 @Repository
 public interface AlertaRepository extends JpaRepository<Alerta, Long> {
+
     List<Alerta> findByAlunoIdOrderByDataGeracaoDesc(Long alunoId);
+
     List<Alerta> findByStatus(StatusAlerta status);
 
     Collection<Alerta> findByAluno(Aluno aluno);

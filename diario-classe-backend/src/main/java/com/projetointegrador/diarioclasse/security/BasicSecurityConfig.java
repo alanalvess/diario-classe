@@ -62,6 +62,7 @@ public class BasicSecurityConfig {
 
         http
                 .authorizeHttpRequests((auth) -> auth
+                        .requestMatchers("/rfid/**").permitAll() // 🔥 LIBERA RFID
                         .requestMatchers("/usuarios/logar").permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios/cadastrar").hasAnyAuthority("ADMIN", "COORDENADOR")
 //                        .requestMatchers("/usuarios/cadastrar").permitAll()

@@ -43,14 +43,14 @@ public class Responsavel {
         this.email = email;
     }
 
-    public List<Presenca> visualizarPresencaDoFilho(Aluno aluno) {
-        if (alunos == null || !alunos.contains(aluno)) return Collections.emptyList();
-        return aluno.getPresencas();
-    }
+//    public List<Presenca> visualizarPresencaDoFilho(Aluno aluno) {
+//        if (alunos == null || !alunos.contains(aluno)) return Collections.emptyList();
+//        return aluno.getPresencas();
+//    }
 
-    public List<Observacao> visualizarObservacoesDoFilho(Aluno aluno) {
-        if (alunos == null || !alunos.contains(aluno)) return Collections.emptyList();
-        return aluno.getObservacoes();
-    }
+//    public List<Observacao> visualizarObservacoesDoFilho(Aluno aluno) {
+//        if (alunos == null || !alunos.contains(aluno)) return Collections.emptyList();
+//        return aluno.getObservacoes();
+//    }
 }
 

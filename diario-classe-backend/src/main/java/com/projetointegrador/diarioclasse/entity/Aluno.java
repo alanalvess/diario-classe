@@ -26,13 +26,15 @@ public class Aluno {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nome;
+
+    private String email;
     private String matricula;
     private LocalDate dataNascimento;
 
-    private Double mediaGeral;          // média de notas atual
-    private Double frequenciaGeral;     // % de presença
-    private Boolean riscoReprovacao;    // calculado via ML
-    private Boolean riscoEvasao;        // calculado via ML
+    private Double mediaGeral;
+    private Double frequenciaGeral;
+    private Boolean riscoReprovacao;
+    private Boolean riscoEvasao;
 
     @ManyToOne
     @JoinColumn(name = "turma_id", nullable = false)
@@ -41,14 +43,6 @@ public class Aluno {
 
     @ManyToMany(mappedBy = "alunos")
     private List<Responsavel> responsaveis = new ArrayList<>();
-
-//    @ManyToMany
-//    @JoinTable(
-//            name = "aluno_disciplina",
-//            joinColumns = @JoinColumn(name = "aluno_id"),
-//            inverseJoinColumns = @JoinColumn(name = "disciplina_id")
-//    )
-//    private List<Disciplina> disciplinas = new ArrayList<>();
 
     @OneToMany(mappedBy = "aluno")
     private List<Presenca> presencas = new ArrayList<>();
@@ -63,29 +57,29 @@ public class Aluno {
                 .map(r -> new Responsavel(null, r.nome(), r.email())).collect(Collectors.toList());
     }
 
-    public Double getFrequenciaPorDisciplina(Disciplina disciplina) {
-        if (presencas == null || disciplina == null) return 0.0;
+//    public Double getFrequenciaPorDisciplina(Disciplina disciplina) {
+//        if (presencas == null || disciplina == null) return 0.0;
+//
+//        var presencasDisciplina = presencas.stream()
+//                .filter(p -> p.getTurma().getDisciplinas().contains(disciplina))
+//                .toList();
+//
+//        if (presencasDisciplina.isEmpty()) return 0.0;
+//
+//        long presentes = presencasDisciplina.stream().filter(Presenca::isPresente).count();
+//        return (presentes * 100.0) / presencasDisciplina.size();
+//    }
 
-        var presencasDisciplina = presencas.stream()
-                .filter(p -> p.getTurma().getDisciplinas().contains(disciplina))
-                .toList();
+//    public boolean estaEmRiscoEvasao(Disciplina disciplina, Double frequenciaMinima) {
+//        return getFrequenciaPorDisciplina(disciplina) < frequenciaMinima;
+//    }
 
-        if (presencasDisciplina.isEmpty()) return 0.0;
-
-        long presentes = presencasDisciplina.stream().filter(Presenca::isPresente).count();
-        return (presentes * 100.0) / presencasDisciplina.size();
-    }
-
-    public boolean estaEmRiscoEvasao(Disciplina disciplina, Double frequenciaMinima) {
-        return getFrequenciaPorDisciplina(disciplina) < frequenciaMinima;
-    }
-
-    public List<Boolean> getPresencasPorDisciplina(Disciplina disciplina) {
-        if (presencas == null || disciplina == null) return Collections.emptyList();
-
-        return presencas.stream()
-                .filter(p -> p.getTurma().getDisciplinas().contains(disciplina))
-                .map(Presenca::isPresente)
-                .toList();
-    }
+//    public List<Boolean> getPresencasPorDisciplina(Disciplina disciplina) {
+//        if (presencas == null || disciplina == null) return Collections.emptyList();
+//
+//        return presencas.stream()
+//                .filter(p -> p.getTurma().getDisciplinas().contains(disciplina))
+//                .map(Presenca::isPresente)
+//                .toList();
+//    }
 }

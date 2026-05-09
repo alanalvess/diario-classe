@@ -35,43 +35,44 @@ public class Professor {
     @OneToMany(mappedBy = "professor")
     private List<Observacao> observacoes = new ArrayList<>();
 
-    public Nota registrarNota(Aluno aluno, Avaliacao avaliacao, Double valor) {
-        return Nota.builder()
-                .aluno(aluno)
-                .avaliacao(avaliacao)
-                .disciplina(avaliacao.getDisciplina())
-                .valor(valor)
-                .dataLancamento(LocalDate.now())
-                .build();
-    }
+//    public Nota registrarNota(Aluno aluno, Avaliacao avaliacao, Double valor) {
+//        return Nota.builder()
+//                .aluno(aluno)
+//                .avaliacao(avaliacao)
+//                .disciplina(avaliacao.getDisciplina())
+//                .valor(valor)
+//                .dataLancamento(LocalDate.now())
+//                .build();
+//    }
 
-    public Presenca registrarPresenca(Aluno aluno, Turma turma, Boolean presente, String metodoChamada) {
-        return Presenca.builder()
-                .aluno(aluno)
-                .turma(turma)
-                .data(LocalDate.now())
-                .presente(presente)
-                .metodoChamada(metodoChamada)
-                .build();
-    }
+//    public Presenca registrarPresenca(Aluno aluno, Turma turma, Boolean presente, String metodoChamada) {
+//        return Presenca.builder()
+//                .aluno(aluno)
+//                .turma(turma)
+//                .data(LocalDate.now())
+//                .presente(presente)
+//                .metodoChamada(metodoChamada)
+//                .build();
+//    }
 
-    public Observacao registrarObservacao(Aluno aluno, String descricao, String categoria) {
-        return Observacao.builder()
-                .aluno(aluno)
-//                .professor(this)
-                .descricao(descricao)
-                .categoria(categoria)
-                .data(LocalDate.now())
-                .build();
-    }
+//    public Observacao registrarObservacao(Aluno aluno, String descricao, String categoria) {
+//        return Observacao.builder()
+//                .aluno(aluno)
+////                .professor(this)
+//                .descricao(descricao)
+//                .categoria(categoria)
+//                .data(LocalDate.now())
+//                .build();
+//    }
 
-    public List<Aluno> listarAlunosPorDisciplina(Disciplina disciplina) {
-        return turmas.stream()
-                .filter(t -> t.getDisciplinas().contains(disciplina))
-                .flatMap(t -> t.getAlunos().stream())
-                .toList();
-    }
+//    public List<Aluno> listarAlunosPorDisciplina(Disciplina disciplina) {
+//        return turmas.stream()
+//                .filter(t -> t.getDisciplinas().contains(disciplina))
+//                .flatMap(t -> t.getAlunos().stream())
+//                .toList();
+//    }
 
-    public List<Avaliacao> listarAvaliacoesPorTurma(Turma turma) {
-        return turma.getAvaliacoes() != null ? turma.getAvaliacoes() : List.of();
-    }}
+//    public List<Avaliacao> listarAvaliacoesPorTurma(Turma turma) {
+//        return turma.getAvaliacoes() != null ? turma.getAvaliacoes() : List.of();
+//    }
+}
