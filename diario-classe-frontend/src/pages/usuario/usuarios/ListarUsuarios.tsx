@@ -16,12 +16,13 @@ import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {buscar} from "../../../services/Service.ts";
 import type {Usuario} from "../../../models"
 import {useAuth} from "../../../contexts/UseAuth.ts";
-import {FaEdit, FaPlus, FaSearch, FaTrashAlt} from "react-icons/fa";
+import {FaEdit, FaIdCard, FaPlus, FaSearch, FaTrashAlt} from "react-icons/fa";
 import Cadastro from "../cadastro/Cadastro.tsx";
 import EditarUsuario from "../editarUsuario/EditarUsuario.tsx";
 import DeletarUsuario from "../deletarUsuario/DeletarUsuario.tsx";
 import {Roles} from "../../../enums/Roles.ts";
 import {useNavigate} from "react-router-dom";
+import RfidCardUsuario from "../rfidCardUsuario/RfidCardUsuario.tsx";
 
 function ListarUsuarios() {
 
@@ -32,6 +33,7 @@ function ListarUsuarios() {
   const [busca, setBusca] = useState("");
   const [modalCadastro, setModalCadastro] = useState(false);
   const [modalEdicao, setModalEdicao] = useState(false);
+  const [modalRfidCard, setModalRfidCard] = useState(false);
   const [modalExclusao, setModalExclusao] = useState(false);
   const [usuarioSelecionado, setUsuarioSelecionado] = useState<Usuario | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -162,11 +164,23 @@ function ListarUsuarios() {
                               size="xs"
                               onClick={() => {
                                 setUsuarioSelecionado(u);
-                                setModalEdicao(true);
+                                setModalRfidCard(true);
                               }}
                             >
-                              <FaEdit size={18}/>
+                              <FaIdCard size={18}/>
                             </Button>
+
+                            <Button
+                            className="cursor-pointer text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 focus:outline-none focus:ring-0"
+                            color="alternative"
+                            size="xs"
+                            onClick={() => {
+                              setUsuarioSelecionado(u);
+                              setModalEdicao(true);
+                            }}
+                          >
+                            <FaEdit size={18}/>
+                          </Button>
                             <Button
                               className="cursor-pointer text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 focus:outline-none focus:ring-0"
                               color="alternative"
@@ -222,7 +236,20 @@ function ListarUsuarios() {
                     </div>
 
                     {/* Botões de ação */}
-                    <div className="flex flex-wrap justify-center gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <div
+                      className="flex flex-wrap justify-center gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                      <Button
+                        className="cursor-pointer text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 focus:outline-none focus:ring-0"
+                        color="alternative"
+                        size="xs"
+                        onClick={() => {
+                          setUsuarioSelecionado(u);
+                          setModalRfidCard(true);
+                        }}
+                      >
+                        <FaEdit size={20}/>
+                      </Button>
+
                       <Button
                         className="cursor-pointer text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 focus:outline-none focus:ring-0"
                         color="alternative"
@@ -270,16 +297,27 @@ function ListarUsuarios() {
         />
 
         {usuarioSelecionado && (
+          <RfidCardUsuario
+            open={modalRfidCard}
+            onClose={() => {
+              setModalRfidCard(false);
+              setUsuarioSelecionado(null);
+            }}
+            usuarioSelecionado={usuarioSelecionado}
+            onSaved={listarUsuarios}
+          />
+        )}
 
-        <EditarUsuario
-          open={modalEdicao}
-          onClose={() => {
-            setModalEdicao(false);
-            setUsuarioSelecionado(null);
-          }}
-          usuarioSelecionado={usuarioSelecionado}
-          onSaved={listarUsuarios}
-        />
+        {usuarioSelecionado && (
+          <EditarUsuario
+            open={modalEdicao}
+            onClose={() => {
+              setModalEdicao(false);
+              setUsuarioSelecionado(null);
+            }}
+            usuarioSelecionado={usuarioSelecionado}
+            onSaved={listarUsuarios}
+          />
         )}
 
         {usuarioSelecionado && (

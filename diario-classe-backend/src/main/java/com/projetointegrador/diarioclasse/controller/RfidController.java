@@ -15,6 +15,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/rfid")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class RfidController {
 
     @Value("${rfid.api.key}")
