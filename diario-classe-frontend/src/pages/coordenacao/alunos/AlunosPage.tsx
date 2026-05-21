@@ -151,6 +151,7 @@ export default function AlunosPage() {
               <TableHead className="bg-gray-100 dark:bg-gray-700">
                 <TableHeadCell className="text-center font-semibold">Nome</TableHeadCell>
                 <TableHeadCell className="text-center font-semibold">Matrícula</TableHeadCell>
+                <TableHeadCell className="text-center font-semibold">E-Mail</TableHeadCell>
                 <TableHeadCell className="text-center font-semibold">Nascimento</TableHeadCell>
                 <TableHeadCell className="text-center font-semibold">Turma</TableHeadCell>
                 <TableHeadCell className="text-center font-semibold">Ações</TableHeadCell>
@@ -167,6 +168,7 @@ export default function AlunosPage() {
                         {aluno.nome}
                       </TableCell>
                       <TableCell className="text-center">{aluno.matricula}</TableCell>
+                      <TableCell className="text-center">{aluno.email}</TableCell>
                       <TableCell className="text-center">
                         {new Date(aluno.dataNascimento).toLocaleDateString()}
                       </TableCell>
@@ -246,6 +248,9 @@ export default function AlunosPage() {
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     <span className="font-semibold">Matrícula:</span> {aluno.matricula}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="font-semibold">Matrícula:</span> {aluno.email}
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     <span className="font-semibold">Nascimento:</span>{" "}

@@ -33,6 +33,7 @@ public class AlunoService {
         Aluno aluno = Aluno.builder()
                 .nome(request.nome())
                 .matricula(request.matricula())
+                .email(request.email())
                 .dataNascimento(request.dataNascimento())
                 .turma(turma)
                 .build();
@@ -50,6 +51,7 @@ public class AlunoService {
 
         aluno.setNome(request.nome());
         aluno.setMatricula(request.matricula());
+        aluno.setEmail(request.email());
         aluno.setDataNascimento(request.dataNascimento());
         aluno.setTurma(turma);
 
@@ -63,6 +65,7 @@ public class AlunoService {
 
         if (request.nome() != null) aluno.setNome(request.nome());
         if (request.matricula() != null) aluno.setMatricula(request.matricula());
+        if (request.email() != null) aluno.setEmail(request.email());
         if (request.dataNascimento() != null) aluno.setDataNascimento(request.dataNascimento());
         if (request.turmaId() != null) {
             Turma turma = turmaRepository.findById(request.turmaId())
@@ -121,6 +124,7 @@ public class AlunoService {
                 aluno.getId(),
                 aluno.getNome(),
                 aluno.getMatricula(),
+                aluno.getEmail(),
                 aluno.getDataNascimento(),
                 aluno.getTurma() != null ? aluno.getTurma().getId() : null,
                 aluno.getTurma() != null ? aluno.getTurma().getNome() : null

@@ -127,6 +127,15 @@ function EditarAluno({
               onChange={atualizarEstado}
             />
 
+            <TextInput
+              placeholder="E-Mail"
+              name="email"
+              type="email"
+              required
+              value={alunoAtualizado.email || ""}
+              onChange={atualizarEstado}
+            />
+
             <div className="flex flex-col">
               <Label>Data de Nascimento</Label>
               <TextInput

@@ -169,6 +169,7 @@ public class ResponsavelService {
                         aluno.getId(),
                         aluno.getNome(),
                         aluno.getMatricula(),
+                        aluno.getEmail(),
                         aluno.getDataNascimento(),
                         aluno.getTurma() != null ? aluno.getTurma().getId() : null,
                         aluno.getTurma() != null ? aluno.getTurma().getNome() : null

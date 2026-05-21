@@ -10,8 +10,8 @@
 #include <time.h>
 
 // ================= WIFI =================
-const char* ssid = "POCOC75";
-const char* password = "50505050";
+const char* ssid = "AMERICA_2021";
+const char* password = "15091985";
 
 // ================= API =================
 const char* serverUrl = "https://diario-classe.onrender.com/rfid/leitura";

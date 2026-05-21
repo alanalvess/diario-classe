@@ -25,6 +25,7 @@ function CadastroAluno({
       id: 0,
       nome: "",
       matricula: "",
+      email: "",
       turmaId: 0,
       dataNascimento: ""
     }
@@ -83,8 +84,9 @@ function CadastroAluno({
         id: 0,
         nome: "",
         matricula: "",
+        email: "",
         turmaId: 0,
-        dataNascimento: "",
+        dataNascimento: ""
       });
     }
   }, [open]);
@@ -117,12 +119,23 @@ function CadastroAluno({
             <TextInput
               id="matricula"
               name="matricula"
-              type="matricula"
+              type="text"
               autoComplete="matricula"
               placeholder="Matrícula"
               required
               value={alunoCadastro.matricula}
               onChange={e => setAlunoCadastro({...alunoCadastro, matricula: e.target.value})}
+            />
+
+            <TextInput
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              placeholder="E-Mail"
+              required
+              value={alunoCadastro.email}
+              onChange={e => setAlunoCadastro({...alunoCadastro, email: e.target.value})}
             />
 
             <div>
