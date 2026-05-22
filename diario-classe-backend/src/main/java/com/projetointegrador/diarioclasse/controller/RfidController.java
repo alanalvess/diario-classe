@@ -3,6 +3,7 @@ package com.projetointegrador.diarioclasse.controller;
 import com.projetointegrador.diarioclasse.dto.request.RfidLeituraRequest;
 import com.projetointegrador.diarioclasse.dto.request.RfidVincularRequest;
 import com.projetointegrador.diarioclasse.dto.response.RfidResponseDTO;
+import com.projetointegrador.diarioclasse.entity.Rfid;
 import com.projetointegrador.diarioclasse.service.RfidService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,6 +57,23 @@ public class RfidController {
         return ResponseEntity.ok().body(
                 Map.of("status", "ok", "mensagem", "Cartão vinculado com sucesso")
         );
+    }
+
+    @GetMapping("/{email}")
+    public ResponseEntity<?> getRfidByEmail(@PathVariable String email) {
+        Optional<Rfid> rfidOpt = rfidService.buscarPorEmail(email);
+        if (rfidOpt.isPresent()) {
+            Rfid rfid = rfidOpt.get();
+            return ResponseEntity.ok(Map.of(
+                    "uid", rfid.getUid(),
+                    "ativo", rfid.getAtivo()
+            ));
+        } else {
+            return ResponseEntity.ok(Map.of(
+                    "uid", "",
+                    "ativo", true
+            ));
+        }
     }
 
     @GetMapping("/health")

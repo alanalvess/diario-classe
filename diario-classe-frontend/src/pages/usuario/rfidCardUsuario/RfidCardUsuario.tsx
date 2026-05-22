@@ -1,10 +1,11 @@
 import React, {type ChangeEvent, useEffect, useState} from "react";
 import {Button, Card, Modal, ModalBody, ModalHeader, Spinner, TextInput, ToggleSwitch} from "flowbite-react";
 
-import {cadastrar} from "../../../services/Service";
+import {buscar, cadastrar} from "../../../services/Service";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta";
 import type {Usuario} from "../../../models"
 import {useAuth} from "../../../contexts/UseAuth.ts";
+import type {RfidDados} from "../../../models/RfidDados.ts";
 // import {Role} from "../../../utils/Role.ts";
 // import type {Roles} from "../../../enums/Roles.ts";
 
@@ -32,64 +33,17 @@ function RfidCardUsuario({
     ativo: true
   });
 
-  //
-  // async function editarUsuario(e: ChangeEvent<HTMLFormElement>) {
-  //   e.preventDefault();
-  //   setIsLoading(true);
-  //
-  //   try {
-  //     // 🔹 Clona e filtra o objeto para enviar só o que tem valor
-  //     const dadosFiltrados = Object.fromEntries(
-  //       Object.entries(usuarioAtualizado).filter(([key, value]) => {
-  //         if (value === "" || value === null || value === undefined) return false;
-  //         if (key === "id" || key === "token") return false; // não envia campos não editáveis
-  //         return true;
-  //       })
-  //     );
-  //
-  //     if (Array.isArray(usuarioAtualizado.roles) && usuarioAtualizado.roles.length > 0) {
-  //       dadosFiltrados.roles = usuarioAtualizado.roles;
-  //     }
-  //
-  //     await atualizarAtributo(
-  //       `/rfid/vincular`, dadosFiltrados, setUsuarioAtualizado, {
-  //         headers: {
-  //           Authorization: `Bearer ${usuario.token}`,
-  //           "Content-Type": "application/json",
-  //         }
-  //       }
-  //     );
-  //
-  //     ToastAlerta("Usuário atualizado com sucesso", Toast.Success);
-  //     onSaved?.();
-  //     onClose?.();
-  //   } catch (error) {
-  //     if (error.toString().includes("403")) {
-  //       ToastAlerta("O token expirou, favor logar novamente", Toast.Info);
-  //       handleLogout();
-  //     } else {
-  //       ToastAlerta("Erro ao atualizar o usuário", Toast.Warning);
-  //     }
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // }
-
-
-  // function atualizarEstado(e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
-  //   setUsuarioAtualizado({
-  //     ...usuarioAtualizado,
-  //     [e.target.name]: e.target.value,
-  //   });
-  // }
-
   useEffect(() => {
     if (usuarioSelecionado) {
       setRfidDados({
-        uid: "", // Começa vazio para nova leitura ou você pode buscar do banco se preferir
+        uid: "",
         email: usuarioSelecionado.email,
         ativo: true
       });
+    }
+
+    if (open) {
+      carregarRfid().then();
     }
   }, [usuarioSelecionado, open]);
 
@@ -120,6 +74,37 @@ function RfidCardUsuario({
       setIsLoading(false);
     }
   }
+  // Busca o UID do backend
+  async function carregarRfid() {
+    try {
+      await buscar(
+        `/rfid/${usuarioSelecionado.email}`,
+        setRfidDados, // não precisa do segundo argumento se buscar retorna dados direto
+        {
+          headers: {
+            Authorization: `Bearer ${usuario.token}`,
+            "Content-Type": "application/json",
+          }
+        }
+      );
+
+      // Atualiza o estado apenas se houver uid
+      // setRfidDados({
+      //   uid: data.uid || "",
+      //   email: usuarioSelecionado.email,
+      //   ativo: data.ativo ?? true
+      // });
+
+    } catch (error) {
+      console.error("Erro ao carregar RFID:", error);
+      ToastAlerta("Não foi possível carregar os dados do cartão.", Toast.Warning);
+    }
+  }
+  useEffect(() => {
+    if (open) {
+      carregarRfid();
+    }
+  }, [usuarioSelecionado, open]);
 
   return (
     <Modal show={open} onClose={onClose} size="md" popup>

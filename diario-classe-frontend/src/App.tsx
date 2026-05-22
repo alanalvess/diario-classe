@@ -31,6 +31,7 @@ import AlertasPage from "./pages/alertas/AlertasPage.tsx";
 import AlertasCoordenadorPage from "./pages/alertas/alertasCoordenador/AlertasCoordenadorPage.tsx";
 import RelatoriosProfessor from "./pages/professores/relatorios/RelatoriosProfessor.tsx";
 import HomePublica from "./pages/home/homePublica/HomePublica.tsx";
+import AcessosPage from "./pages/usuario/gestaoAcessos/AcessosPage.tsx";
 
 function App() {
 
@@ -71,6 +72,7 @@ function App() {
                 <Route path='/frequencia-aluno' element={<PresencaPage/>}/>
                 <Route path='/observacoes-aluno' element={<ObservacoesPage/>}/>
                 <Route path='/alertas-academicos' element={<AlertasPage/>}/>
+                <Route path='/acessos' element={<AcessosPage/>}/>
 
                 <Route path='/sobre' element={<Sobre/>}/>
                 <Route path='/duvidas' element={<Duvidas/>}/>

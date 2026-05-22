@@ -128,6 +128,9 @@ export default function SidebarMenu() {
                   <SidebarLink to="/usuarios" icon={MdManageAccounts}>
                     Usuários
                   </SidebarLink>
+                  <SidebarLink to="/acessos" icon={MdManageAccounts}>
+                    Acessos
+                  </SidebarLink>
                 </>
               )}
             </SidebarItemGroup>

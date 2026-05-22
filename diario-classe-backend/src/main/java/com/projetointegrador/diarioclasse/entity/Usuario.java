@@ -50,26 +50,14 @@ public class Usuario {
     }
 
     public boolean podeSerExcluido(Usuario usuarioAutenticado, String adminEmail) {
-        if (this.getEmail().equals(adminEmail)) {
-            return false;
-        }
-
-        if (this.getId().equals(usuarioAutenticado.getId())) {
-            return true;
-        }
-
-        if (usuarioAutenticado.getEmail().equals(adminEmail)) {
-            return true;
-        }
+        if (this.getEmail().equals(adminEmail)) {return false;}
+        if (this.getId().equals(usuarioAutenticado.getId())) {return true;}
+        if (usuarioAutenticado.getEmail().equals(adminEmail)) {return true;}
 
         boolean ehAdminOuCoordenador = usuarioAutenticado.getRoles().contains(Role.ADMIN)
                 || usuarioAutenticado.getRoles().contains(Role.COORDENADOR);
 
-        if (ehAdminOuCoordenador) {
-            return true;
-        }
-
-        // 🚫 Caso contrário, não tem permissão
+        if (ehAdminOuCoordenador) {return true;}
         return false;
     }
 

@@ -57,29 +57,4 @@ public class Aluno {
                 .map(r -> new Responsavel(null, r.nome(), r.email())).collect(Collectors.toList());
     }
 
-//    public Double getFrequenciaPorDisciplina(Disciplina disciplina) {
-//        if (presencas == null || disciplina == null) return 0.0;
-//
-//        var presencasDisciplina = presencas.stream()
-//                .filter(p -> p.getTurma().getDisciplinas().contains(disciplina))
-//                .toList();
-//
-//        if (presencasDisciplina.isEmpty()) return 0.0;
-//
-//        long presentes = presencasDisciplina.stream().filter(Presenca::isPresente).count();
-//        return (presentes * 100.0) / presencasDisciplina.size();
-//    }
-
-//    public boolean estaEmRiscoEvasao(Disciplina disciplina, Double frequenciaMinima) {
-//        return getFrequenciaPorDisciplina(disciplina) < frequenciaMinima;
-//    }
-
-//    public List<Boolean> getPresencasPorDisciplina(Disciplina disciplina) {
-//        if (presencas == null || disciplina == null) return Collections.emptyList();
-//
-//        return presencas.stream()
-//                .filter(p -> p.getTurma().getDisciplinas().contains(disciplina))
-//                .map(Presenca::isPresente)
-//                .toList();
-//    }
 }

@@ -10,10 +10,7 @@ import com.projetointegrador.diarioclasse.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,82 +24,63 @@ public class PessoaResolverService {
 
     public Map<String, PessoaInfo> resolverEmLote(List<Acesso> acessos) {
 
-        // 🔑 chave: "ROLE-ID"
         Map<String, PessoaInfo> resultado = new HashMap<>();
 
-        // separar IDs por tipo
-        Map<Role, List<Long>> idsPorTipo = acessos.stream()
-                .collect(Collectors.groupingBy(
-                        Acesso::getRole,
-                        Collectors.mapping(Acesso::getPessoaId, Collectors.toList())
-                ));
+        // IDs agrupados por tipo de acesso
+        Map<Role, List<Long>> idsPorTipo = new HashMap<>();
+        for (Acesso a : acessos) {
+            Role r = a.getRole();
+            if (r != null) {
+                idsPorTipo.computeIfAbsent(r, k -> new ArrayList<>()).add(a.getPessoaId());
+            }
+        }
 
-        // 🔵 ALUNOS (com turma)
-        if (idsPorTipo.containsKey(Role.ALUNO)) {
-
-            List<Aluno> alunos = alunoRepository.findAllById(idsPorTipo.get(Role.ALUNO));
-
+        // 🔵 ALUNOS
+        List<Long> alunosIds = idsPorTipo.getOrDefault(Role.ALUNO, List.of());
+        if (!alunosIds.isEmpty()) {
+            List<Aluno> alunos = alunoRepository.findAllById(alunosIds);
             for (Aluno a : alunos) {
                 String turmaNome = a.getTurma() != null ? a.getTurma().getNome() : "-";
-
-                resultado.put(
-                        chave(Role.ALUNO, a.getId()),
-                        new PessoaInfo(a.getNome(), "Aluno", turmaNome)
-                );
+                resultado.put(Role.ALUNO.name() + "-" + a.getId(), new PessoaInfo(a.getNome(), "Aluno", turmaNome));
             }
         }
 
         // 🟢 PROFESSORES
-        if (idsPorTipo.containsKey(Role.PROFESSOR)) {
-
-            List<Professor> professores = professorRepository.findAllById(idsPorTipo.get(Role.PROFESSOR));
-
+        List<Long> professoresIds = idsPorTipo.getOrDefault(Role.PROFESSOR, List.of());
+        if (!professoresIds.isEmpty()) {
+            List<Professor> professores = professorRepository.findAllById(professoresIds);
             for (Professor p : professores) {
-                resultado.put(
-                        chave(Role.PROFESSOR, p.getId()),
-                        new PessoaInfo(p.getNome(), "Professor", "-")
-                );
+                resultado.put(Role.PROFESSOR.name() + "-" + p.getId(), new PessoaInfo(p.getNome(), "Professor", "-"));
             }
         }
 
         // 🟡 RESPONSÁVEIS
-        if (idsPorTipo.containsKey(Role.RESPONSAVEL)) {
-
-            List<Responsavel> responsaveis = responsavelRepository.findAllById(idsPorTipo.get(Role.RESPONSAVEL));
-
+        List<Long> responsaveisIds = idsPorTipo.getOrDefault(Role.RESPONSAVEL, List.of());
+        if (!responsaveisIds.isEmpty()) {
+            List<Responsavel> responsaveis = responsavelRepository.findAllById(responsaveisIds);
             for (Responsavel r : responsaveis) {
-                resultado.put(
-                        chave(Role.RESPONSAVEL, r.getId()),
-                        new PessoaInfo(r.getNome(), "Responsável", "-")
-                );
+                resultado.put(Role.RESPONSAVEL.name() + "-" + r.getId(), new PessoaInfo(r.getNome(), "Responsável", "-"));
             }
         }
 
-        // 🔴 USUÁRIOS (admin/coordenador)
-        if (idsPorTipo.containsKey(Role.COORDENADOR)
-                || idsPorTipo.containsKey(Role.ADMIN)
-                || idsPorTipo.containsKey(Role.USER)) {
+        // 🔴 USUÁRIOS
+        Set<Long> usuarioIds = new HashSet<>();
+        for (Role r : List.of(Role.ADMIN, Role.COORDENADOR, Role.USER)) {
+            usuarioIds.addAll(idsPorTipo.getOrDefault(r, List.of()));
+        }
 
-            List<Long> ids = new ArrayList<>();
-
-            ids.addAll(idsPorTipo.getOrDefault(Role.COORDENADOR, List.of()));
-            ids.addAll(idsPorTipo.getOrDefault(Role.ADMIN, List.of()));
-            ids.addAll(idsPorTipo.getOrDefault(Role.USER, List.of()));
-
-            List<Usuario> usuarios = usuarioRepository.findAllById(ids);
-
+        if (!usuarioIds.isEmpty()) {
+            List<Usuario> usuarios = usuarioRepository.findAllById(usuarioIds);
             for (Usuario u : usuarios) {
-                resultado.put(
-                        chave(Role.COORDENADOR, u.getId()),
-                        new PessoaInfo(u.getNome(), "User", "-")
-                );
+                // Para cada Acesso deste usuário, coloca PessoaInfo com a role exata do Acesso
+                for (Acesso a : acessos) {
+                    if (a.getPessoaId().equals(u.getId())) {
+                        resultado.put(a.getRole().name() + "-" + u.getId(), new PessoaInfo(u.getNome(), a.getRole().name(), "-"));
+                    }
+                }
             }
         }
 
         return resultado;
-    }
-
-    private String chave(Role role, Long id) {
-        return role.name() + "-" + id;
     }
 }

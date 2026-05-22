@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,8 +23,10 @@ public class AcessoQueryService {
     public DashboardDTO dashboardHoje() {
 
         LocalDate hoje = LocalDate.now();
+        LocalDateTime inicio = hoje.atStartOfDay();
+        LocalDateTime fim = hoje.plusDays(1).atStartOfDay();
 
-        List<Acesso> acessos = repository.findHoje(hoje);
+        List<Acesso> acessos = repository.findHoje(inicio, fim);
 
         long entradas = acessos.stream()
                 .filter(a -> a.getTipo() == TipoAcesso.ENTRADA)

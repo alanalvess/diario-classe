@@ -20,22 +20,17 @@ public class AcessoService {
     public Acesso registrarAcesso(Long pessoaId, Role role) {
 
         LocalDate hoje = LocalDate.now();
+        LocalDateTime inicio = hoje.atStartOfDay();
+        LocalDateTime fim = hoje.plusDays(1).atStartOfDay();
 
-        List<Acesso> acessosHoje = acessoRepository
-                .findByRoleAndData(pessoaId, role, hoje);
+        List<Acesso> acessosHoje = acessoRepository.findByRoleAndData(pessoaId, role, inicio, fim);
 
         TipoAcesso tipo;
-
         if (acessosHoje.isEmpty()) {
             tipo = TipoAcesso.ENTRADA;
         } else {
             Acesso ultimo = acessosHoje.get(acessosHoje.size() - 1);
-
-            if (ultimo.getTipo() == TipoAcesso.ENTRADA) {
-                tipo = TipoAcesso.SAIDA;
-            } else {
-                tipo = TipoAcesso.ENTRADA;
-            }
+            tipo = ultimo.getTipo() == TipoAcesso.ENTRADA ? TipoAcesso.SAIDA : TipoAcesso.ENTRADA;
         }
 
         Acesso acesso = Acesso.builder()

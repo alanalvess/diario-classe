@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +38,11 @@ public class AcessoController {
     @GetMapping("/hoje")
     public List<AcessoResponseDTO> hoje() {
 
-        List<Acesso> acessos = repository.findHoje(LocalDate.now());
+        LocalDate hoje = LocalDate.now();
+        LocalDateTime inicio = hoje.atStartOfDay();
+        LocalDateTime fim = hoje.plusDays(1).atStartOfDay();
+
+        List<Acesso> acessos = repository.findHoje(inicio, fim);
 
         Map<String, PessoaInfo> pessoas = pessoaResolver.resolverEmLote(acessos);
 
@@ -54,7 +59,14 @@ public class AcessoController {
             @RequestParam(required = false) Role role
     ) {
 
-        List<Acesso> acessos = repository.buscarComFiltro(data, pessoaId, role);
+        LocalDateTime inicio = null;
+        LocalDateTime fim = null;
+        if (data != null) {
+            inicio = data.atStartOfDay();
+            fim = data.plusDays(1).atStartOfDay();
+        }
+
+        List<Acesso> acessos = repository.buscarComFiltro(inicio, fim, pessoaId, role);
 
         Map<String, PessoaInfo> pessoas = pessoaResolver.resolverEmLote(acessos);
 
@@ -69,7 +81,7 @@ public class AcessoController {
     ) {
 
         List<Acesso> acessos = repository
-                .findAll(PageRequest.of(0, limite, Sort.by("dataHora").descending()))
+                .findAll(PageRequest.of(0, limite, Sort.by("data").descending()))
                 .getContent();
 
         Map<String, PessoaInfo> pessoas = pessoaResolver.resolverEmLote(acessos);
@@ -93,7 +105,6 @@ public class AcessoController {
                 a.getPessoaId(),
                 info.nome(),
                 info.role(),
-                info.turma(),
                 a.getTipo(),
                 a.getData()
         );

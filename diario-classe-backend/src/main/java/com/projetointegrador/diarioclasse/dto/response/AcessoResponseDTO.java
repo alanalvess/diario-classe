@@ -10,7 +10,6 @@ public record AcessoResponseDTO(
         Long pessoaId,
         String nome,
         String role,
-        String turma, // 👈 NOVO
         TipoAcesso tipo,
         LocalDateTime dataHora
 ) {}
