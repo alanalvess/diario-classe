@@ -4,5 +4,6 @@ import com.projetointegrador.diarioclasse.enums.Role;
 
 public record RfidVincularRequest(
         String uid,
-        String email // Mudou de Long pessoaId para String email
+        String email,// Mudou de Long pessoaId para String email
+        Boolean ativo
 ) {}

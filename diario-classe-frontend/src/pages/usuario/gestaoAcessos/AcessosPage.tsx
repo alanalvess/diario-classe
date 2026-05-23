@@ -1,5 +1,16 @@
 import React, {useEffect, useState} from "react";
-import {Button, Card, Spinner, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow} from "flowbite-react";
+import {
+  Button,
+  Card, Select,
+  Spinner,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeadCell,
+  TableRow,
+  TextInput
+} from "flowbite-react";
 import {buscar} from "../../../services/Service.ts";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta.ts";
 import {useAuth} from "../../../contexts/UseAuth.ts";
@@ -10,54 +21,76 @@ import DeletarAcesso from "./deletarAcesso/DeletarAcesso.tsx";
 import type {Acesso} from "../../../models/Acesso.ts";
 
 
-interface DashboardDTO {
-  total: number;
-  entradas: number;
-  saidas: number;
-  porTipo: Record<string, number>;
-}
-
 export default function AcessosPage() {
   const { usuario, isHydrated, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const [acessos, setAcessos] = useState<Acesso[]>([]);
-  const [dashboard, setDashboard] = useState<DashboardDTO | null>(null);
-
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
   const [acessoSelecionado, setAcessoSelecionado] = useState<Acesso | null>(null);
-
   const [modalExclusao, setModalExclusao] = useState(false);
 
+  const [filtroData, setFiltroData] = useState("");
+  const [filtroPessoaId, setFiltroPessoaId] = useState("");
+  const [filtroRole, setFiltroRole] = useState("");
+
   // 🔹 Buscar acessos
+  // async function buscarAcessos() {
+  //   setIsLoading(true);
+  //   try {
+  //     await buscar("/acessos/ultimos?limite=20", setAcessos, {
+  //       headers: { Authorization: `Bearer ${usuario.token}` },
+  //     });
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       ToastAlerta("Erro ao carregar acessos", Toast.Error);
+  //     }
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }
   async function buscarAcessos() {
+
     setIsLoading(true);
+
     try {
-      await buscar("/acessos/ultimos?limite=20", setAcessos, {
-        headers: { Authorization: `Bearer ${usuario.token}` },
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        ToastAlerta("Erro ao carregar acessos", Toast.Error);
+
+      let url = "/acessos";
+
+      const params = new URLSearchParams();
+
+      if (filtroData) {
+        params.append("data", filtroData);
       }
+
+      if (filtroPessoaId) {
+        params.append("pessoaId", filtroPessoaId);
+      }
+
+      if (filtroRole) {
+        params.append("role", filtroRole);
+      }
+
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      } else {
+        url = "/acessos/ultimos?limite=20";
+      }
+
+      await buscar(url, setAcessos, {
+        headers: {
+          Authorization: `Bearer ${usuario.token}`
+        }
+      });
+
+    } catch (error) {
+      if (error instanceof Error)
+        ToastAlerta("Erro ao carregar acessos", Toast.Error);
     } finally {
       setIsLoading(false);
+
     }
   }
-
-  // 🔹 Buscar dashboard
-  async function buscarDashboard() {
-    try {
-      await buscar("/acessos/dashboard", setDashboard, {
-        headers: { Authorization: `Bearer ${usuario.token}` },
-      });
-    } catch (error) {
-      if (error instanceof Error) return;
-      ToastAlerta("Erro ao carregar dashboard", Toast.Error);
-    }
-  }
-
   // 🔹 Dados iniciais
   useEffect(() => {
     if (!isHydrated || !isAuthenticated) return;
@@ -68,8 +101,7 @@ export default function AcessosPage() {
       return;
     }
 
-    buscarAcessos();
-    buscarDashboard();
+    buscarAcessos().then();
   }, [isHydrated, isAuthenticated, usuario]);
 
   return (
@@ -83,6 +115,46 @@ export default function AcessosPage() {
         <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">
           Gerencie todos os acessos, visualize informações e adicione novos registros facilmente.
         </p>
+
+      </Card>
+
+      <Card className="mb-6">
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+          <TextInput
+            type="date"
+            value={filtroData}
+            onChange={(e) => setFiltroData(e.target.value)}
+          />
+
+          {/*<TextInput*/}
+          {/*  type="number"*/}
+          {/*  placeholder="ID da Pessoa"*/}
+          {/*  value={filtroPessoaId}*/}
+          {/*  onChange={(e) => setFiltroPessoaId(e.target.value)}*/}
+          {/*/>*/}
+
+          <Select
+            value={filtroRole}
+            onChange={(e) => setFiltroRole(e.target.value)}
+          >
+            <option value="">Todas as funções</option>
+
+            <option value="ALUNO">Aluno</option>
+            <option value="PROFESSOR">Professor</option>
+            <option value="RESPONSAVEL">Responsável</option>
+            <option value="ADMIN">Admin</option>
+            <option value="COORDENADOR">Coordenador</option>
+            <option value="USER">Usuário</option>
+
+          </Select>
+
+          <Button color="purple" onClick={buscarAcessos}>
+            Filtrar
+          </Button>
+
+        </div>
 
       </Card>
 
@@ -110,12 +182,10 @@ export default function AcessosPage() {
                     <TableRow key={acesso.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-150">
                       <TableCell className="text-center">{acesso.nome}</TableCell>
                       <TableCell className="text-center">
-                        {/*{acesso.role}*/}
                         {acesso.role ? acesso.role : "-"}
                       </TableCell>
                       <TableCell className="text-center">
-                        {/*{new Date(acesso.data).toLocaleString()}*/}
-                        {acesso.dataHora ? new Date(acesso.dataHora).toLocaleString() : "-"}
+                        {acesso.dataHora ? new Date(acesso.dataHora).toLocaleString("pt-BR") : "-"}
 
                       </TableCell>
                       <TableCell className="text-center">{acesso.tipo}</TableCell>

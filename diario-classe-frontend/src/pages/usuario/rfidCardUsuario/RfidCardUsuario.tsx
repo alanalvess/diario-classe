@@ -118,7 +118,6 @@ function RfidCardUsuario({
             type="text"
             autoComplete="uid"
             placeholder="Digite o código hexadecimal (ex: A1AA8B04)"
-            required
             value={rfidDados.uid}
             onChange={(e) => setRfidDados({...rfidDados, uid: e.target.value.toUpperCase()})}
           />

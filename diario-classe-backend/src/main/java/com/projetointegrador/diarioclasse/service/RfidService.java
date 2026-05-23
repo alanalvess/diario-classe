@@ -14,7 +14,6 @@ import com.projetointegrador.diarioclasse.repository.AlunoRepository;
 import com.projetointegrador.diarioclasse.repository.RfidCartaoRepository;
 import com.projetointegrador.diarioclasse.repository.UsuarioRepository;
 import com.projetointegrador.diarioclasse.utils.RfidDebounce;
-import com.projetointegrador.diarioclasse.utils.RfidIdempotency;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +50,6 @@ public class RfidService {
 
         Long pessoaId = pessoaIdResolverService.resolverPessoaId(rfid.getEmail(), role);
 
-//        Acesso acesso = acessoService.registrarAcesso(usuario.getId(), role);
         Acesso acesso = acessoService.registrarAcesso(pessoaId, role);
 
         if (role == Role.ALUNO) {
@@ -72,20 +70,49 @@ public class RfidService {
     }
 
     public void vincularCartao(RfidVincularRequest request) {
-        // Valida se o usuário existe antes de vincular o e-mail ao UID
-        usuarioRepository.findByEmail(request.email())
-                .orElseThrow(() -> new RuntimeException("Não existe usuário cadastrado com este e-mail"));
 
-        Optional<Rfid> existente = cartaoRepository.findByUidIgnoreCase(request.uid());
-        if (existente.isPresent()) {
-            throw new RuntimeException("Este UID já está vinculado a outro e-mail");
+        // valida usuário
+        usuarioRepository.findByEmail(request.email())
+                .orElseThrow(() ->
+                        new RuntimeException("Não existe usuário cadastrado com este e-mail")
+                );
+
+        String uid = request.uid().trim().toUpperCase();
+        String email = request.email().trim().toLowerCase();
+        Boolean ativo = request.ativo();
+
+        // verifica se UID já pertence a OUTRO email
+        Optional<Rfid> uidExistente = cartaoRepository.findByUidIgnoreCase(uid);
+
+        if (uidExistente.isPresent()
+                && !uidExistente.get().getEmail().equalsIgnoreCase(email)) {
+
+            throw new RuntimeException(
+                    "Este UID já está vinculado a outro usuário"
+            );
         }
 
-        Rfid cartao = Rfid.builder()
-                .uid(request.uid().toUpperCase())
-                .email(request.email().toLowerCase())
-                .ativo(true)
-                .build();
+        // procura RFID do usuário pelo email
+        Optional<Rfid> rfidExistente =
+                cartaoRepository.findByEmailIgnoreCase(email);
+
+        Rfid cartao;
+
+        // UPDATE
+        if (rfidExistente.isPresent()) {
+            cartao = rfidExistente.get();
+            cartao.setUid(uid);
+            cartao.setAtivo(ativo);
+        }
+
+        // INSERT
+        else {
+            cartao = Rfid.builder()
+                    .uid(uid)
+                    .email(email)
+                    .ativo(ativo)
+                    .build();
+        }
 
         cartaoRepository.save(cartao);
     }
