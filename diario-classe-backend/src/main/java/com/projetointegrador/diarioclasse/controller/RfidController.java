@@ -66,11 +66,13 @@ public class RfidController {
             Rfid rfid = rfidOpt.get();
             return ResponseEntity.ok(Map.of(
                     "uid", rfid.getUid(),
+                    "email", rfid.getEmail(),
                     "ativo", rfid.getAtivo()
             ));
         } else {
             return ResponseEntity.ok(Map.of(
                     "uid", "",
+                    "email", email,
                     "ativo", true
             ));
         }

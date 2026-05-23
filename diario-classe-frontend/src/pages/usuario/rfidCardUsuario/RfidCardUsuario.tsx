@@ -5,9 +5,8 @@ import {buscar, cadastrar} from "../../../services/Service";
 import {Toast, ToastAlerta} from "../../../utils/ToastAlerta";
 import type {Usuario} from "../../../models"
 import {useAuth} from "../../../contexts/UseAuth.ts";
-import type {RfidDados} from "../../../models/RfidDados.ts";
-// import {Role} from "../../../utils/Role.ts";
-// import type {Roles} from "../../../enums/Roles.ts";
+import type {RfidCartao} from "../../../models/RfidCartao.ts";
+
 
 interface RfidCardProps {
   open?: boolean;
@@ -27,11 +26,9 @@ function RfidCardUsuario({
   const [isLoading, setIsLoading] = useState(false);
   const {usuario, handleLogout} = useAuth();
 
-  const [rfidDados, setRfidDados] = useState({
-    uid: "",
-    email: "",
-    ativo: true
-  });
+  const [rfidDados, setRfidDados] = useState(
+    {} as RfidCartao
+  );
 
   useEffect(() => {
     if (usuarioSelecionado) {
@@ -74,13 +71,12 @@ function RfidCardUsuario({
       setIsLoading(false);
     }
   }
+
   // Busca o UID do backend
   async function carregarRfid() {
     try {
       await buscar(
-        `/rfid/${usuarioSelecionado.email}`,
-        setRfidDados, // não precisa do segundo argumento se buscar retorna dados direto
-        {
+        `/rfid/${usuarioSelecionado.email}`, setRfidDados, {
           headers: {
             Authorization: `Bearer ${usuario.token}`,
             "Content-Type": "application/json",
@@ -88,23 +84,11 @@ function RfidCardUsuario({
         }
       );
 
-      // Atualiza o estado apenas se houver uid
-      // setRfidDados({
-      //   uid: data.uid || "",
-      //   email: usuarioSelecionado.email,
-      //   ativo: data.ativo ?? true
-      // });
-
     } catch (error) {
       console.error("Erro ao carregar RFID:", error);
       ToastAlerta("Não foi possível carregar os dados do cartão.", Toast.Warning);
     }
   }
-  useEffect(() => {
-    if (open) {
-      carregarRfid();
-    }
-  }, [usuarioSelecionado, open]);
 
   return (
     <Modal show={open} onClose={onClose} size="md" popup>
@@ -141,11 +125,11 @@ function RfidCardUsuario({
 
 
           {/* Switch para Ativo/Inativo */}
-            <ToggleSwitch
-              checked={rfidDados.ativo}
-              label={rfidDados.ativo ? "Ativo" : "Inativo"}
-              onChange={(checked) => setRfidDados({...rfidDados, ativo: checked})}
-            />
+          <ToggleSwitch
+            checked={rfidDados.ativo}
+            label={rfidDados.ativo ? "Ativo" : "Inativo"}
+            onChange={(checked) => setRfidDados({...rfidDados, ativo: checked})}
+          />
 
           <Button color="purple" type="submit" className="mt-4 focus:outline-none focus:ring-0">
             {isLoading ? <Spinner size="sm"/> : "Salvar Configurações"}
