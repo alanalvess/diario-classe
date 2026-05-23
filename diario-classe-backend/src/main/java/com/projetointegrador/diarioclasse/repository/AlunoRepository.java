@@ -20,4 +20,6 @@ public interface AlunoRepository extends JpaRepository<Aluno, Long> {
 
 
     Optional<Object> findByEmailIgnoreCase(String email);
+
+    Optional<Aluno> findByEmail(String email);
 }

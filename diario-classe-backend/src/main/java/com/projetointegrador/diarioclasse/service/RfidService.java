@@ -32,6 +32,7 @@ public class RfidService {
     private final AcessoService acessoService;
     private final PresencaService presencaService;
     private final RfidDebounce rfidDebounce;
+    private final PessoaIdResolverService pessoaIdResolverService;
 
     public RfidResponseDTO processarLeitura(RfidLeituraRequest request) {
         String uid = request.uid() == null ? "" : request.uid().trim().toUpperCase();
@@ -48,7 +49,10 @@ public class RfidService {
 
         Role role = usuario.getRoles().stream().findFirst().orElse(Role.USER);
 
-        Acesso acesso = acessoService.registrarAcesso(usuario.getId(), role);
+        Long pessoaId = pessoaIdResolverService.resolverPessoaId(rfid.getEmail(), role);
+
+//        Acesso acesso = acessoService.registrarAcesso(usuario.getId(), role);
+        Acesso acesso = acessoService.registrarAcesso(pessoaId, role);
 
         if (role == Role.ALUNO) {
             alunoRepository.findByEmailIgnoreCase(rfid.getEmail()).ifPresent(aluno -> {
